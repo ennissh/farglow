@@ -58,6 +58,9 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
   Every file was checked by SHA-256 against the uploaded pack.
 
 ### Fixed
+- `install.sh` no longer dead-ends when the chosen version isn't on GHCR (nothing has been pushed yet, or the packages are private).
+  - A first install defaults to building locally unless the version resolves on GHCR.
+  - When a pull fails, the interactive installer offers to build on this machine and records `FARGLOW_IMAGE_SOURCE='local'` in `.env`.
 - The status page listed a service twice after its container was recreated (heartbeats are keyed by hostname); it now shows the latest heartbeat per service.
 
 ## [0.0.0] - 2026-11-04

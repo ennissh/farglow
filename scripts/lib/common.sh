@@ -113,3 +113,19 @@ confirm() {
 print_usage() {
     awk '/^#{20,}/ { n++; next } n == 1 { sub(/^# ?/, ""); print } n >= 2 { exit }' "$1"
 }
+
+# env_set KEY VALUE [FILE] : set KEY='VALUE' in a .env file in place (mode 600 kept).
+env_set() {
+    local key="$1" value="$2" file="${3:-$FARGLOW_ENV}" tmp
+    tmp="$(mktemp "$(dirname "$file")/.env.XXXXXX")"
+    chmod 600 "$tmp"
+    awk -v k="$key" -v v="$value" 'BEGIN { done = 0 }
+        index($0, k "=") == 1 { print k "=\047" v "\047"; done = 1; next } { print }
+        END { if (!done) print k "=\047" v "\047" }' "$file" > "$tmp"
+    mv "$tmp" "$file"
+}
+
+# published REGISTRY TAG : 0 when REGISTRY/farglow-api:TAG can be resolved (public, or logged in).
+published() {
+    timeout 20 docker manifest inspect "$1/farglow-api:$2" >/dev/null 2>&1
+}

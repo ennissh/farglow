@@ -131,8 +131,17 @@ done
 
 echo
 info "Images"
-src_default="$(current FARGLOW_IMAGE_SOURCE ghcr)"
+src_default="$(current FARGLOW_IMAGE_SOURCE "")"
 [[ -n "$SOURCE_ARG" ]] && src_default="$SOURCE_ARG"
+if [[ -z "$src_default" ]]; then
+    # First install: offer GHCR only if this version is actually published there.
+    if published "$(current FARGLOW_REGISTRY ghcr.io/ennissh)" "${TAG_ARG:-$VERSION}"; then
+        src_default=ghcr
+    else
+        src_default=local
+        echo "  Farglow ${TAG_ARG:-$VERSION} is not published on GHCR (or GHCR is not reachable): building here is the default."
+    fi
+fi
 choose FARGLOW_IMAGE_SOURCE "Image source" "$src_default" ghcr local
 FARGLOW_REGISTRY="$(current FARGLOW_REGISTRY ghcr.io/ennissh)"
 if [[ "$FARGLOW_IMAGE_SOURCE" == local ]]; then
@@ -252,8 +261,19 @@ if [[ "$FARGLOW_IMAGE_SOURCE" == local ]]; then
     "$FARGLOW_ROOT/build.sh" --local --registry "$FARGLOW_REGISTRY"
 else
     info "pulling ${FARGLOW_REGISTRY}/farglow-*:${FARGLOW_IMAGE_TAG}"
-    compose pull --quiet || die "pull failed. If the images are private: docker login ghcr.io (a token with read:packages),
-       or install from source with: ./install.sh --source local"
+    if ! compose pull --quiet; then
+        warn "pull failed: ${FARGLOW_REGISTRY}/farglow-*:${FARGLOW_IMAGE_TAG} is not published, or is private
+       (private images need: docker login ghcr.io with a token that has read:packages)"
+        if [[ $INTERACTIVE == 1 ]] && confirm "Build the images on this machine instead?" y; then
+            FARGLOW_IMAGE_SOURCE=local FARGLOW_IMAGE_TAG=local
+            env_set FARGLOW_IMAGE_SOURCE local "$ENV_FILE"
+            env_set FARGLOW_IMAGE_TAG local "$ENV_FILE"
+            info "building images locally"
+            "$FARGLOW_ROOT/build.sh" --local --registry "$FARGLOW_REGISTRY"
+        else
+            die "nothing was started. Install from source with: ./install.sh --source local"
+        fi
+    fi
 fi
 
 info "starting the stack"
