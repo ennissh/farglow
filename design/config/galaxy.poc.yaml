@@ -1,0 +1,74 @@
+# Farglow — PoC galaxy structure (config/galaxy.poc.yaml)
+# Status: PROPOSED v1, built on decisions from 3 Nov 2026:
+#   - Real stellar density: a 10 pc cell near the Sun holds about 100 star systems.
+#   - The host picks the first cell at setup; the default is the cell containing Sol.
+#   - New players choose hyper-dense, medium or remote cells.
+#   - Everything is procedural (no real stars); the first player civ to find a system names it.
+# Everything is generated lazily and deterministically: seed(cell) = hash(galaxy_seed, cell_id). Nothing is stored
+# until a civilization discovers it (fog of war decision).
+
+frame:
+  name: galactocentric_cartesian       # the standard astronomy frame (astropy "Galactocentric")
+  units: parsec
+  origin: galactic_center
+  sun_position_pc: [-8200, 0, 20]      # ~8.2 kpc from the centre, ~20 pc above the plane
+  player_labels: [iau_galactic_quadrant, spiral_arm]   # quadrant I-IV by galactic longitude seen from the Sun
+
+hierarchy:                             # each level is a cube 10× smaller than its parent
+  galaxy_box_pc: [40000, 40000, 6000]  # covers disk, bar/bulge and the inner halo
+  levels:
+    - { name: sector,    size_pc: 1000 }
+    - { name: subsector, size_pc: 100 }
+    - { name: cell,      size_pc: 10 }  # the playable unit; ~100 systems near the Sun
+  address_format: "{sector}-{subsector}-{cell}"   # e.g. 41-07-02; each part is base-36 per axis-packed index
+
+density_model:                         # stars per cubic parsec; real values, so the galaxy looks and feels real
+  local_density_per_pc3: 0.1           # near the Sun → ~100 stars per 10 pc cell
+  thin_disk:  { scale_length_pc: 2600, scale_height_pc: 300 }   # exponential in radius and height
+  thick_disk: { fraction: 0.12, scale_length_pc: 3600, scale_height_pc: 900 }
+  bar_bulge:  { radius_pc: 3000, peak_mult: 40 }
+  spiral_arms:
+    pitch_deg: 12
+    arm_contrast: 1.6                  # arms ~60% denser than the gaps between them
+    named: [Perseus, Sagittarius-Carina, Scutum-Centaurus, Norma-Outer, Orion Spur]
+  multiplicity: 0.33                   # a third of systems are binary or triple, so systems ≈ 0.75 × stars
+  open_clusters:                       # the real hyper-dense pockets near the Sun (Hyades, Pleiades and the like)
+    per_sector: 6
+    core_density_mult: [10, 40]
+    core_radius_pc: [2, 6]
+
+density_classes:                       # what a new player picks at sign-up
+  hyper_dense: { systems_per_cell: "400+",   where: "open-cluster cores and arm cores", feel: "many neighbours, short jumps, early contact and conflict" }
+  medium:      { systems_per_cell: "60-200", where: "ordinary disk, like the Sun's neighbourhood", feel: "the default pace" }
+  remote:      { systems_per_cell: "10-40",  where: "gaps between arms and cells far above or below the plane", feel: "quiet, long jumps, late contact" }
+
+placement:
+  host_sets_first_cell: true           # Setup wizard; default = the cell containing Sol
+  start_near_settled_space: true       # [proposed] a player's cell is chosen within reach of existing players,
+  max_cells_from_nearest_player: 3     #   so "remote" means the quiet edge of settled space, not the far side of the galaxy
+  breathing_room_systems: 8            # no other civ's home within 8 systems
+  open_next_cell_when_density_pct: 80  # a cell is "full" at 80% of its civ capacity; the next one in the chosen class opens
+  civ_capacity_per_cell: "floor(systems / 14)"   # sim: a civ holds ~9 systems by day 30 and needs room to grow
+  npc_rival_per_player: 1              # unchanged: players + 1 NPC
+
+real_stars: false                      # DECIDED: everything is procedural, including the region around Sol's position.
+                                       # No real catalogue (so no HYG licence obligations). The default first cell sits at
+                                       # Sol's galactic position in the Orion Spur, but its stars are generated like any other.
+
+naming:                                # DECIDED: the first player civilization to find a system may name it
+  who: first_player_civ_to_survey      # NPC discoveries never claim naming rights
+  default_name: "catalogue designation, e.g. FG 41-07-02·117"   # used until named, and kept forever as the alias
+  window_ticks: 72                     # [proposed] name it within 3 days, else the designation stands and the right lapses
+  credit: "permanent 'Discovered by <civ>, T<tick>' line in the galactic catalogue"
+  bodies: "named '<system> I, II…' automatically; the civ that settles a body may rename it"   # [proposed]
+  rules:                               # [proposed]
+    length_chars: [2, 24]
+    charset: "letters, digits, space, hyphen, apostrophe"
+    unique_per_server: true
+    moderated: true                    # same pipeline as civ and advisor names (moderation.poc.yaml)
+    no_real_people: true               # [proposed] no names of real living people
+    host_can_rename: true              # with a note to the discoverer; a strike only if the name broke the rules
+  lineage: "names outlive the civ: a transcended civ's names stay on the map as Elder history"
+
+future:
+  wormholes: "long-range links between distant cells, opened by late tech or Galactic Events; stored as lane-graph edges of kind 'wormhole'"

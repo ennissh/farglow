@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Host admin</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">Host admin · The Quiet Arm · galaxy.example.com</span>
+</div>
+<nav class="fg-tabs" aria-label="Admin sections"><a class="fg-tab" href="HostAdmin.dc.html" aria-current="page">Overview</a><a class="fg-tab" href="HostAdminOps.dc.html">Operations</a><a class="fg-tab" href="AILog.dc.html">AI activity</a></nav>
+<div style="display: flex; gap: 8px; align-items: center">
+<a class="fg-btn fg-btn--ghost fg-btn--sm" href="Galaxy.dc.html">Play as host</a>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 12px">
+
+<section class="fg-panel">
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px">
+<div><span class="fg-label" style="color: var(--ink-muted)">Galaxy</span><div style="font-family: var(--font-mono); font-size: 16px; font-weight: 500; color: {{stateColor}}">{{stateLabel}}</div><span class="fg-meta">tick 1,284 · next in 42 min</span></div>
+<div><span class="fg-label" style="color: var(--ink-muted)">Last tick took</span><div style="font-family: var(--font-mono); font-size: 16px; font-weight: 500">3.2 s</div><span class="fg-meta">slowest today 5.9 s</span></div>
+<div><span class="fg-label" style="color: var(--ink-muted)">Civilizations</span><div style="font-family: var(--font-mono); font-size: 16px; font-weight: 500">14 + 15</div><span class="fg-meta">players + AI</span></div>
+<div><span class="fg-label" style="color: var(--ink-muted)">AI backend</span><div style="font-family: var(--font-mono); font-size: 16px; font-weight: 500; color: var(--positive)">Online</div><span class="fg-meta">Mac Studio · queue 2 · 3 fallbacks today</span></div>
+<div><span class="fg-label" style="color: var(--ink-muted)">Email</span><div style="font-family: var(--font-mono); font-size: 16px; font-weight: 500">98.6%</div><span class="fg-meta">delivered · 2 bounces</span></div>
+<div><span class="fg-label" style="color: var(--ink-muted)">Moderation</span><div style="font-family: var(--font-mono); font-size: 16px; font-weight: 500; color: {{modColor}}">{{modCount}}</div><span class="fg-meta">waiting for review</span></div>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+<div style="flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head"><h1 class="fg-panel__title">Players</h1><span class="fg-meta">14 players · 2 invites pending</span></div>
+<div style="overflow-x: auto">
+<table class="fg-table">
+<thead><tr><th>Player</th><th>Civilization</th><th>Age group</th><th>Last seen</th><th class="num">Systems</th><th class="num">Reports</th><th>Status</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{players}}" as="p" hint-placeholder-count="6">
+<tr><td>{{p.handle}}</td><td>{{p.civ}}</td><td>{{p.age}}</td><td class="num" style="text-align: left">{{p.seen}}</td><td class="num">{{p.systems}}</td><td class="num">{{p.reports}}</td><td><span class="fg-badge {{p.badge}}">{{p.status}}</span></td><td style="text-align: right"><button type="button" class="fg-btn fg-btn--ghost fg-btn--sm">Manage</button></td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; gap: 6px"><button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Invite players</button><button type="button" class="fg-btn fg-btn--ghost fg-btn--sm">Export player list</button></div>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Moderation queue</h2><span class="fg-meta">flagged by the content filter or reported by players</span></div>
+<sc-if value="{{noMod}}" hint-placeholder-val="{{false}}"><p class="fg-help" style="margin: 0">Nothing waiting. Nice.</p></sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{mod}}" as="m" hint-placeholder-count="2">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 3px; border: 1px solid var(--border)">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker fg-kicker--signal">{{m.kind}} · {{m.when}}</span>
+<span style="font-size: 13px; line-height: 18px">{{m.text}}</span>
+<span class="fg-meta">{{m.who}} · {{m.reason}}</span>
+</div>
+<div style="display: flex; gap: 6px"><button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" onClick="{{m.allow}}">Allow</button><button type="button" class="fg-btn fg-btn--danger fg-btn--sm" onClick="{{m.remove}}">Remove</button></div>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+
+<aside style="flex: 1 1 340px; max-width: 420px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Tick engine</h2><span class="fg-meta">hourly</span></div>
+<div style="display: flex; align-items: flex-end; gap: 3px; height: 48px" aria-label="Duration of the last 12 ticks, between 2.4 and 5.9 seconds" role="img">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="12"><span style="flex: 1; border-radius: 2px 2px 0 0; background: {{b.color}}; height: {{b.h}}px"></span></sc-for>
+</div>
+<span class="fg-meta">last 12 ticks · tallest 5.9 s · budget 60 s</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" onClick="{{togglePause}}">{{pauseLabel}}</button>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Run next tick now</button>
+<a class="fg-btn fg-btn--danger fg-btn--sm" href="HostAdminOps.dc.html">Roll back a tick…</a>
+</div>
+<p class="fg-help" style="margin: 0">Pausing stops the clock for everyone and tells players in the Dispatch. Rollback restores the database to before a tick and replays nothing until you resume.</p>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Services</h2><span class="fg-meta">v0.1.0</span></div>
+<table class="fg-table">
+<thead><tr><th>Container</th><th>Status</th><th class="num">Uptime</th></tr></thead>
+<tbody>
+<sc-for list="{{services}}" as="s" hint-placeholder-count="7"><tr><td style="font-family: var(--font-mono); font-size: 11px">{{s.name}}</td><td><span class="fg-badge {{s.badge}}">{{s.status}}</span></td><td class="num">{{s.up}}</td></tr></sc-for>
+</tbody>
+</table>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Backups</h2><span class="fg-meta">nightly 03:00 · keep 14</span></div>
+<table class="fg-table"><tbody>
+<tr><td style="color: var(--ink-secondary)">Last backup</td><td class="num">today 03:00 · 412 MB</td><td><span class="fg-badge fg-badge--positive">OK</span></td></tr>
+<tr><td style="color: var(--ink-secondary)">Off-server copy</td><td class="num">not set up</td><td><span class="fg-badge fg-badge--signal">Add</span></td></tr>
+<tr><td style="color: var(--ink-secondary)">Last restore test</td><td class="num">never</td><td><span class="fg-badge fg-badge--signal">Run</span></td></tr>
+</tbody></table>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" style="align-self: flex-start">Test a restore now</button>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { paused: false, resolved: [] };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const players = [
+{ handle: 'host (you)', civ: 'The Ashenreach Collective', age: 'Adult', seen: 'now', systems: 3, reports: 0, status: 'Active', badge: 'fg-badge--positive' },
+{ handle: '@quietmoth', civ: 'The Lantern Accord', age: 'Adult', seen: '2 h ago', systems: 6, reports: 0, status: 'Active', badge: 'fg-badge--positive' },
+{ handle: '@ferrous', civ: 'Merrow Free Worlds', age: '13–17', seen: '5 h ago', systems: 2, reports: 0, status: 'Active', badge: 'fg-badge--positive' },
+{ handle: '@lowtide', civ: 'House Ottavine', age: 'Adult', seen: '3 days ago', systems: 4, reports: 1, status: 'Time away', badge: 'fg-badge--neutral' },
+{ handle: '@grimwald', civ: 'The Iron Tithe', age: 'Adult', seen: '1 h ago', systems: 5, reports: 3, status: 'Warned', badge: 'fg-badge--signal' },
+{ handle: '@pell', civ: 'Pellucid Reach', age: '13–17', seen: '9 days ago', systems: 1, reports: 0, status: 'Inactive', badge: 'fg-badge--neutral' }
+];
+const items = [
+{ id: 'm1', kind: 'Envoy message', when: 'T1,281', text: '"Message held for review: possible insult toward another player."', who: '@grimwald → @ferrous', reason: 'filter: harassment, sent to a 13–17 player' },
+{ id: 'm2', kind: 'Advisor answer', when: 'T1,279', text: '"Report: advisor said Ice Mining gives +4 minerals; the Codex says +2."', who: 'reported by @quietmoth', reason: 'possible wrong answer; check the cited Codex article' }
+];
+const left = items.filter((i) => !this.state.resolved.includes(i.id));
+const mod = left.map((i) => ({ ...i, allow: () => this.setState({ resolved: [...this.state.resolved, i.id] }), remove: () => this.setState({ resolved: [...this.state.resolved, i.id] }) }));
+const durations = [2.6, 2.9, 3.1, 2.4, 5.9, 3.0, 2.8, 3.3, 2.7, 3.4, 3.0, 3.2];
+const bars = durations.map((d) => ({ h: Math.round(d / 6 * 46) + 2, color: d > 5 ? 'var(--signal)' : 'var(--accent)' }));
+const services = [
+['web (nginx)', 'Healthy', '9 d'], ['api', 'Healthy', '9 d'], ['tick', this.state.paused ? 'Paused' : 'Healthy', '9 d'], ['worker', 'Healthy', '9 d'],
+['db (postgres 16)', 'Healthy', '9 d'], ['llm-gateway', 'Healthy', '2 d'], ['mailer', 'Degraded · 2 bounces', '9 d']
+].map(([name, status, up]) => ({ name, status, up, badge: status.startsWith('Healthy') ? 'fg-badge--positive' : status === 'Paused' ? 'fg-badge--neutral' : 'fg-badge--signal' }));
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+players, mod, noMod: mod.length === 0, modCount: String(mod.length), modColor: mod.length ? 'var(--signal)' : 'var(--positive)',
+bars, services,
+stateLabel: this.state.paused ? 'Paused' : 'Running', stateColor: this.state.paused ? 'var(--signal)' : 'var(--positive)',
+pauseLabel: this.state.paused ? 'Resume galaxy' : 'Pause galaxy',
+togglePause: () => this.setState({ paused: !this.state.paused })
+};
+}
+}
+</script>
+</body>
+</html>

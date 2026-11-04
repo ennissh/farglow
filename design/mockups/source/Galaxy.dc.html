@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Galaxy view</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html" aria-current="page">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch <span class="fg-tab__count">3</span></a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy <span class="fg-tab__count">1</span></a>
+</nav>
+<div class="fg-status">
+<span>tick <b>1,284</b></span>
+<span>next <b style="color: var(--accent)">42 min</b></span>
+<span>AC <b>318</b>/tick</span>
+<span>pop <b>41.2</b></span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<h1 class="fg-panel__title">Sector 41-07-02 <span style="font-weight: 400; color: var(--ink-muted)">· Orion Spur</span></h1>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<div class="fg-tabs" role="group" aria-label="Map scale">
+<button type="button" class="fg-tab" aria-current="page" style="border: none; font-family: var(--font-sans); min-height: 24px">Sector</button>
+<button type="button" class="fg-tab" style="border: none; font-family: var(--font-sans); min-height: 24px">Region</button>
+<button type="button" class="fg-tab" style="border: none; font-family: var(--font-sans); min-height: 24px">Arm</button>
+</div>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Filters · 2</button>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Find system</button>
+</div>
+</div>
+<div class="fg-panel__plot" style="padding: 8px">
+<svg viewBox="0 0 1000 520" style="width: 100%; height: auto; display: block" role="img" aria-label="Star map of sector 41-07-02. Hearth, your home, at center with comms range shaded. Talmar selected to the northeast. Oriel to the southwest with your fleet returning. The Concord of Ys to the east.">
+<g stroke="var(--border-subtle)" stroke-width="1">
+<line x1="0" y1="65" x2="1000" y2="65"></line><line x1="0" y1="130" x2="1000" y2="130"></line><line x1="0" y1="195" x2="1000" y2="195"></line><line x1="0" y1="260" x2="1000" y2="260"></line><line x1="0" y1="325" x2="1000" y2="325"></line><line x1="0" y1="390" x2="1000" y2="390"></line><line x1="0" y1="455" x2="1000" y2="455"></line>
+<line x1="100" y1="0" x2="100" y2="520"></line><line x1="200" y1="0" x2="200" y2="520"></line><line x1="300" y1="0" x2="300" y2="520"></line><line x1="400" y1="0" x2="400" y2="520"></line><line x1="500" y1="0" x2="500" y2="520"></line><line x1="600" y1="0" x2="600" y2="520"></line><line x1="700" y1="0" x2="700" y2="520"></line><line x1="800" y1="0" x2="800" y2="520"></line><line x1="900" y1="0" x2="900" y2="520"></line>
+</g>
+<g fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="11">
+<text x="4" y="514">0 ly</text><text x="204" y="514">4</text><text x="404" y="514">8</text><text x="604" y="514">12</text><text x="804" y="514">16</text><text x="962" y="514">20</text>
+</g>
+<circle cx="420" cy="270" r="210" fill="var(--accent-soft)" fill-opacity="0.6" stroke="var(--accent)" stroke-opacity="0.6" stroke-dasharray="4 5"></circle>
+<text x="250" y="80" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">COMMS RANGE · 2 LY/TICK</text>
+
+<line x1="420" y1="270" x2="602" y2="152" stroke="var(--accent)" stroke-width="1.5"></line>
+<text x="470" y="196" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">SURVEY WING · ETA 2</text>
+<line x1="226" y1="384" x2="404" y2="280" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="7 4"></line>
+<text x="250" y="352" fill="var(--accent)" font-family="IBM Plex Mono, monospace" font-size="11">ORIEL PICKET 1,200 t · ETA 6</text>
+
+<g fill="var(--ink-muted)">
+<circle cx="120" cy="90" r="2.5"></circle><circle cx="300" cy="120" r="2.5"></circle><circle cx="540" cy="420" r="3"></circle><circle cx="720" cy="230" r="2.5"></circle><circle cx="880" cy="110" r="2"></circle><circle cx="140" cy="470" r="2"></circle><circle cx="640" cy="60" r="2"></circle><circle cx="940" cy="430" r="2.5"></circle><circle cx="350" cy="470" r="2"></circle><circle cx="80" cy="260" r="2.5"></circle><circle cx="760" cy="470" r="2"></circle>
+</g>
+
+<circle cx="420" cy="270" r="9" fill="var(--star-k)"></circle>
+<circle cx="420" cy="270" r="16" fill="none" stroke="var(--accent)" stroke-width="2"></circle>
+<text x="444" y="266" fill="var(--ink)" font-family="Inter Tight, sans-serif" font-size="17" font-weight="700">Hearth</text>
+<text x="444" y="284" fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="11">K2 V · HOME · 6 BODIES</text>
+
+<circle cx="610" cy="146" r="22" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="2 3"></circle>
+<circle cx="610" cy="146" r="6" fill="var(--star-k)"></circle>
+<circle cx="610" cy="146" r="12" fill="none" stroke="var(--accent)" stroke-width="1.5"></circle>
+<text x="640" y="142" fill="var(--ink)" font-family="Inter Tight, sans-serif" font-size="15" font-weight="600">Talmar</text>
+<text x="640" y="158" fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="11">K1 V · 4.1 LY · SELECTED</text>
+
+<circle cx="220" cy="388" r="5" fill="var(--star-m)"></circle>
+<circle cx="220" cy="388" r="11" fill="none" stroke="var(--accent)" stroke-width="1.5"></circle>
+<text x="150" y="420" fill="var(--ink)" font-family="Inter Tight, sans-serif" font-size="15" font-weight="600">Oriel</text>
+<text x="150" y="436" fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="11">M3 V · OUTPOST</text>
+
+<circle cx="330" cy="190" r="4" fill="var(--star-m)"></circle>
+<text x="250" y="186" fill="var(--ink)" font-family="Inter Tight, sans-serif" font-size="14" font-weight="500">Wren's Lamp</text>
+<text x="250" y="210" fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="11">M5 V · BINARY</text>
+
+<circle cx="850" cy="330" r="6" fill="var(--star-hot)"></circle>
+<rect x="836" y="316" width="28" height="28" fill="none" stroke="var(--signal)" stroke-width="2" rx="3"></rect>
+<text x="874" y="326" fill="var(--ink)" font-family="Inter Tight, sans-serif" font-size="15" font-weight="600">Ys</text>
+<text x="874" y="342" fill="var(--signal)" font-family="IBM Plex Mono, monospace" font-size="11">CONCORD OF YS</text>
+<rect x="760" y="380" width="20" height="20" fill="none" stroke="var(--signal)" stroke-width="1.5" rx="3"></rect>
+<circle cx="770" cy="390" r="3.5" fill="var(--star-m)"></circle>
+<text x="790" y="395" fill="var(--signal)" font-family="IBM Plex Mono, monospace" font-size="11">YS OUTPOST</text>
+</svg>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; line-height: 16px; color: var(--ink-muted)">
+<span><span style="color: var(--accent); font-weight: 700">◯</span> Your systems (circle)</span>
+<span><span style="color: var(--signal); font-weight: 700">□</span> Other civilizations (square)</span>
+<span>Shaded: your comms range</span>
+<span>Solid line: fleet in transit · dashed: returning</span>
+<span>Star tint: spectral class</span>
+<span>Grid: 2 ly</span>
+</div>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Fleets</h2>
+<span class="fg-meta">4 fleets · 3,460 t · upkeep 17 M/tick</span>
+</div>
+<div style="overflow-x: auto">
+<table class="fg-table">
+<thead><tr><th>Fleet</th><th class="num">Tonnage</th><th>Readiness</th><th>Location</th><th>Orders</th><th class="num">ETA</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{fleets}}" as="f" hint-placeholder-count="4">
+<tr>
+<td>{{f.name}}<span class="sub">{{f.doctrine}}</span></td>
+<td class="num">{{f.tons}}</td>
+<td style="min-width: 140px"><div class="fg-meter"><div class="fg-meter__track"><div class="fg-meter__fill {{f.fillClass}}" style="width: {{f.ready}}%"></div></div><span class="fg-meta">{{f.ready}}%</span></div></td>
+<td>{{f.loc}}</td>
+<td><span class="fg-badge {{f.badge}}">{{f.orders}}</span></td>
+<td class="num">{{f.eta}}</td>
+<td style="text-align: right"><button type="button" class="fg-btn fg-btn--ghost fg-btn--sm">Orders</button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+
+<aside style="flex: 1 1 340px; max-width: 400px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title" style="font-size: 16px; line-height: 22px">Talmar</h2>
+<span class="fg-badge fg-badge--neutral">Unclaimed</span>
+</div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px">
+<div><dt class="fg-label">Star</dt><dd style="margin: 0; font-family: var(--font-mono); font-size: 12px">K1 V · single</dd></div>
+<div><dt class="fg-label">Distance</dt><dd style="margin: 0; font-family: var(--font-mono); font-size: 12px">4.1 ly · 9 ticks</dd></div>
+<div><dt class="fg-label">Metallicity</dt><dd style="margin: 0; font-family: var(--font-mono); font-size: 12px">[Fe/H] +0.12</dd></div>
+<div><dt class="fg-label">Surveyed</dt><dd style="margin: 0; font-family: var(--font-mono); font-size: 12px">T1284 · 0 h ago</dd></div>
+</dl>
+<table class="fg-table">
+<thead><tr><th>Body</th><th class="num">E</th><th class="num">M</th><th class="num">R</th><th class="num">Pop</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>Talmar<span class="sub">K1 V star</span></td><td class="num">2</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td></td></tr>
+<tr><td>Talmar I<span class="sub">Rocky, hot</span></td><td class="num">—</td><td class="num">3</td><td class="num">—</td><td class="num">—</td><td></td></tr>
+<tr><td>Talmar II<span class="sub">Super-Earth</span></td><td class="num">—</td><td class="num">3</td><td class="num">—</td><td class="num">2</td><td><span class="fg-badge fg-badge--neutral">Domes</span></td></tr>
+<tr aria-selected="true"><td>Talmar IV<span class="sub">Ocean world, N₂ air</span></td><td class="num">—</td><td class="num">1</td><td class="num">1</td><td class="num">10</td><td><span class="fg-badge fg-badge--positive">Habitable</span></td></tr>
+<tr><td>Outer belt<span class="sub">Asteroid belt</span></td><td class="num">—</td><td class="num">4</td><td class="num">—</td><td class="num">—</td><td></td></tr>
+</tbody>
+</table>
+<p style="margin: 0; font-size: 12px; line-height: 16px; color: var(--ink-secondary)">Sole occupancy would add +20% to every yield here. No other civilization has a presence.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="fg-btn fg-btn--primary">Send colony ship · 2,000 AC + 600 M</button>
+<button type="button" class="fg-btn fg-btn--secondary">Set waypoint</button>
+</div>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Command queue</h2>
+<span class="fg-meta">order lag set by comms tech</span>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px">
+<li class="fg-meter">
+<div class="fg-meter__row"><span>Outpost convoy → Talmar IV</span><span class="fg-meter__value">reaches fleet T1286</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: 34%"></div></div>
+</li>
+<li class="fg-meter">
+<div class="fg-meter__row"><span>Oriel picket: refit at Hearth</span><span class="fg-meter__value">T1290</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: 60%"></div></div>
+</li>
+<li class="fg-meter">
+<div class="fg-meter__row"><span>Raise Hearth III defenses +1</span><span class="fg-meter__value">next tick</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill fg-meter__fill--positive" style="width: 95%"></div></div>
+</li>
+</ol>
+<p class="fg-help" style="margin: 0">Orders travel at 2 ly per tick. Your governor acts locally with no delay.</p>
+</section>
+</aside>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const fleets = [
+{ name: 'Home Guard', doctrine: 'Defensive · Braided hulls', tons: '1,800', ready: 94, loc: 'Hearth', orders: 'Defend', badge: 'fg-badge--accent', eta: '—' },
+{ name: 'Oriel Picket', doctrine: 'Patrol', tons: '1,200', ready: 58, loc: 'In transit', orders: 'Return & refit', badge: 'fg-badge--signal', eta: '6' },
+{ name: 'Survey Wing', doctrine: 'Scout', tons: '120', ready: 100, loc: 'In transit', orders: 'Survey Talmar', badge: 'fg-badge--accent', eta: '2' },
+{ name: 'Outpost Convoy', doctrine: 'Civil', tons: '340', ready: 100, loc: 'Hearth', orders: 'Loading', badge: 'fg-badge--neutral', eta: '—' }
+].map((f) => ({ ...f, fillClass: f.ready < 70 ? 'fg-meter__fill--signal' : '' }));
+return { themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light', fleets };
+}
+}
+</script>
+</body>
+</html>

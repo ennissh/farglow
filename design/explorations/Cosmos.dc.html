@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Living cosmos direction</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&amp;family=Nunito+Sans:wght@400;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F2A7C9}a:hover{color:#FFD0E4}
+</style>
+</helmet>
+<div style="width: 1440px; height: 960px; box-sizing: border-box; background-color: #140E22; background-image: radial-gradient(ellipse 700px 420px at 15% 20%, rgba(170,90,170,0.28), transparent 70%), radial-gradient(ellipse 600px 500px at 85% 75%, rgba(60,150,170,0.22), transparent 70%), radial-gradient(ellipse 500px 300px at 60% 10%, rgba(240,150,120,0.14), transparent 70%); color: #F1EAF7; font-family: 'Nunito Sans', sans-serif; display: flex; flex-direction: column">
+
+<header style="height: 72px; box-sizing: border-box; padding: 0 28px; display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<span style="font-family: 'Fraunces', serif; font-size: 34px; font-weight: 700; color: #FFE6F1">Farglow</span>
+<span style="font-size: 13px; color: #B7A8CA">a Generative Distractions game</span>
+</div>
+<nav style="display: flex; gap: 6px; background: rgba(30,21,48,0.7); padding: 5px; border-radius: 999px; border: 1px solid rgba(242,167,201,0.2)">
+<a href="#" style="padding: 9px 18px; font-size: 14px; font-weight: 700; color: #1A1029; background: #F2A7C9; border-radius: 999px; text-decoration: none">Galaxy</a>
+<a href="#" style="padding: 9px 18px; font-size: 14px; font-weight: 600; color: #D9CDE6; text-decoration: none; border-radius: 999px">Governor</a>
+<a href="#" style="padding: 9px 18px; font-size: 14px; font-weight: 600; color: #D9CDE6; text-decoration: none; border-radius: 999px">Dispatch</a>
+<a href="#" style="padding: 9px 18px; font-size: 14px; font-weight: 600; color: #D9CDE6; text-decoration: none; border-radius: 999px">Diplomacy</a>
+</nav>
+<div style="display: flex; gap: 16px; font-family: 'DM Mono', monospace; font-size: 13px; color: #B7A8CA">
+<span>tick <span style="color: #F1EAF7">1,284</span></span>
+<span>next <span style="color: #7FD8D0">42m</span></span>
+<span>AC <span style="color: #F1EAF7">318</span></span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 16px 28px 28px; display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 20px">
+
+<div style="display: flex; flex-direction: column; gap: 20px; min-width: 0">
+<section style="height: 496px; box-sizing: border-box; background: rgba(30,21,48,0.72); border: 1px solid rgba(242,167,201,0.18); border-radius: 18px; padding: 18px 22px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 style="margin: 0; font-family: 'Fraunces', serif; font-weight: 500; font-size: 24px; color: #FFE6F1">The Orion Spur, near home</h2>
+<span style="font-family: 'DM Mono', monospace; font-size: 12px; color: #B7A8CA">sector 41-07-02 · 23 systems · 6 surveyed</span>
+</div>
+<svg viewBox="0 0 900 400" style="width: 100%; flex-grow: 1" role="img" aria-label="Glowing star map showing Hearth, Talmar, Oriel and the Concord of Ys">
+<defs>
+<radialGradient id="glowHome"><stop offset="0" stop-color="#FFD7A8" stop-opacity="0.9"></stop><stop offset="1" stop-color="#FFD7A8" stop-opacity="0"></stop></radialGradient>
+<radialGradient id="glowYs"><stop offset="0" stop-color="#7FD8D0" stop-opacity="0.8"></stop><stop offset="1" stop-color="#7FD8D0" stop-opacity="0"></stop></radialGradient>
+<radialGradient id="glowSoft"><stop offset="0" stop-color="#F1EAF7" stop-opacity="0.7"></stop><stop offset="1" stop-color="#F1EAF7" stop-opacity="0"></stop></radialGradient>
+</defs>
+<circle cx="380" cy="210" r="170" fill="#F2A7C9" fill-opacity="0.05" stroke="#F2A7C9" stroke-opacity="0.35" stroke-dasharray="1 7" stroke-linecap="round" stroke-width="2"></circle>
+<path d="M380 210 Q 300 300 210 300" fill="none" stroke="#F2A7C9" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"></path>
+<circle cx="380" cy="210" r="44" fill="url(#glowHome)"></circle>
+<circle cx="380" cy="210" r="7" fill="#FFE9CC"></circle>
+<text x="408" y="206" fill="#FFE6F1" font-family="Fraunces, serif" font-size="21" font-weight="700">Hearth</text>
+<text x="408" y="225" fill="#B7A8CA" font-family="DM Mono, monospace" font-size="12">your home star</text>
+<circle cx="540" cy="120" r="18" fill="url(#glowSoft)"></circle>
+<circle cx="540" cy="120" r="3.5" fill="#F1EAF7"></circle>
+<text x="556" y="125" fill="#F1EAF7" font-family="Fraunces, serif" font-size="17">Talmar</text>
+<circle cx="210" cy="300" r="20" fill="url(#glowSoft)"></circle>
+<circle cx="210" cy="300" r="3.5" fill="#F1EAF7"></circle>
+<text x="150" y="335" fill="#F1EAF7" font-family="Fraunces, serif" font-size="17">Oriel</text>
+<circle cx="700" cy="270" r="36" fill="url(#glowYs)"></circle>
+<circle cx="700" cy="270" r="5" fill="#C9F4EF"></circle>
+<text x="726" y="266" fill="#7FD8D0" font-family="Fraunces, serif" font-size="18" font-weight="700">Ys</text>
+<text x="726" y="284" fill="#B7A8CA" font-family="DM Mono, monospace" font-size="12">the Concord of Ys</text>
+<circle cx="470" cy="330" r="2" fill="#D9CDE6"></circle><circle cx="620" cy="190" r="2" fill="#D9CDE6"></circle><circle cx="300" cy="90" r="2" fill="#D9CDE6"></circle><circle cx="820" cy="80" r="1.5" fill="#D9CDE6"></circle><circle cx="90" cy="360" r="1.5" fill="#D9CDE6"></circle><circle cx="60" cy="60" r="1" fill="#D9CDE6"></circle><circle cx="760" cy="360" r="1" fill="#D9CDE6"></circle>
+<text x="232" y="262" fill="#F2A7C9" font-family="DM Mono, monospace" font-size="12">fleet 1,200 t · home in 6 ticks</text>
+</svg>
+<div style="display: flex; gap: 22px; font-size: 13px; color: #B7A8CA">
+<span style="color: #FFD7A8">● Your light</span>
+<span style="color: #7FD8D0">● Neighbors</span>
+<span>Dotted ring: how far your voice carries</span>
+</div>
+</section>
+
+<section style="flex-grow: 1; box-sizing: border-box; background: rgba(30,21,48,0.72); border: 1px solid rgba(242,167,201,0.18); border-radius: 18px; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 style="margin: 0; font-family: 'Fraunces', serif; font-weight: 500; font-size: 24px; color: #FFE6F1">The Meridian Dispatch</h2>
+<span style="font-family: 'DM Mono', monospace; font-size: 12px; color: #B7A8CA">good morning · tick 1,284</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+<article style="display: flex; flex-direction: column; gap: 6px; background: rgba(20,14,34,0.6); border-radius: 12px; padding: 14px">
+<span style="font-size: 12px; font-weight: 700; color: #FFD7A8">Discovery</span>
+<h3 style="margin: 0; font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; line-height: 1.25">Talmar survey finds liquid water on its fourth world</h3>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #D9CDE6">Oceans under a thin nitrogen sky, 4.1 ly away.</p>
+</article>
+<article style="display: flex; flex-direction: column; gap: 6px; background: rgba(20,14,34,0.6); border-radius: 12px; padding: 14px">
+<span style="font-size: 12px; font-weight: 700; color: #7FD8D0">Diplomacy</span>
+<h3 style="margin: 0; font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; line-height: 1.25">The Concord of Ys opens trade talks with three neighbors</h3>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #D9CDE6">This news is 6 ticks old. An envoy is on the way.</p>
+</article>
+<article style="display: flex; flex-direction: column; gap: 6px; background: rgba(20,14,34,0.6); border-radius: 12px; padding: 14px">
+<span style="font-size: 12px; font-weight: 700; color: #F2A7C9">Fleet</span>
+<h3 style="margin: 0; font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; line-height: 1.25">Oriel picket comes home at 86% readiness</h3>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #D9CDE6">1,200 t due for refit. Upkeep 6 minerals a tick.</p>
+</article>
+</div>
+</section>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 20px; min-width: 0">
+<section style="box-sizing: border-box; background: rgba(30,21,48,0.72); border: 1px solid rgba(242,167,201,0.18); border-radius: 18px; padding: 18px 22px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 style="margin: 0; font-family: 'Fraunces', serif; font-weight: 500; font-size: 24px; color: #FFE6F1">Hearth system</h2>
+<span style="font-family: 'DM Mono', monospace; font-size: 12px; color: #B7A8CA">metal-rich · single star</span>
+</div>
+<table style="width: 100%; border-collapse: collapse; font-size: 13px">
+<thead>
+<tr style="color: #B7A8CA; text-align: left; font-size: 12px">
+<th style="padding: 6px 4px; font-weight: 600; border-bottom: 1px solid rgba(242,167,201,0.2)">World</th>
+<th style="padding: 6px 4px; font-weight: 600; border-bottom: 1px solid rgba(242,167,201,0.2)">E</th>
+<th style="padding: 6px 4px; font-weight: 600; border-bottom: 1px solid rgba(242,167,201,0.2)">M</th>
+<th style="padding: 6px 4px; font-weight: 600; border-bottom: 1px solid rgba(242,167,201,0.2)">R</th>
+<th style="padding: 6px 4px; font-weight: 600; border-bottom: 1px solid rgba(242,167,201,0.2)">Pop</th>
+<th style="padding: 6px 4px; font-weight: 600; border-bottom: 1px solid rgba(242,167,201,0.2)">Status</th>
+</tr>
+</thead>
+<tbody style="font-family: 'DM Mono', monospace">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+<tr>
+<td style="padding: 7px 4px; border-bottom: 1px solid rgba(242,167,201,0.08); font-family: 'Nunito Sans', sans-serif; font-weight: 600">{{r.name}}<br><span style="font-size: 11px; font-weight: 400; color: #B7A8CA">{{r.kind}}</span></td>
+<td style="padding: 7px 4px; border-bottom: 1px solid rgba(242,167,201,0.08)">{{r.e}}</td>
+<td style="padding: 7px 4px; border-bottom: 1px solid rgba(242,167,201,0.08)">{{r.m}}</td>
+<td style="padding: 7px 4px; border-bottom: 1px solid rgba(242,167,201,0.08)">{{r.r}}</td>
+<td style="padding: 7px 4px; border-bottom: 1px solid rgba(242,167,201,0.08)">{{r.p}}</td>
+<td style="padding: 7px 4px; border-bottom: 1px solid rgba(242,167,201,0.08); color: #F2A7C9; font-family: 'Nunito Sans', sans-serif; font-weight: 600">{{r.s}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</section>
+
+<section style="flex-grow: 1; box-sizing: border-box; background: rgba(30,21,48,0.72); border: 1px solid rgba(242,167,201,0.18); border-radius: 18px; padding: 18px 22px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #B7A8CA">Direction D · Living cosmos</h2>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px">
+<div style="display: flex; flex-direction: column; gap: 4px"><div style="height: 40px; border-radius: 10px; background: #140E22; border: 1px solid rgba(242,167,201,0.3)"></div><span style="font-family: 'DM Mono', monospace; font-size: 10px; color: #B7A8CA">#140E22</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><div style="height: 40px; border-radius: 10px; background: #2A1E42"></div><span style="font-family: 'DM Mono', monospace; font-size: 10px; color: #B7A8CA">#2A1E42</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><div style="height: 40px; border-radius: 10px; background: #F2A7C9"></div><span style="font-family: 'DM Mono', monospace; font-size: 10px; color: #B7A8CA">#F2A7C9</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><div style="height: 40px; border-radius: 10px; background: #7FD8D0"></div><span style="font-family: 'DM Mono', monospace; font-size: 10px; color: #B7A8CA">#7FD8D0</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px"><div style="height: 40px; border-radius: 10px; background: #FFD7A8"></div><span style="font-family: 'DM Mono', monospace; font-size: 10px; color: #B7A8CA">#FFD7A8</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: #FFE6F1">Fraunces</span>
+<span style="font-size: 15px; color: #D9CDE6">Nunito Sans for reading and controls</span>
+<span style="font-family: 'DM Mono', monospace; font-size: 13px; color: #B7A8CA">DM Mono 1,284 · 86%</span>
+</div>
+<div style="display: flex; gap: 10px; margin-top: auto">
+<button type="button" style="height: 44px; padding: 0 20px; border: none; border-radius: 999px; background: #F2A7C9; color: #1A1029; font-family: 'Nunito Sans', sans-serif; font-size: 15px; font-weight: 700">Confirm orders</button>
+<button type="button" style="height: 44px; padding: 0 20px; border: 1px solid #7FD8D0; border-radius: 999px; background: transparent; color: #7FD8D0; font-family: 'Nunito Sans', sans-serif; font-size: 15px; font-weight: 700">Queue for next tick</button>
+</div>
+</section>
+</div>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+rows: [
+{ name: 'Hearth', kind: 'orange dwarf star', e: '2', m: '·', r: '·', p: '·', s: 'Yours' },
+{ name: 'Hearth I', kind: 'rocky', e: '·', m: '3', r: '·', p: '·', s: 'Yours' },
+{ name: 'Hearth II', kind: 'verdant', e: '·', m: '1', r: '·', p: '10', s: 'Capital' },
+{ name: 'Hearth III', kind: 'gas giant', e: '1', m: '·', r: '1', p: '·', s: 'Outpost' },
+{ name: 'Inner belt', kind: 'asteroid belt', e: '·', m: '4', r: '·', p: '·', s: 'Surveyed' },
+{ name: 'Hearth IV', kind: 'ice giant', e: '·', m: '1', r: '·', p: '·', s: 'Unclaimed' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

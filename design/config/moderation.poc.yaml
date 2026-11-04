@@ -1,0 +1,96 @@
+# Farglow — PoC player messaging & moderation (config/moderation.poc.yaml)
+# Status: PROPOSED v1 — decisions marked [assumption] need Shawn's sign-off. Not legal advice: the
+# under-18 and email rules need a lawyer's review (COPPA, UK Online Safety Act, CAN-SPAM, GDPR).
+#
+# Principles
+#   - Every player message is moderated BEFORE delivery, whether it lands in the UI or in an inbox.
+#   - The same pipeline runs on inbound email replies, guild/coalition chat, civ names, star-system and planet names, advisor names
+#     and backstories, and on everything our own LLMs write (advisor answers, galactic news).
+#   - The engine records every decision so a host can review it and a player can appeal it.
+#   - In-character menace is gameplay ("Your fleets will burn at Talmar"). Attacking the real person is not.
+
+age:                                       # DECIDED: players state their age at sign-up
+  method: self_declared
+  ask: birth_month_and_year                # store only month/year; derive age; never the full date
+  neutral_screen: true                     # no "you must be 13+" hint next to the field, no defaults pre-filled
+  under_13: refuse_account                 # COPPA: we don't take under-13s; no data kept from the attempt
+  retry_lockout: "Same browser/device can't immediately re-enter a different age (cookie + 24h lockout)"
+  age_changes: support_request_only        # players can't edit their own age once set
+  becomes_adult: automatic                 # under-18 rules lift on their 18th birthday month
+  legal_note: "Self-declaration is a common standard in the US. Some jurisdictions (e.g. the UK Online Safety Act) may expect stronger age assurance for services children use; lawyer to confirm before an official public server."
+
+messaging:
+  channels: [direct, guild, coalition]
+  email_relay:
+    setting: player_opt_in                 # Settings → "Also send player messages to my email"
+    default: off
+    under_18: unavailable                  # [to confirm] minors read player messages in the UI only; no parent-consent path in PoC
+    sender_email_never_exposed: true       # mail comes from the server, with a signed single-use reply-to token
+    inbound_replies_moderated: true
+    one_click_unsubscribe: true            # CAN-SPAM / RFC 8058 List-Unsubscribe-Post
+  limits:
+    max_length_chars: 1000
+    per_hour: 20
+    new_civ_first_ticks: 24                # first day: messages only to civs you've met in-game
+    under_18_recipients: guild_and_friends_only   # already decided on the Guilds screen
+  recipient_controls: [block_player, mute_player, report_message, profanity_filter]
+  profanity_filter:                        # DECIDED: a per-player setting, swearing filtered by default
+    setting: Settings → Messages → "Filter swearing"
+    default: on                            # swear words are hidden (▇▇▇▇) before the message reaches you
+    under_18: locked_on                    # [assumption] minors can't turn it off
+    applies_to: [direct, guild, coalition, email_relay]
+
+pipeline:                                  # runs in the worker container; a message is held until it finishes
+  - id: rate_limit
+  - id: normalize                          # lower-case, strip zero-width chars, fold Unicode look-alikes and l33t (4→a, 3→e, $→s), collapse "s p a c e d" words
+  - id: wordlist                           # always on, every AI tier, including T0 (no AI)
+    lists: [slurs_block, profanity_mask, personal_info_patterns]   # personal info = emails, phone numbers, street addresses, social handles
+  - id: classifier                         # picked by the server's AI tier (same tiers as the advisor)
+    by_tier:
+      T0: none                             # wordlist + reports only
+      T1: detoxify                         # small open-source model, runs on CPU in the worker; scores toxicity, insult, threat, obscene, identity attack
+      T2: llama_guard_3_or_shieldgemma     # local safety model via Ollama; given game context so in-character war talk isn't flagged
+      T3: openai_omni_moderation           # free endpoint with the host's own key; categories include harassment, hate, sexual/minors, self-harm, violence, illicit
+      T4: relay                            # Generative Distractions Relay
+    excluded: perspective_api              # Jigsaw stopped new sign-ups Feb 2026 and shuts it down 31 Dec 2026
+  - id: decide
+
+decisions:
+  allow:   "Below all thresholds."
+  mask:    "Casual profanity only. Hidden as ▇▇▇▇ unless the recipient turned their swearing filter off. No strike."
+  hold:    "Medium confidence. Sender sees 'pending review'; host queue decides within 24 ticks, else it's dropped. No strike unless upheld."
+  block:   "High confidence: slurs, harassment of the person, sexual content, personal info, threats. Not delivered. Sender told why. Strike."
+  severe:  "Sexual content involving minors, credible real-world threats, encouraging self-harm, doxxing. Block, immediate 168-tick mute, host alerted, evidence preserved."
+  thresholds:
+    adult:    { hold: 0.60, block: 0.85 }  # classifier scores 0-1; tune against real traffic before trusting
+    under_18: { hold: 0.40, block: 0.70 }  # stricter whenever the sender OR recipient is under 18
+
+conduct:                                   # strikes are private; only the reputation hit is visible, framed in-fiction
+  strikes_from: [auto_block, upheld_hold, upheld_report]   # masked profanity never counts
+  strike_expiry_ticks: 720                 # 30 days with no new strike removes the oldest one
+  ladder:                                  # by number of active strikes
+    1: { action: warning }
+    2: { reputation: -5 }
+    3: { reputation: -10, messaging_mute_ticks: 24 }
+    4: { reputation: -20, messaging_mute_ticks: 168 }   # worse than breaking a treaty (−15 global)
+    5: { action: host_review, messaging_mute_ticks: until_review }
+  reputation_hit:
+    exempt_from_normal_decay: true         # normal reputation drifts back toward 0 at 0.04/tick; conduct hits stay until the strike expires
+    in_fiction_text: "Reports of your envoys' conduct have embarrassed the council."   # the reason is never shown to other players
+    shown_in_news: false                   # the news agency never reports on player conduct (no public shaming)
+  appeals:
+    where: Settings → Conduct
+    who_decides: host                      # self-hosted: the host; official server: Generative Distractions staff
+    upheld_appeal: "Strike removed and reputation restored in full."
+  false_positive_guard: "A blocked message the sender appeals and the host overturns also becomes a test case for tuning thresholds."
+
+host_tools:                                # Host admin panel → Moderation tab
+  queue: [held_messages, reports, appeals, severe_alerts]
+  actions: [approve, uphold_block, add_strike, remove_strike, mute, suspend, ban]
+  retention_days: 90                       # [assumption] moderation evidence kept 90 days, then deleted; severe cases kept until resolved
+  severe_alert_channel: host_email
+  legal_note: "Hosts are the service operator for their server. Self-host docs must explain their reporting duties (e.g. NCMEC in the US for child sexual abuse material)."
+
+open_questions:
+  - "Email relay for under-18s: never (current config) or with parent consent? The answer 'yes' was ambiguous."
+  - "Should under-18s be able to turn the swearing filter off? Current config: no (locked on)."

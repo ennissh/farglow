@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — First light with your advisor</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html" aria-current="page">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch</a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy</a>
+</nav>
+<div style="display: flex; gap: 12px; align-items: center">
+<div class="fg-status">
+<span>tick <b>3</b></span>
+<span>research <b>18</b>/tick</span>
+<span>AC <b>96</b>/tick</span>
+</div>
+<button type="button" class="fg-btn fg-btn--primary fg-btn--sm" aria-pressed="true">Ask Tamsin</button>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+
+<section class="fg-panel" style="flex: 1 1 250px; max-width: 280px">
+<div class="fg-panel__head">
+<h1 class="fg-panel__title">First light</h1>
+<span class="fg-meta">{{doneCount}} of 8</span>
+</div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: {{donePct}}%"></div></div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="8">
+<li style="display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; align-items: start; padding: 5px 6px; border-radius: 3px; background: {{s.bg}}">
+<span style="width: 18px; height: 18px; border-radius: 50%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; border: 1.5px solid {{s.ring}}; background: {{s.dot}}; color: {{s.numColor}}">{{s.mark}}</span>
+<span style="display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 12px; line-height: 16px; font-weight: {{s.weight}}; color: {{s.color}}">{{s.title}}</span>
+<sc-if value="{{s.current}}" hint-placeholder-val="{{false}}">
+<span style="font-size: 11px; line-height: 15px; color: var(--ink-secondary)">{{s.hint}}</span>
+</sc-if>
+</span>
+</li>
+</sc-for>
+</ol>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 6px; border-top: 1px solid var(--border-subtle)">
+<button type="button" class="fg-btn fg-btn--ghost fg-btn--sm" style="align-self: flex-start">Skip the walkthrough</button>
+<span class="fg-help">Replay anytime from Help. Works the same with your server's AI switched off.</span>
+</div>
+</section>
+
+<div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div role="status" style="display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 4px; background: var(--accent-soft); border: 1px solid var(--accent)">
+<span aria-hidden="true" style="flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; font-weight: 500">TV</span>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+<span class="fg-kicker fg-kicker--accent">Step 3 of 8 · Explore your home system</span>
+<span style="font-size: 13px; line-height: 19px">This panel is Hearth, our home. Each row is a body we own and what it gives us every tick. Hover any number to see where it comes from.</span>
+<div style="display: flex; gap: 6px; margin-top: 2px">
+<button type="button" class="fg-btn fg-btn--primary fg-btn--sm">Got it, next step</button>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Show me the star map first</button>
+</div>
+</div>
+</div>
+
+<section class="fg-panel" style="outline: 2px solid var(--accent); outline-offset: 3px">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title" style="font-size: 16px; line-height: 22px">Hearth system</h2>
+<span class="fg-meta">K2 V · single star · [Fe/H] +0.08</span>
+</div>
+<table class="fg-table">
+<thead><tr><th>Body</th><th class="num">E</th><th class="num">M</th><th class="num">R</th><th class="num">Pop</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Hearth<span class="sub">K2 V star</span></td><td class="num">2</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td><span class="fg-badge fg-badge--accent">Owned</span></td></tr>
+<tr><td>Hearth I<span class="sub">Rocky</span></td><td class="num">—</td><td class="num">3</td><td class="num">—</td><td class="num">—</td><td><span class="fg-badge fg-badge--accent">Owned</span></td></tr>
+<tr aria-selected="true"><td>Hearth II<span class="sub">Verdant</span></td><td class="num">—</td><td class="num">1</td><td class="num">—</td><td class="num">10</td><td><span class="fg-badge fg-badge--accent">Capital</span></td></tr>
+<tr><td>Hearth III<span class="sub">Gas giant</span></td><td class="num">1</td><td class="num">—</td><td class="num">1</td><td class="num">—</td><td><span class="fg-badge fg-badge--neutral">Outpost</span></td></tr>
+<tr><td>Inner belt<span class="sub">Asteroid belt</span></td><td class="num">—</td><td class="num">4</td><td class="num">—</td><td class="num">—</td><td><span class="fg-badge fg-badge--accent">Owned</span></td></tr>
+<tr><td>Hearth IV<span class="sub">Ice giant</span></td><td class="num">—</td><td class="num">1</td><td class="num">—</td><td class="num">—</td><td><span class="fg-badge fg-badge--neutral">Unclaimed</span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="fg-panel" style="opacity: 0.4">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Sector 41-07-02 · Orion Spur</h2>
+<span class="fg-meta">23 systems · 1 surveyed</span>
+</div>
+<div class="fg-panel__plot" style="height: 220px; display: flex; align-items: center; justify-content: center">
+<span class="fg-meta">Star map · unlocked at step 6</span>
+</div>
+</section>
+</div>
+
+<aside aria-label="Advisor" style="flex: 1 1 360px; max-width: 400px; min-width: 0; align-self: stretch">
+<section class="fg-panel" style="height: 100%; min-height: 860px; box-sizing: border-box; padding: 0; gap: 0">
+<div style="display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border)">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-soft); border: 1.5px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; font-weight: 500">TV</span>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0">
+<span style="font-size: 14px; line-height: 18px; font-weight: 700">Tamsin Vey</span>
+<span class="fg-meta">Chief of Staff · local AI · answers cite the Codex</span>
+</div>
+<button type="button" class="fg-btn fg-btn--ghost fg-btn--sm" aria-label="Close advisor">Close</button>
+</div>
+
+<div style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: var(--surface-sunken)">
+<sc-for list="{{messages}}" as="m" hint-placeholder-count="3">
+<sc-if value="{{m.isAdvisor}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 4px; max-width: 92%">
+<sc-if value="{{m.hasKicker}}" hint-placeholder-val="{{false}}"><span class="fg-kicker fg-kicker--accent">{{m.kicker}}</span></sc-if>
+<div style="padding: 8px 10px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); font-size: 13px; line-height: 19px">{{m.text}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px">
+<sc-for list="{{m.cites}}" as="c" hint-placeholder-count="0">
+<a href="#" class="fg-badge fg-badge--neutral" style="text-decoration: none">{{c}}</a>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{m.isYou}}" hint-placeholder-val="{{false}}">
+<div style="align-self: flex-end; max-width: 85%; padding: 8px 10px; border-radius: 4px; background: var(--accent); color: var(--on-accent); font-size: 13px; line-height: 19px">{{m.text}}</div>
+</sc-if>
+</sc-for>
+
+<sc-if value="{{showProposal}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 4px; background: var(--surface); border: 1.5px solid var(--accent)">
+<span class="fg-kicker fg-kicker--accent">Tamsin suggests</span>
+<span style="font-size: 13px; line-height: 18px; font-weight: 600">Queue research: Belt Extraction Rigs</span>
+<table class="fg-table">
+<tbody>
+<tr><td style="color: var(--ink-secondary)">Cost</td><td class="num">744 RP · 21 ticks (starts half done)</td></tr>
+<tr><td style="color: var(--ink-secondary)">Gain</td><td class="num" style="color: var(--positive)">+25% belt minerals (+1 M/tick)</td></tr>
+<tr><td style="color: var(--ink-secondary)">Drawback</td><td class="num" style="color: var(--signal)">−2 stability</td></tr>
+</tbody>
+</table>
+<div style="display: flex; gap: 6px">
+<button type="button" class="fg-btn fg-btn--primary fg-btn--sm" onClick="{{confirm}}">Confirm</button>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" onClick="{{dismiss}}">Not now</button>
+</div>
+<span class="fg-help">Nothing happens until you confirm. The game checks the order against the rules first.</span>
+</div>
+</sc-if>
+<sc-if value="{{showQueued}}" hint-placeholder-val="{{false}}">
+<div style="padding: 8px 10px; border-radius: 4px; background: var(--positive-soft); border: 1px solid var(--positive); font-size: 12px; line-height: 17px">Queued. Belt Extraction Rigs is first in your research queue; change it anytime on the Research screen.</div>
+</sc-if>
+</div>
+
+<div style="padding: 10px 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; gap: 4px">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{c.ask}}" style="min-height: 24px; padding: 0 8px; border-radius: 3px; cursor: pointer; font-family: var(--font-sans); font-size: 12px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--ink-secondary)">{{c.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; gap: 6px; align-items: flex-end">
+<label for="ask" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Ask Tamsin a question</label>
+<textarea id="ask" class="fg-textarea" rows="2" placeholder="Ask Tamsin anything about the game" style="flex: 1"></textarea>
+<button type="button" class="fg-btn fg-btn--primary">Send</button>
+</div>
+<span class="fg-help">Game questions only. Tamsin sees what your civilization knows, nothing more.</span>
+</div>
+</section>
+</aside>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { proposal: 'open', extra: [], asked: [] };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const stepDefs = [
+['Meet your civilization', ''],
+['Read your first Dispatch', ''],
+['Explore your home system', 'See what each body gives you per tick.'],
+['Choose your first research', ''],
+['Split your action credits', ''],
+['Send a survey to Talmar', ''],
+['Set your standing orders', ''],
+['Advance the clock', '']
+];
+const current = 2;
+const steps = stepDefs.map(([title, hint], i) => {
+const done = i < current, cur = i === current;
+return {
+title, hint, current: cur,
+mark: done ? '✓' : String(i + 1),
+ring: done ? 'var(--positive)' : cur ? 'var(--accent)' : 'var(--border-strong)',
+dot: done ? 'var(--positive)' : cur ? 'var(--accent)' : 'var(--surface)',
+numColor: done || cur ? 'var(--on-accent)' : 'var(--ink-muted)',
+color: done ? 'var(--ink-muted)' : 'var(--ink)',
+weight: cur ? '600' : '400',
+bg: cur ? 'var(--accent-soft)' : 'transparent'
+};
+});
+const base = [
+{ who: 'advisor', kicker: 'First light · step 3', text: 'This is Hearth, our home. Six bodies, all surveyed. The table shows what each gives us every tick: E is energy, M minerals, R research, Pop population.', cites: [] },
+{ who: 'you', text: 'Why does Hearth II only give 1 mineral?' },
+{ who: 'advisor', text: 'Hearth II is our verdant world, mostly cities and farms: room for 10 population, but only 1 mineral a tick. Rocky Hearth I gives 3 and the inner belt gives 4. If you want more minerals, Belt Extraction Rigs adds 25% to the belt.', cites: ['Codex · Resources by body type', 'Tech · Belt Extraction Rigs'] }
+];
+const canned = {
+first: { q: 'What should I do first?', a: 'Pick your first research. It starts half done, so it lands within a day; after that, a Reach tech takes about two days at our 18 research a tick. I would start with Orbital Survey Array: it reveals two more light-years, and Talmar sits just beyond our sight.', cites: ['Codex · Research costs', 'Tech · Orbital Survey Array'] },
+ac: { q: 'Explain action credits', a: 'Action credits are our people’s working hours. Population makes them, about 96 a tick right now, and you split them across five budgets on the Governor screen. Unspent credits bank up to 48 ticks’ worth.', cites: ['Codex · Action credits'] },
+doctrine: { q: 'What’s a doctrine?', a: 'At each new tier you choose one of three doctrines, a big strategic direction. The other two lock forever, so I will always warn you before you commit.', cites: ['Codex · Doctrines'] }
+};
+const extra = [];
+this.state.asked.forEach((k) => {
+extra.push({ who: 'you', text: canned[k].q });
+extra.push({ who: 'advisor', text: canned[k].a, cites: canned[k].cites });
+});
+const messages = base.concat(extra).map((m) => ({
+isAdvisor: m.who === 'advisor', isYou: m.who === 'you',
+text: m.text, kicker: m.kicker || '', hasKicker: !!m.kicker, cites: m.cites || []
+}));
+const chips = Object.keys(canned).filter((k) => !this.state.asked.includes(k)).map((k) => ({
+label: canned[k].q,
+ask: () => this.setState({ asked: [...this.state.asked, k] })
+}));
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+steps, doneCount: String(current), donePct: String(Math.round(current / 8 * 100)),
+messages, chips,
+showProposal: this.state.proposal === 'open',
+showQueued: this.state.proposal === 'queued',
+confirm: () => this.setState({ proposal: 'queued' }),
+dismiss: () => this.setState({ proposal: 'dismissed' })
+};
+}
+}
+</script>
+</body>
+</html>

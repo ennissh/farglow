@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Guilds</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch <span class="fg-tab__count">3</span></a>
+<a class="fg-tab" href="Diplomacy.dc.html" aria-current="page">Diplomacy</a>
+</nav>
+<div class="fg-status"><span>tick <b>1,284</b></span><span>your reputation <b>+34</b></span></div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 12px">
+
+<sc-if value="{{invited}}" hint-placeholder-val="{{true}}">
+<div role="status" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 4px; background: var(--accent-soft); border: 1px solid var(--accent)">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker fg-kicker--accent">Invitation · from @quietmoth of the Lantern Accord · expires T1,308</span>
+<span style="font-size: 14px; line-height: 19px; font-weight: 600">The Spur Compact invites you to join</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary)">Joining adds the guild bonuses and shared survey maps. You can leave anytime; leaving within 72 ticks of a guild war costs reputation.</span>
+</div>
+<div style="display: flex; gap: 6px"><button type="button" class="fg-btn fg-btn--primary" onClick="{{accept}}">Join the Spur Compact</button><button type="button" class="fg-btn fg-btn--secondary" onClick="{{decline}}">Decline</button></div>
+</div>
+</sc-if>
+<sc-if value="{{joined}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 8px 12px; border-radius: 4px; background: var(--positive-soft); border: 1px solid var(--positive); font-size: 13px">You joined the Spur Compact. Shared survey maps appear on your Galaxy screen next tick.</div>
+</sc-if>
+<sc-if value="{{declined}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 8px 12px; border-radius: 4px; background: var(--surface-raised); border: 1px solid var(--border); font-size: 13px">Invitation declined. @quietmoth has been told, politely.</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+<div style="flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span class="fg-kicker">Guild · founded T1,040</span>
+<h1 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700">The Spur Compact</h1>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary); font-style: italic">"Chart the arm together; settle it in peace."</span>
+</div>
+<span class="fg-meta">{{memberCount}} of 12 members · allied with the Coreward League</span>
+</div>
+<div style="overflow-x: auto">
+<table class="fg-table">
+<thead><tr><th>Civilization</th><th>Player</th><th>Role</th><th class="num">Distance</th><th class="num">Systems</th><th class="num">Reputation</th><th class="num">Survey shared</th></tr></thead>
+<tbody>
+<sc-for list="{{members}}" as="m" hint-placeholder-count="7">
+<tr aria-selected="{{m.you}}"><td>{{m.civ}}</td><td>{{m.player}}</td><td><span class="fg-badge {{m.badge}}">{{m.role}}</span></td><td class="num">{{m.dist}}</td><td class="num">{{m.systems}}</td><td class="num">{{m.rep}}</td><td class="num">{{m.survey}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Guild project</h2><span class="fg-meta">shared goal · all members contribute</span></div>
+<div class="fg-meter">
+<div class="fg-meter__row"><span style="color: var(--ink); font-weight: 600">Chart the Corvid Reach: survey 20 systems</span><span class="fg-meter__value">13 of 20 · about 60 ticks left</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: 65%"></div></div>
+</div>
+<p style="margin: 0; font-size: 12px; line-height: 17px; color: var(--ink-secondary)">Reward when complete: every member gets permanent survey data for the Corvid Reach and +5 reputation. Projects are cooperative; nobody can lose by joining late.</p>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Guild channel</h2><span class="fg-meta">members only · moderated</span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 3px; background: var(--surface-sunken); border: 1px solid var(--border-subtle)">
+<sc-for list="{{chat}}" as="c" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 60px minmax(0, 1fr); gap: 8px; font-size: 12px; line-height: 17px">
+<span class="fg-meta" style="text-align: right">T{{c.tick}}</span>
+<span><b style="font-weight: 600">{{c.who}}</b> <span style="color: var(--ink-secondary)">{{c.text}}</span></span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 6px; align-items: flex-end">
+<label for="gmsg" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Message the guild</label>
+<input id="gmsg" class="fg-input" type="text" placeholder="{{chatPlaceholder}}" disabled="{{notMember}}" style="flex: 1">
+<button type="button" class="fg-btn fg-btn--primary" disabled="{{notMember}}">Send</button>
+</div>
+<span class="fg-help">Messages pass the server's content filter. Players under 18 can talk with their guild and friends only.</span>
+</section>
+</div>
+
+<aside style="flex: 1 1 320px; max-width: 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Bonuses</h2><span class="fg-meta">{{bonusNote}}</span></div>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px">
+<li style="display: grid; grid-template-columns: 14px minmax(0, 1fr); font-size: 12px; line-height: 17px"><span style="color: var(--positive); font-family: var(--font-mono)">+</span><span>+5% trade income with members</span></li>
+<li style="display: grid; grid-template-columns: 14px minmax(0, 1fr); font-size: 12px; line-height: 17px"><span style="color: var(--positive); font-family: var(--font-mono)">+</span><span>Shared survey maps across all members</span></li>
+<li style="display: grid; grid-template-columns: 14px minmax(0, 1fr); font-size: 12px; line-height: 17px"><span style="color: var(--positive); font-family: var(--font-mono)">+</span><span>Fleets may refit at any member's shipyard</span></li>
+<li style="display: grid; grid-template-columns: 14px minmax(0, 1fr); font-size: 12px; line-height: 17px"><span style="color: var(--signal); font-family: var(--font-mono)">−</span><span>Guild wars pull you in; war weariness grows with each ally at war</span></li>
+</ul>
+<div class="fg-meter">
+<div class="fg-meter__row"><span>Members vs soft cap</span><span class="fg-meter__value">{{memberCount}} / 12</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: {{capPct}}%"></div></div>
+</div>
+<span class="fg-help">Above 12 members, every extra member cuts all bonuses by 5%. Big guilds are allowed; they just stop paying.</span>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Guild treaties</h2><span class="fg-meta">voted by members</span></div>
+<table class="fg-table"><tbody>
+<tr><td>Alliance · Coreward League</td><td><span class="fg-badge fg-badge--positive">In force</span></td></tr>
+<tr><td>Non-aggression · Concord of Ys</td><td><span class="fg-badge fg-badge--positive">In force</span></td></tr>
+<tr><td>Trade pact · Sable Ninefold</td><td><span class="fg-badge fg-badge--signal">Vote open · 3 of 7</span></td></tr>
+</tbody></table>
+<span class="fg-help">An alliance can link at most two guilds.</span>
+</section>
+
+<section class="fg-panel" style="border-color: var(--accent)">
+<span class="fg-kicker fg-kicker--accent">Tamsin</span>
+<p style="margin: 0; font-size: 12px; line-height: 17px">The Compact's members are peaceful and close: four of them are within 15 light-years. Joining gives us their survey maps of the Corvid Reach. One caution: the Lantern Accord declined our research pact last month.</p>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { status: 'invited' };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const base = [
+{ civ: 'The Lantern Accord', player: '@quietmoth', role: 'Founder', badge: 'fg-badge--accent', dist: '14.2 ly', systems: 6, rep: '+12', survey: '42' },
+{ civ: 'Merrow Free Worlds', player: '@ferrous', role: 'Member', badge: 'fg-badge--neutral', dist: '11.0 ly', systems: 2, rep: '+20', survey: '17' },
+{ civ: 'House Ottavine', player: '@lowtide', role: 'Officer', badge: 'fg-badge--neutral', dist: '18.5 ly', systems: 4, rep: '+8', survey: '25' },
+{ civ: 'Pellucid Reach', player: '@pell', role: 'Member', badge: 'fg-badge--neutral', dist: '22.1 ly', systems: 1, rep: '+3', survey: '6' },
+{ civ: 'The Hollow Choir', player: '@cantor', role: 'Member', badge: 'fg-badge--neutral', dist: '9.8 ly', systems: 3, rep: '+15', survey: '19' },
+{ civ: 'Brightwater Union', player: '@sola', role: 'Member', badge: 'fg-badge--neutral', dist: '13.4 ly', systems: 3, rep: '+27', survey: '22' },
+{ civ: 'Kestrel Assembly', player: '@vane', role: 'Member', badge: 'fg-badge--neutral', dist: '24.9 ly', systems: 2, rep: '+5', survey: '9' }
+].map((m) => ({ ...m, you: 'false' }));
+const joined = this.state.status === 'joined';
+const members = joined ? base.concat([{ civ: 'The Ashenreach Collective', player: 'you', role: 'Member', badge: 'fg-badge--positive', dist: '—', systems: 3, rep: '+34', survey: '0', you: 'true' }]) : base;
+const chat = [
+{ tick: '1,270', who: '@lowtide', text: 'Corvid Reach surveys: I can take the four systems past the gap.' },
+{ tick: '1,276', who: '@quietmoth', text: 'Welcome back, Pellucid. Sending you a refit slot at our yards.' },
+{ tick: '1,279', who: '@sola', text: 'Vote is open on the Sable trade pact. They left Corvid, so I lean yes.' },
+{ tick: '1,282', who: '@cantor', text: 'Invited the Ashenreach folks; they found water at Talmar.' }
+];
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+invited: this.state.status === 'invited', joined, declined: this.state.status === 'declined',
+members, memberCount: String(members.length), capPct: String(Math.round(members.length / 12 * 100)),
+bonusNote: joined ? 'active for you' : 'if you join',
+chat, notMember: !joined,
+chatPlaceholder: joined ? 'Message the Spur Compact' : 'Join to message the guild',
+accept: () => this.setState({ status: 'joined' }),
+decline: () => this.setState({ status: 'declined' })
+};
+}
+}
+</script>
+</body>
+</html>

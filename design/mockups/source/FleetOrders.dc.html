@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Fleet orders</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html" aria-current="page">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch <span class="fg-tab__count">3</span></a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy <span class="fg-tab__count">1</span></a>
+</nav>
+<div class="fg-status">
+<span>tick <b>1,284</b></span>
+<span>fold speed <b>0.5</b> ly/tick</span>
+<span>comms <b>2</b> ly/tick</span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+
+<section class="fg-panel" style="flex: 1 1 260px; max-width: 300px">
+<div class="fg-panel__head"><h1 class="fg-panel__title">Fleets</h1><span class="fg-meta">3,460 t total</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{fleets}}" as="f" hint-placeholder-count="4">
+<button type="button" aria-pressed="{{f.pressed}}" onClick="{{f.pick}}" style="text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 3px; padding: 6px 8px; border-radius: 3px; font-family: var(--font-sans); color: var(--ink); border: {{f.border}}; background: {{f.bg}}">
+<span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 13px; line-height: 17px; font-weight: 600">{{f.name}}</span><span style="font-family: var(--font-mono); font-size: 11px">{{f.tons}} t</span></span>
+<span class="fg-meter__track"><span class="fg-meter__fill {{f.fill}}" style="display: block; width: {{f.ready}}%"></span></span>
+<span class="fg-meta">{{f.ready}}% ready · {{f.where}}</span>
+</button>
+</sc-for>
+</div>
+</section>
+
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span class="fg-kicker">New order</span>
+<h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 700">{{fleet.name}}</h2>
+</div>
+<span class="fg-meta">{{fleet.tons}} t · {{fleet.doctrine}} · at {{fleet.where}}</span>
+</div>
+
+<div class="fg-field">
+<span class="fg-label">Order</span>
+<div class="fg-tabs" role="group" aria-label="Order type" style="align-self: flex-start; flex-wrap: wrap">
+<sc-for list="{{orders}}" as="o" hint-placeholder-count="6">
+<button type="button" class="fg-tab" aria-current="{{o.current}}" onClick="{{o.pick}}" style="border: none; cursor: pointer; font-family: var(--font-sans)">{{o.label}}</button>
+</sc-for>
+</div>
+<span class="fg-help">{{orderHint}}</span>
+</div>
+
+<div class="fg-field">
+<span class="fg-label">Destination</span>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{dests}}" as="d" hint-placeholder-count="4">
+<button type="button" aria-pressed="{{d.pressed}}" onClick="{{d.pick}}" style="text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 1px; padding: 6px 8px; border-radius: 3px; font-family: var(--font-sans); color: var(--ink); border: {{d.border}}; background: {{d.bg}}">
+<span style="font-size: 13px; line-height: 17px; font-weight: 600">{{d.name}}</span>
+<span class="fg-meta">{{d.dist}} ly · {{d.owner}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle)">
+<div style="padding: 8px 8px 8px 0; display: flex; flex-direction: column; gap: 1px"><span class="fg-label" style="color: var(--ink-muted)">Order reaches fleet</span><span style="font-family: var(--font-mono); font-size: 15px; font-weight: 500">T{{plan.receive}}</span><span class="fg-meta">lag {{plan.lag}} tick{{plan.lagS}}</span></div>
+<div style="padding: 8px; display: flex; flex-direction: column; gap: 1px; border-left: 1px solid var(--border-subtle)"><span class="fg-label" style="color: var(--ink-muted)">Travel</span><span style="font-family: var(--font-mono); font-size: 15px; font-weight: 500">{{plan.travel}} ticks</span><span class="fg-meta">{{plan.dist}} ly at 0.5 ly/tick</span></div>
+<div style="padding: 8px; display: flex; flex-direction: column; gap: 1px; border-left: 1px solid var(--border-subtle)"><span class="fg-label" style="color: var(--ink-muted)">Arrives</span><span style="font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--accent)">T{{plan.arrive}}</span><span class="fg-meta">about {{plan.hours}} h from now</span></div>
+<div style="padding: 8px; display: flex; flex-direction: column; gap: 1px; border-left: 1px solid var(--border-subtle)"><span class="fg-label" style="color: var(--ink-muted)">Readiness on arrival</span><span style="font-family: var(--font-mono); font-size: 15px; font-weight: 500">{{plan.readyOut}}%</span><span class="fg-meta">from {{fleet.ready}}%</span></div>
+</div>
+
+<sc-if value="{{plan.hasWarnings}}" hint-placeholder-val="{{true}}">
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{plan.warnings}}" as="w" hint-placeholder-count="2">
+<li style="display: grid; grid-template-columns: 16px minmax(0, 1fr); padding: 6px 8px; border-radius: 3px; font-size: 12px; line-height: 17px; background: {{w.bg}}; border: 1px solid {{w.border}}"><span style="font-family: var(--font-mono); font-weight: 500; color: {{w.color}}">{{w.mark}}</span><span>{{w.text}}</span></li>
+</sc-for>
+</ul>
+</sc-if>
+
+<div class="fg-field" style="max-width: 420px">
+<label class="fg-label" for="stance">If something happens out of contact</label>
+<select class="fg-select" id="stance"><option>Defend at 2:1 odds or better, else retreat</option></select>
+<span class="fg-help">Outside your comms coverage, the fleet follows this stance until your next order reaches it.</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<button type="button" class="{{confirmClass}}" onClick="{{send}}">{{confirmLabel}}</button>
+<button type="button" class="fg-btn fg-btn--secondary">Add to Galaxy map plan</button>
+<sc-if value="{{sent}}" hint-placeholder-val="{{false}}"><span class="fg-badge fg-badge--positive">Order queued. It reaches the fleet at T{{plan.receive}}.</span></sc-if>
+</div>
+</section>
+</div>
+
+<aside style="flex: 1 1 300px; max-width: 360px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">{{fleet.name}}</h2><span class="fg-meta">composition</span></div>
+<table class="fg-table">
+<tbody>
+<tr><td style="color: var(--ink-secondary)">Tonnage</td><td class="num">{{fleet.tons}} t</td></tr>
+<tr><td style="color: var(--ink-secondary)">Attack · defense</td><td class="num">×1.00 · ×1.15</td></tr>
+<tr><td style="color: var(--ink-secondary)">Effective strength</td><td class="num">{{fleet.strength}}</td></tr>
+<tr><td style="color: var(--ink-secondary)">Upkeep</td><td class="num">{{fleet.upkeep}} M/tick</td></tr>
+<tr><td style="color: var(--ink-secondary)">Wear</td><td class="num">−0.02% per tick</td></tr>
+</tbody>
+</table>
+</section>
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Orders in transit</h2><span class="fg-meta">2 pending</span></div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
+<li class="fg-meter"><div class="fg-meter__row"><span style="color: var(--ink); font-weight: 500">Oriel Picket: return and refit</span><span class="fg-meter__value">arrives T1,290</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width: 60%"></div></div></li>
+<li class="fg-meter"><div class="fg-meter__row"><span style="color: var(--ink); font-weight: 500">Survey Wing: survey Talmar</span><span class="fg-meter__value">arrives T1,286</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width: 80%"></div></div></li>
+</ol>
+</section>
+</aside>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { fleet: 'hg', order: 'patrol', dest: 'talmar', sent: false };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const fleets = [
+{ id: 'hg', name: 'Home Guard', tons: 1800, ready: 94, where: 'Hearth', offset: 0, doctrine: 'defensive · braided hulls', defMult: 1.15 },
+{ id: 'op', name: 'Oriel Picket', tons: 1200, ready: 58, where: '2.0 ly out, returning', offset: 2.0, doctrine: 'patrol', defMult: 1.15 },
+{ id: 'sw', name: 'Survey Wing', tons: 120, ready: 100, where: '1.0 ly from Talmar', offset: 3.1, doctrine: 'scout', defMult: 1.0 },
+{ id: 'oc', name: 'Outpost Convoy', tons: 340, ready: 100, where: 'Hearth', offset: 0, doctrine: 'civil', defMult: 1.0 }
+];
+const dests = [
+{ id: 'talmar', name: 'Talmar', d: 4.1, owner: 'unclaimed' },
+{ id: 'oriel', name: 'Oriel', d: 5.2, owner: 'yours' },
+{ id: 'wren', name: 'Wren’s Lamp', d: 3.3, owner: 'unclaimed' },
+{ id: 'ysout', name: 'Ys outpost', d: 9.3, owner: 'Concord of Ys' }
+];
+const orders = [
+{ id: 'move', label: 'Move', hint: 'Go there and hold position.' },
+{ id: 'patrol', label: 'Patrol', hint: 'Hold position and engage hostile fleets that enter the system, following your stance.' },
+{ id: 'survey', label: 'Survey', hint: 'Reveal every body in the system. Best with scout hulls.' },
+{ id: 'escort', label: 'Escort', hint: 'Travel with a colony ship and defend it.' },
+{ id: 'attack', label: 'Attack', hint: 'Engage the defenders and begin a siege. Hostile act.' },
+{ id: 'return', label: 'Return', hint: 'Come home and refit to full readiness.' }
+];
+const f = fleets.find((x) => x.id === this.state.fleet) || fleets[0];
+const dest = dests.find((x) => x.id === this.state.dest) || dests[0];
+const ord = orders.find((x) => x.id === this.state.order) || orders[0];
+const tick = 1284;
+const lag = Math.ceil(f.offset / 2) + 1;
+const dist = this.state.order === 'return' ? f.offset : Math.max(0.5, Math.abs(dest.d - (f.id === 'sw' && dest.id === 'talmar' ? 3.1 : f.offset * 0.3)));
+const travel = Math.ceil(dist / 0.5);
+const arrive = tick + lag + travel;
+const readyOut = Math.max(0, Math.round(f.ready - travel * 0.02 * 10) / 1);
+const warnings = [];
+const W = (kind, text) => warnings.push(kind === 'bad'
+? { mark: '!', color: 'var(--danger)', bg: 'var(--danger-soft)', border: 'var(--danger)', text }
+: kind === 'warn' ? { mark: '!', color: 'var(--signal)', bg: 'var(--signal-soft)', border: 'var(--signal)', text }
+: { mark: 'i', color: 'var(--accent)', bg: 'var(--accent-soft)', border: 'var(--accent)', text });
+if (dest.id === 'ysout' && this.state.order === 'attack') W('bad', 'Attacking the Concord of Ys breaks your Open Borders treaty: reputation −15 with everyone and −40 with Ys. This needs a signed-in confirmation.');
+if (dest.id === 'ysout' && this.state.order !== 'attack' && this.state.order !== 'return') W('info', 'Ys space. Open Borders lets you pass peacefully; Ys will see the fleet and the Dispatch will report it.');
+if (dest.d > 8 && this.state.order !== 'return') W('warn', 'Outside your comms coverage (8 ly). New orders will take extra ticks to arrive and the fleet will follow its stance meanwhile.');
+if (f.ready < 70 && this.state.order !== 'return') W('warn', f.name + ' is at ' + f.ready + '% readiness. Refit first, or it fights at reduced strength.');
+if (dest.id === 'talmar' && this.state.order === 'patrol') W('info', 'Patrolling Talmar protects a future colony site; the Ys outpost is 9 ly away.');
+const isAttack = this.state.order === 'attack';
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+fleets: fleets.map((x) => {
+const on = x.id === f.id;
+return { name: x.name, tons: x.tons.toLocaleString('en-US'), ready: x.ready, where: x.where, fill: x.ready < 70 ? 'fg-meter__fill--signal' : '', pressed: on ? 'true' : 'false', border: on ? '2px solid var(--accent)' : '1px solid var(--border)', bg: on ? 'var(--accent-soft)' : 'var(--surface)', pick: () => this.setState({ fleet: x.id, sent: false }) };
+}),
+fleet: { ...f, tons: f.tons.toLocaleString('en-US'), strength: Math.round(f.tons * f.ready / 100 * f.defMult).toLocaleString('en-US'), upkeep: (f.tons * 0.005).toFixed(1) },
+orders: orders.map((o) => ({ label: o.label, current: o.id === ord.id ? 'page' : 'false', pick: () => this.setState({ order: o.id, sent: false }) })),
+orderHint: ord.hint,
+dests: dests.map((d) => {
+const on = d.id === dest.id;
+return { name: d.name, dist: d.d, owner: d.owner, pressed: on ? 'true' : 'false', border: on ? '2px solid var(--accent)' : '1px solid var(--border)', bg: on ? 'var(--accent-soft)' : 'var(--surface)', pick: () => this.setState({ dest: d.id, sent: false }) };
+}),
+plan: { lag, lagS: lag === 1 ? '' : 's', receive: (tick + lag).toLocaleString('en-US'), travel, dist: dist.toFixed(1), arrive: arrive.toLocaleString('en-US'), hours: lag + travel, readyOut, warnings, hasWarnings: warnings.length > 0 },
+confirmLabel: isAttack ? 'Review hostile order…' : 'Send order',
+confirmClass: isAttack ? 'fg-btn fg-btn--danger' : 'fg-btn fg-btn--primary',
+sent: this.state.sent,
+send: () => { if (!isAttack) this.setState({ sent: true }); }
+};
+}
+}
+</script>
+</body>
+</html>

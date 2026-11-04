@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Diplomacy</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch <span class="fg-tab__count">3</span></a>
+<a class="fg-tab" href="Diplomacy.dc.html" aria-current="page">Diplomacy</a>
+</nav>
+<div class="fg-status">
+<span>tick <b>1,284</b></span>
+<span>next <b style="color: var(--accent)">42 min</b></span>
+<span>your reputation <b>+34</b></span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+
+<section class="fg-panel" style="flex: 1 1 260px; max-width: 300px">
+<div class="fg-panel__head">
+<h1 class="fg-panel__title">Known civilizations</h1>
+<span class="fg-meta">3 of 15 in range</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px" role="list">
+<sc-for list="{{civs}}" as="c" hint-placeholder-count="3">
+<button type="button" role="listitem" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="text-align: left; cursor: pointer; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 6px 8px; border-radius: 4px; border: {{c.border}}; background: {{c.bg}}; color: var(--ink); font-family: var(--font-sans)">
+<span style="width: 14px; height: 14px; border: 2px solid var(--signal); border-radius: 3px; box-sizing: border-box" aria-hidden="true"></span>
+<span style="font-size: 13px; line-height: 18px; font-weight: 600">{{c.name}}</span>
+<span class="fg-badge {{c.attBadge}}">{{c.attitude}}</span>
+<span></span>
+<span class="fg-meta">{{c.kind}} · {{c.dist}} · rep {{c.repLabel}}</span>
+<span></span>
+</button>
+</sc-for>
+</div>
+<p class="fg-help" style="margin: 0">Other civilizations appear once you can both detect each other. Squares mark civilizations that are not yours, here and on the map.</p>
+</section>
+
+<section class="fg-panel" style="flex: 999 1 520px; min-width: 0">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker">{{sel.kind}} · {{sel.driver}}</span>
+<h2 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700; letter-spacing: -0.01em">{{sel.name}}</h2>
+</div>
+<span class="fg-meta">last report T{{sel.last}} · {{sel.lag}} ticks old</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 6px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle)">
+<div style="display: flex; flex-direction: column; gap: 2px"><span class="fg-label" style="color: var(--ink-muted)">Distance</span><span style="font-family: var(--font-mono); font-size: 14px">{{sel.dist}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span class="fg-label" style="color: var(--ink-muted)">Tech tier</span><span style="font-family: var(--font-mono); font-size: 14px">{{sel.tier}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span class="fg-label" style="color: var(--ink-muted)">Systems known</span><span style="font-family: var(--font-mono); font-size: 14px">{{sel.systems}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 2px"><span class="fg-label" style="color: var(--ink-muted)">Fleet estimate</span><span style="font-family: var(--font-mono); font-size: 14px">{{sel.fleet}}</span></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div class="fg-meter">
+<div class="fg-meter__row"><span>Their reputation</span><span class="fg-meter__value">{{sel.repLabel}} of ±100</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill {{sel.repFill}}" style="width: {{sel.repPct}}%"></div></div>
+</div>
+<div class="fg-meter">
+<div class="fg-meter__row"><span>Intel confidence</span><span class="fg-meter__value">{{sel.intel}}%</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: {{sel.intel}}%"></div></div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600">What we know</h3>
+<table class="fg-table">
+<tbody>
+<sc-for list="{{sel.traits}}" as="t" hint-placeholder-count="6">
+<tr><td style="color: var(--ink-secondary)">{{t.k}}</td><td class="num" style="color: {{t.color}}">{{t.v}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<span class="fg-help">"?" means your intelligence has not confirmed it. Research Communications or trade envoys to learn more.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600">History with you</h3>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+<sc-for list="{{sel.history}}" as="h" hint-placeholder-count="5">
+<li style="display: grid; grid-template-columns: 64px 12px minmax(0, 1fr); gap: 10px; align-items: start; padding: 3px 0; border-bottom: 1px solid var(--border-subtle)">
+<span class="fg-meta" style="text-align: right">T{{h.tick}}</span>
+<span style="width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: {{h.dot}}"></span>
+<span style="font-size: 12px; line-height: 16px">{{h.text}}</span>
+</li>
+</sc-for>
+</ol>
+</div>
+</div>
+</section>
+
+<aside style="flex: 1 1 320px; max-width: 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Treaties</h2>
+<span class="fg-meta">with {{sel.short}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{sel.treaties}}" as="tr" hint-placeholder-count="2">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="font-size: 12px">{{tr.name}}</span>
+<span class="fg-badge {{tr.badge}}">{{tr.state}}</span>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{sel.hasOffer}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 8px; border-radius: 4px; background: var(--signal-soft); border: 1px solid var(--signal)">
+<span class="fg-kicker fg-kicker--signal">Offer · expires T1,296</span>
+<span style="font-weight: 600">Trade Pact, 240 ticks</span>
+<table class="fg-table" style="background: transparent">
+<tbody>
+<tr><td>You give</td><td class="num">4 M / tick</td></tr>
+<tr><td>You receive</td><td class="num">6 E / tick</td></tr>
+<tr><td>Reputation if kept</td><td class="num" style="color: var(--positive)">+8</td></tr>
+<tr><td>Penalty if broken</td><td class="num" style="color: var(--signal)">−15 all, −40 Ys</td></tr>
+</tbody>
+</table>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="fg-btn fg-btn--primary fg-btn--sm">Accept</button>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Counter</button>
+<button type="button" class="fg-btn fg-btn--ghost fg-btn--sm">Decline</button>
+</div>
+</div>
+</sc-if>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Send an envoy</h2>
+<span class="fg-meta">arrives in {{sel.envoy}} ticks</span>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="env-type">Proposal</label>
+<select class="fg-select" id="env-type"><option>Research Pact</option></select>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="env-msg">Message</label>
+<textarea class="fg-textarea" id="env-msg" rows="3" placeholder="What do you want to say to them?"></textarea>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="fg-btn fg-btn--primary">Send envoy</button>
+<button type="button" class="fg-btn fg-btn--danger">Declare war…</button>
+</div>
+<p class="fg-help" style="margin: 0">Replies can also arrive by email. Irreversible acts, like declaring war, always ask you to confirm while signed in.</p>
+</section>
+</aside>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { pick: 'ys' };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const P = 'var(--positive)', S = 'var(--signal)', I = 'var(--ink)', M = 'var(--ink-muted)', A = 'var(--accent)';
+const data = [
+{ id: 'ys', name: 'The Concord of Ys', short: 'Ys', kind: 'Non-player civilization', driver: 'Trader', dist: '8.6 ly', lag: 6, last: '1,278', tier: 'Reach', systems: '4', fleet: '2.0–2.8 kt', rep: 41, attitude: 'Warm', attBadge: 'fg-badge--positive', intel: 72, envoy: 5, hasOffer: true,
+traits: [ { k: 'Authority', v: 'Council', color: I }, { k: 'Economy', v: 'Market', color: I }, { k: 'Priority', v: '?', color: M }, { k: 'Empathy', v: '+2', color: I }, { k: 'Openness', v: '+2', color: I }, { k: 'Martial tradition', v: '−1', color: I }, { k: 'Expansion drive', v: '?', color: M } ],
+history: [ { tick: '640', text: 'First contact near Wren’s Lamp', dot: A }, { tick: '702', text: 'Open Borders signed', dot: P }, { tick: '911', text: 'Joint survey of Corvid Reach', dot: P }, { tick: '1,190', text: 'Ys outpost founded 9 ly from Talmar', dot: S }, { tick: '1,278', text: 'Trade Pact proposed', dot: S } ],
+treaties: [ { name: 'Open Borders', state: 'In force', badge: 'fg-badge--positive' }, { name: 'Trade Pact', state: 'Offer pending', badge: 'fg-badge--signal' } ] },
+{ id: 'lantern', name: 'The Lantern Accord', short: 'the Lantern Accord', kind: 'Player · @quietmoth', driver: 'Spur Compact guild', dist: '14.2 ly', lag: 9, last: '1,276', tier: 'Lattice', systems: '6', fleet: '?', rep: 12, attitude: 'Neutral', attBadge: 'fg-badge--neutral', intel: 40, envoy: 8, hasOffer: false,
+traits: [ { k: 'Authority', v: 'Directive', color: I }, { k: 'Economy', v: '?', color: M }, { k: 'Priority', v: 'Knowledge', color: I }, { k: 'Curiosity', v: '?', color: M }, { k: 'Openness', v: '+1', color: I } ],
+history: [ { tick: '1,031', text: 'Contact via relay at the Spur gap', dot: A }, { tick: '1,160', text: 'Declined your Research Pact', dot: S }, { tick: '1,276', text: 'Joined the Spur Compact guild', dot: M } ],
+treaties: [ { name: 'None in force', state: '—', badge: 'fg-badge--neutral' } ] },
+{ id: 'sable', name: 'The Sable Ninefold', short: 'the Sable Ninefold', kind: 'Non-player civilization', driver: 'Raider', dist: '23.0 ly', lag: 14, last: '1,262', tier: 'Reach', systems: '2', fleet: '3–5 kt', rep: -18, attitude: 'Wary', attBadge: 'fg-badge--signal', intel: 25, envoy: 12, hasOffer: false,
+traits: [ { k: 'Authority', v: '?', color: M }, { k: 'Economy', v: 'Planned', color: I }, { k: 'Priority', v: 'Security', color: I }, { k: 'Martial tradition', v: '+3', color: S } ],
+history: [ { tick: '1,080', text: 'Occupied Corvid Reach', dot: S }, { tick: '1,262', text: 'Withdrew; systems returned to their builders', dot: P } ],
+treaties: [ { name: 'None in force', state: '—', badge: 'fg-badge--neutral' } ] }
+];
+const sel0 = data.find((d) => d.id === this.state.pick) || data[0];
+const fmt = (r) => (r > 0 ? '+' + r : String(r).replace('-', '−'));
+const sel = { ...sel0, repLabel: fmt(sel0.rep), repPct: Math.round((sel0.rep + 100) / 2), repFill: sel0.rep < 0 ? 'fg-meter__fill--signal' : 'fg-meter__fill--positive' };
+const civs = data.map((d) => {
+const on = d.id === sel0.id;
+return {
+name: d.name, kind: d.kind.startsWith('Player') ? 'Player' : 'AI', dist: d.dist, repLabel: fmt(d.rep), attitude: d.attitude, attBadge: d.attBadge,
+pressed: on ? 'true' : 'false',
+border: on ? '2px solid var(--accent)' : '1px solid var(--border)',
+bg: on ? 'var(--accent-soft)' : 'var(--surface)',
+pick: () => this.setState({ pick: d.id })
+};
+});
+return { themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light', civs, sel };
+}
+}
+</script>
+</body>
+</html>

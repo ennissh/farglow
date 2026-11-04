@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Sign in or found a civilization</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; box-sizing: border-box; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--ink)">
+
+<section style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 36px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-kicker">A Generative Distractions game</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px; max-width: 640px">
+<h1 style="margin: 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.02em">Your civilization lives while you sleep.</h1>
+<p style="margin: 0; font-size: 14px; line-height: 21px; color: var(--ink-secondary)">Somewhere in a real-scale Milky Way, your people are looking up and wondering if anyone else is out there. Guide them from a single home world to the edge of interstellar travel, then cross it and meet the neighbors. Each morning the Meridian Dispatch tells you what happened overnight; five minutes of decisions keeps your story moving. There is no finish line. Every star counts.</p>
+</div>
+
+<div class="fg-panel__plot" style="position: relative; padding: 16px; display: flex; flex-direction: column; gap: 8px; max-width: 640px">
+<div style="display: flex; justify-content: space-between">
+<span class="fg-kicker">Milky Way · top-down schematic</span>
+<span class="fg-meta">~87,400 ly across</span>
+</div>
+<svg viewBox="0 0 600 300" style="width: 100%; height: auto" role="img" aria-label="Schematic of the Milky Way seen from above, with spiral arms and a marker for this server's galaxy region in the Orion Spur">
+<g fill="none" stroke="var(--border-strong)" stroke-width="1.2" stroke-dasharray="3 5">
+<path d="M300 150 C 360 100, 470 110, 520 170 C 560 220, 520 270, 440 280"></path>
+<path d="M300 150 C 240 200, 130 190, 80 130 C 40 80, 80 30, 160 20"></path>
+<path d="M300 150 C 340 210, 300 270, 220 280 C 150 288, 100 250, 90 210"></path>
+<path d="M300 150 C 260 90, 300 30, 380 20 C 450 12, 500 50, 510 90"></path>
+</g>
+<ellipse cx="300" cy="150" rx="46" ry="26" fill="var(--surface-raised)" stroke="var(--border)"></ellipse>
+<text x="300" y="154" text-anchor="middle" fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="10">BULGE · SGR A*</text>
+<circle cx="404" cy="214" r="34" fill="var(--accent-soft)" stroke="var(--accent)" stroke-dasharray="3 3"></circle>
+<circle cx="404" cy="214" r="4" fill="var(--accent)"></circle>
+<line x1="404" y1="214" x2="470" y2="250" stroke="var(--accent)"></line>
+<text x="474" y="254" fill="var(--ink)" font-family="Inter Tight, sans-serif" font-size="13" font-weight="600">The Quiet Arm</text>
+<text x="474" y="269" fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="10">this server · Orion Spur</text>
+<g stroke="var(--border-subtle)"><line x1="40" y1="292" x2="140" y2="292"></line></g>
+<text x="40" y="286" fill="var(--ink-muted)" font-family="IBM Plex Mono, monospace" font-size="10">10,000 ly</text>
+</svg>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 640px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: var(--font-mono); font-size: 15px; line-height: 20px; font-weight: 500">100–400 bn</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary)">stars, generated from published astronomy as you explore</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: var(--font-mono); font-size: 15px; line-height: 20px; font-weight: 500">5 min / day</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary)">read the morning Dispatch, make a decision, get on with your day</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: var(--font-mono); font-size: 15px; line-height: 20px; font-weight: 500">1 tick = 1 h</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary)">your governor keeps things running between visits</span>
+</div>
+</div>
+
+<div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 8px 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle)" class="fg-meta">
+<span>Galaxy <b style="color: var(--ink); font-weight: 500">The Quiet Arm</b></span>
+<span>Hosted by <b style="color: var(--ink); font-weight: 500">[HOST NAME]</b></span>
+<span>14 civilizations · 15 neighbors</span>
+<span>Tick 1,284</span>
+</div>
+</section>
+
+<section style="flex: 1 1 520px; min-width: 0; box-sizing: border-box; padding: 28px 36px; display: flex; flex-direction: column; gap: 14px; background: var(--surface)">
+<div class="fg-tabs" role="tablist" aria-label="Sign in or create a civilization" style="align-self: flex-start">
+<button type="button" class="fg-tab" role="tab" aria-selected="{{isNew}}" aria-current="{{newCurrent}}" onClick="{{showNew}}" style="border: none; cursor: pointer; font-family: var(--font-sans)">New player</button>
+<button type="button" class="fg-tab" role="tab" aria-selected="{{isSignin}}" aria-current="{{signinCurrent}}" onClick="{{showSignin}}" style="border: none; cursor: pointer; font-family: var(--font-sans)">Sign in</button>
+</div>
+
+<sc-if value="{{isNew}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700; letter-spacing: -0.01em">Found a civilization</h2>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; gap: 16px" class="fg-meta">
+<li style="color: var(--accent)">1 Account</li>
+<li style="color: var(--accent)">2 Civilization</li>
+<li>3 Attributes</li>
+<li>4 Advisor</li>
+<li>5 First light</li>
+</ol>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<div class="fg-field">
+<label class="fg-label" for="np-email">Email</label>
+<input class="fg-input" id="np-email" type="email" placeholder="you@example.com">
+</div>
+<div class="fg-field">
+<label class="fg-label" for="np-year">Birth year</label>
+<select class="fg-select" id="np-year"><option>Select year</option></select>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="np-handle">Display name</label>
+<input class="fg-input" id="np-handle" type="text" placeholder="How other players see you">
+</div>
+<div class="fg-field">
+<label class="fg-label" for="np-civ">Civilization name</label>
+<input class="fg-input" id="np-civ" type="text" value="The Ashenreach Collective">
+</div>
+<div class="fg-field" style="grid-column: span 2">
+<label class="fg-label" for="np-story">Backstory</label>
+<textarea class="fg-textarea" id="np-story" rows="4">A cautious, curious people from a cold ocean world who rebuilt after a long winter. We trust the council, distrust conquest, and keep careful records of everything we find.</textarea>
+<p class="fg-help" style="margin: 0">The Dispatch reads this to suggest your starting attributes. You can change every value.</p>
+</div>
+</div>
+
+<div class="fg-panel" style="gap: 10px">
+<div class="fg-panel__head">
+<h3 class="fg-panel__title" style="font-size: 13px; line-height: 18px">Suggested attributes</h3>
+<span class="fg-badge fg-badge--positive">Balanced · strengths 6 = weaknesses 6</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 24px">
+<sc-for list="{{attrs}}" as="a" hint-placeholder-count="10">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 112px 28px; align-items: center; gap: 8px; font-size: 12px; line-height: 16px">
+<span>{{a.name}}</span>
+<span style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px" aria-hidden="true">
+<sc-for list="{{a.cells}}" as="c" hint-placeholder-count="7">
+<span style="height: 8px; border-radius: 1px; background: {{c.bg}}"></span>
+</sc-for>
+</span>
+<span style="font-family: var(--font-mono); text-align: right">{{a.label}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<a class="fg-btn fg-btn--primary" href="AdvisorSetup.dc.html">Continue to your advisor</a>
+<button type="button" class="fg-btn fg-btn--secondary">Re-read backstory</button>
+<span class="fg-help" style="flex-basis: 100%">Players must be 13 or older. We email a sign-in link instead of using passwords.</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isSignin}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 20px; max-width: 420px">
+<h2 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700; letter-spacing: -0.01em">Welcome back</h2>
+<p style="margin: 0; color: var(--ink-secondary)">No password needed. We will email you a link that signs you in.</p>
+<div class="fg-field">
+<label class="fg-label" for="si-email">Email</label>
+<input class="fg-input" id="si-email" type="email" placeholder="you@example.com">
+</div>
+<button type="button" class="fg-btn fg-btn--primary" style="align-self: flex-start">Email me a sign-in link</button>
+<p class="fg-help" style="margin: 0">Links work once and expire after 15 minutes. Your morning Dispatch arrives at 07:00 your time.</p>
+</div>
+</sc-if>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { mode: 'new' };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const raw = [
+['Cohesion', 1], ['Curiosity', 2], ['Industry', 0], ['Martial tradition', -2], ['Empathy', 1],
+['Adaptability', 0], ['Fecundity', -1], ['Resilience', 1], ['Expansion drive', -1], ['Openness', -1]
+];
+const attrs = raw.map(([name, v]) => ({
+name,
+label: v > 0 ? '+' + v : String(v),
+cells: [-3, -2, -1, 0, 1, 2, 3].map((p) => {
+let bg = 'var(--surface-raised)';
+if (p === 0) bg = 'var(--border-strong)';
+else if (v > 0 && p > 0 && p <= v) bg = 'var(--accent)';
+else if (v < 0 && p < 0 && p >= v) bg = 'var(--signal)';
+return { bg };
+})
+}));
+const isNew = this.state.mode === 'new';
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+isNew,
+isSignin: !isNew,
+newCurrent: isNew ? 'page' : 'false',
+signinCurrent: isNew ? 'false' : 'page',
+showNew: () => this.setState({ mode: 'new' }),
+showSignin: () => this.setState({ mode: 'signin' }),
+attrs
+};
+}
+}
+</script>
+</body>
+</html>

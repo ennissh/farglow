@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Host admin · Operations</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--glow:#D2790F;--glow-2:#1D5BB8;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--glow:#F5B547;--glow-2:#8DB6F4;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+.fg-rb{display:flex;gap:10px;align-items:baseline;padding:6px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font:inherit;font-size:12px;cursor:pointer;text-align:left}
+.fg-rb[aria-pressed="true"]{border-color:var(--danger);background:var(--danger-soft)}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; box-sizing: border-box; background: var(--bg); color: var(--ink)">
+<header style="min-height:48px;box-sizing:border-box;padding:6px 12px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:1px solid var(--border)">
+<div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:20px;line-height:24px;font-weight:700;letter-spacing:-0.02em">farglow</span><span class="fg-meta">Host admin · The Quiet Arm · galaxy.example.com</span></div>
+<nav class="fg-tabs" aria-label="Admin sections"><a class="fg-tab" href="HostAdmin.dc.html">Overview</a><a class="fg-tab" href="HostAdminOps.dc.html" aria-current="page">Operations</a><a class="fg-tab" href="AILog.dc.html">AI activity</a></nav>
+<div class="fg-status"><span>tick <b>1,284</b></span><span>{{clockLabel}}</span></div>
+</header>
+<main style="padding:12px;display:flex;flex-direction:column;gap:12px">
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h1 class="fg-panel__title">Health and capacity</h1><span class="fg-meta">sampled every 60 s · VPS 8 vCPU · 16 GB · 160 GB disk</span></div>
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px">
+<div><span class="fg-label" style="color:var(--ink-muted)">Room for players</span><div style="font-family:var(--font-mono);font-size:16px;font-weight:500;color:var(--positive)">≈ 140 more</div><span class="fg-meta">before a tick passes 30 s</span></div>
+<div><span class="fg-label" style="color:var(--ink-muted)">Tick duration</span><div style="font-family:var(--font-mono);font-size:16px;font-weight:500">3.2 s</div><span class="fg-meta">p95 5.9 s · budget 60 s</span></div>
+<div><span class="fg-label" style="color:var(--ink-muted)">Active now</span><div style="font-family:var(--font-mono);font-size:16px;font-weight:500">6 players</div><span class="fg-meta">14 total · peak 11 at 19:00</span></div>
+<div><span class="fg-label" style="color:var(--ink-muted)">API latency</span><div style="font-family:var(--font-mono);font-size:16px;font-weight:500">38 ms</div><span class="fg-meta">p95 140 ms · 0.1% errors</span></div>
+<div><span class="fg-label" style="color:var(--ink-muted)">Database</span><div style="font-family:var(--font-mono);font-size:16px;font-weight:500">2.1 GB</div><span class="fg-meta">+38 MB/day · 61 days to 80% disk</span></div>
+<div><span class="fg-label" style="color:var(--ink-muted)">AI queue</span><div style="font-family:var(--font-mono);font-size:16px;font-weight:500">2 jobs</div><span class="fg-meta">p95 wait 9 s · 3 fallbacks today</span></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+<div class="fg-meter"><div class="fg-meter__row"><span>CPU (24 h avg)</span><span class="fg-meter__value">23%</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width:23%"></div></div></div>
+<div class="fg-meter"><div class="fg-meter__row"><span>Memory</span><span class="fg-meter__value">7.4 of 16 GB</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width:46%"></div></div></div>
+<div class="fg-meter"><div class="fg-meter__row"><span>Disk</span><span class="fg-meter__value">41 of 160 GB</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width:26%"></div></div></div>
+<div class="fg-meter"><div class="fg-meter__row"><span>Tick budget used (p95)</span><span class="fg-meter__value">5.9 of 60 s</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width:10%"></div></div></div>
+</div>
+<p class="fg-help" style="margin:0">"Room for players" is estimated from how tick time has grown with each civilization on this server (about 0.19 s per civ including its AI rival), capped by memory. It is a guide, not a promise; run the scale test before inviting a big group.</p>
+</section>
+
+<div style="display:flex;gap:12px;align-items:flex-start">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Galaxy density</h2><span class="fg-meta">sectors open only when the ones in use fill up</span></div>
+<table class="fg-table"><thead><tr><th>Sector</th><th>Arm</th><th class="num">Civs</th><th class="num">Systems generated</th><th class="num">Claimed</th><th>Density</th></tr></thead><tbody>
+<tr><td style="font-family:var(--font-mono)">41-07-02</td><td>Orion Spur</td><td class="num">9</td><td class="num">1,240</td><td class="num">64</td><td style="width:180px"><div class="fg-meter"><div class="fg-meter__row"><span></span><span class="fg-meter__value">72%</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width:72%"></div></div></div></td></tr>
+<tr><td style="font-family:var(--font-mono)">41-07-03</td><td>Orion Spur</td><td class="num">5</td><td class="num">610</td><td class="num">22</td><td><div class="fg-meter"><div class="fg-meter__row"><span></span><span class="fg-meter__value">40%</span></div><div class="fg-meter__track"><div class="fg-meter__fill" style="width:40%"></div></div></div></td></tr>
+<tr><td style="font-family:var(--font-mono)">41-08-01</td><td>Orion Spur</td><td class="num">0</td><td class="num">—</td><td class="num">—</td><td><span class="fg-badge fg-badge--neutral">Opens at 80%</span></td></tr>
+</tbody></table>
+<span class="fg-help">New players are placed in the least dense open sector with room for "breathing space". When every open sector passes 80%, the next one is generated. Each civ also brings one AI rival.</span>
+</section>
+
+<section class="fg-panel" style="border-color:{{rbBorder}}">
+<div class="fg-panel__head"><h2 class="fg-panel__title" style="display:flex;gap:6px;align-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="13" r="7.5"/><path d="M11 9v4l2.5 2M17 3.5h4v4M21 3.5l-3.5 3.5"/></svg> Roll back to a tick</h2><span class="fg-meta">every tick keeps a restore point for 72 ticks</span></div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
+<div style="display:flex;flex-direction:column;gap:6px">
+<span class="fg-label">Restore point</span>
+<sc-for list="{{points}}" as="p" hint-placeholder-count="4">
+<button type="button" onClick="{{p.pick}}" aria-pressed="{{p.on}}" class="fg-rb"><span style="font-family:var(--font-mono);font-weight:500">T{{p.tick}}</span><span class="fg-meta">{{p.when}}</span><span class="fg-meta" style="margin-left:auto">{{p.note}}</span></button>
+</sc-for>
+<span class="fg-label" style="margin-top:4px">After restoring</span>
+<label style="display:flex;gap:6px;align-items:flex-start;font-size:12px;line-height:16px"><input type="radio" name="rbmode" checked> <span><b>Pause the galaxy</b><br><span class="fg-meta">You fix the problem, then resume. Orders sent after the restore point are discarded.</span></span></label>
+<label style="display:flex;gap:6px;align-items:flex-start;font-size:12px;line-height:16px"><input type="radio" name="rbmode"> <span><b>Replay players' orders</b><br><span class="fg-meta">Re-runs the ticks with the same orders after a bug fix. Stored AI outputs are reused, so the result is repeatable.</span></span></label>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<span class="fg-label">What this will do</span>
+<ul style="margin:0;padding-left:16px;font-size:12px;line-height:18px;color:var(--ink-secondary)">
+<li>Undo <b style="color:var(--ink)">{{rbTicks}}</b> of play for all 29 civilizations</li>
+<li>Discard <b style="color:var(--ink)">{{rbOrders}} orders</b> players sent since T{{rbTick}}</li>
+<li>Cancel <b style="color:var(--ink)">{{rbLinks}} email action links</b> (they would act on a world that no longer exists)</li>
+<li>Tell every player in the next Dispatch, with your reason</li>
+<li>Take a backup first, so the rollback itself can be undone</li>
+</ul>
+<div class="fg-field"><label class="fg-label" for="rbwhy">Reason shown to players</label><input id="rbwhy" class="fg-input" value="A bug doubled mineral output in ticks 1,282-1,284."></div>
+<div class="fg-field"><label class="fg-label" for="rbok">Type ROLL BACK T{{rbTick}} to confirm</label><input id="rbok" class="fg-input" placeholder="ROLL BACK T{{rbTick}}"></div>
+<button type="button" class="fg-btn fg-btn--danger" style="align-self:flex-start">Roll back to T{{rbTick}}</button>
+</div>
+</div>
+</section>
+</div>
+
+<aside style="flex:0 0 440px;display:flex;flex-direction:column;gap:12px">
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Ban a player</h2><span class="fg-meta">@grimwald · 4 strikes</span></div>
+<div class="fg-field"><label class="fg-label" for="banlen">Length</label>
+<div style="display:flex;gap:4px"><sc-for list="{{lens}}" as="l" hint-placeholder-count="4"><button type="button" onClick="{{l.pick}}" class="fg-btn fg-btn--sm {{l.cls}}">{{l.label}}</button></sc-for></div></div>
+<div class="fg-field"><label class="fg-label" for="banciv">Their civilization</label>
+<select id="banciv" class="fg-select"><option>Frozen: no growth, can't be attacked, returns when the ban ends</option><option>Handed to the AI until the ban ends</option><option>Removed: becomes an Elder ruin (permanent bans only)</option></select></div>
+<div class="fg-field"><label class="fg-label" for="banwhy">Reason (sent to the player)</label><textarea id="banwhy" class="fg-textarea" rows="2">Repeated harassment of other players after warnings and mutes.</textarea></div>
+<label style="display:flex;gap:6px;align-items:center;font-size:12px"><input type="checkbox" checked> Block this email address from signing up again</label>
+<div style="display:flex;gap:6px"><button type="button" class="fg-btn fg-btn--danger">{{banLabel}}</button><button type="button" class="fg-btn fg-btn--ghost">Cancel</button></div>
+<span class="fg-help">The player can appeal from the email they receive. Every ban is written to the admin audit log.</span>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Logs</h2><span class="fg-meta">last 15 min · all containers</span></div>
+<div style="display:flex;gap:4px;flex-wrap:wrap"><sc-for list="{{levels}}" as="l" hint-placeholder-count="4"><button type="button" onClick="{{l.pick}}" class="fg-btn fg-btn--sm {{l.cls}}">{{l.label}}</button></sc-for><input class="fg-input" placeholder="Search logs" style="flex:1;min-width:120px;height:24px"></div>
+<div style="background:var(--surface-sunken);border:1px solid var(--border-subtle);border-radius:3px;padding:6px 8px;display:flex;flex-direction:column;gap:2px;font-family:var(--font-mono);font-size:11px;line-height:15px;max-height:260px;overflow:auto">
+<sc-for list="{{logs}}" as="g" hint-placeholder-count="9"><div style="display:grid;grid-template-columns:58px 44px 76px minmax(0,1fr);gap:6px"><span style="color:var(--ink-muted)">{{g.t}}</span><span style="color:{{g.c}}">{{g.lvl}}</span><span style="color:var(--ink-secondary)">{{g.svc}}</span><span style="color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{g.msg}}</span></div></sc-for>
+</div>
+<div style="display:flex;gap:6px"><button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Download logs (.tar.gz)</button><button type="button" class="fg-btn fg-btn--ghost fg-btn--sm">Admin audit log</button></div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { rb: 1281, len: '7 days', lvl: 'All' }; }
+renderVals() {
+const pts = [[1283, '2 h ago', 'last good tick'], [1282, '3 h ago', ''], [1281, '4 h ago', 'before the mineral bug'], [1272, '13 h ago', 'nightly backup']];
+const back = (t) => 1284 - t;
+const lens = ['24 hours', '7 days', '30 days', 'Permanent'];
+const levels = ['All', 'Errors', 'Warnings', 'Ticks'];
+const L = [
+['19:42:07','INFO','tick','tick 1,284 done in 3.2 s · 29 civs · 41 orders'],
+['19:42:05','INFO','worker','dispatch: 14 emails queued'],
+['19:41:58','WARN','llm-gw','Mac Studio slow (9.4 s); fell back to template for news item 3'],
+['19:40:12','INFO','api','POST /orders 201 · @sola · fleet move'],
+['19:37:44','WARN','mailer','bounce: soft · @pell · retry in 30 min'],
+['19:31:02','ERROR','api','GET /galaxy/41-08-01 404 · sector not generated'],
+['19:22:16','INFO','moderation','held 1 message · @grimwald → @ferrous'],
+['19:03:00','INFO','backup','restore point T1283 written · 412 MB'],
+['18:42:09','INFO','tick','tick 1,283 done in 2.9 s · 29 civs · 37 orders'],
+];
+const lvlMap = { Errors: ['ERROR'], Warnings: ['WARN', 'ERROR'], Ticks: null };
+const col = { INFO: 'var(--ink-muted)', WARN: 'var(--signal)', ERROR: 'var(--danger)' };
+const logs = L.filter((r) => this.state.lvl === 'All' || (this.state.lvl === 'Ticks' ? r[2] === 'tick' : lvlMap[this.state.lvl].includes(r[1]))).map((r) => ({ t: r[0], lvl: r[1], svc: r[2], msg: r[3], c: col[r[1]] }));
+const n = back(this.state.rb);
+return {
+themeClass: (this.props.theme ?? 'light') === 'dark' ? 'fg-dark' : 'fg-light',
+clockLabel: 'next tick 42 min',
+points: pts.map(([t, w, note]) => ({ tick: t.toLocaleString('en-US'), when: w, note, on: this.state.rb === t, pick: () => this.setState({ rb: t }) })),
+rbTick: this.state.rb.toLocaleString('en-US'), rbTicks: n + (n === 1 ? ' tick' : ' ticks') + ' (' + n + ' h)', rbOrders: String(n * 39), rbLinks: String(n * 21), rbBorder: 'var(--border)',
+lens: lens.map((l) => ({ label: l, cls: l === this.state.len ? 'fg-btn--primary' : 'fg-btn--secondary', pick: () => this.setState({ len: l }) })),
+banLabel: this.state.len === 'Permanent' ? 'Ban permanently' : 'Ban for ' + this.state.len,
+levels: levels.map((l) => ({ label: l, cls: l === this.state.lvl ? 'fg-btn--primary' : 'fg-btn--secondary', pick: () => this.setState({ lvl: l }) })),
+logs,
+};
+}
+}
+</script>
+</body>
+</html>

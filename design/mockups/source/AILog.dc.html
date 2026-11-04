@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — AI activity log</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">AI activity · The Quiet Arm</span>
+</div>
+<div class="fg-status">
+<span>backend <b style="color: var(--positive)">Mac Studio · online</b></span>
+<span>model <b>qwen3.6-27b</b></span>
+<span>queue <b>2</b></span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 12px">
+
+<section class="fg-panel">
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span class="fg-label" style="color: var(--ink-muted)">{{s.label}}</span>
+<span style="font-family: var(--font-mono); font-size: 16px; line-height: 20px; font-weight: 500; color: {{s.color}}">{{s.value}}</span>
+<span class="fg-meta">{{s.sub}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+<section class="fg-panel" style="flex: 999 1 600px; min-width: 0">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<h1 class="fg-panel__title">Calls · last 24 ticks</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 4px" role="group" aria-label="Filter by purpose">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
+<button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="min-height: 24px; padding: 0 8px; border-radius: 3px; cursor: pointer; font-family: var(--font-sans); font-size: 12px; font-weight: 500; border: 1px solid {{c.border}}; background: {{c.bg}}; color: {{c.color}}">{{c.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="overflow-x: auto">
+<table class="fg-table">
+<thead><tr><th class="num">Tick</th><th>Purpose</th><th>Subject</th><th>Model</th><th class="num">Latency</th><th class="num">Tokens</th><th>Result</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<tr aria-selected="{{r.sel}}" onClick="{{r.pick}}" style="cursor: pointer">
+<td class="num">{{r.tick}}</td>
+<td><span class="fg-kicker {{r.kicker}}">{{r.purpose}}</span></td>
+<td>{{r.subject}}</td>
+<td style="font-family: var(--font-mono); font-size: 11px">{{r.model}}</td>
+<td class="num">{{r.latency}}</td>
+<td class="num">{{r.tokens}}</td>
+<td><span class="fg-badge {{r.badge}}">{{r.result}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p class="fg-help" style="margin: 0">Every AI call is stored with its prompt, raw output and validation result. Replaying a tick reuses the stored output; the model is never asked twice, so the simulation stays exactly reproducible.</p>
+</section>
+
+<aside style="flex: 1 1 420px; max-width: 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker {{d.kicker}}">{{d.purpose}} · tick {{d.tick}}</span>
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+<h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 700">{{d.subject}}</h2>
+<span class="fg-badge {{d.badge}}">{{d.result}}</span>
+</div>
+<span class="fg-meta">{{d.model}} · {{d.backend}} · {{d.latency}} · {{d.tokens}} tokens · schema {{d.schema}}</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span class="fg-label">Prompt (excerpt)</span>
+<pre style="margin: 0; padding: 8px; border-radius: 3px; background: var(--surface-sunken); border: 1px solid var(--border-subtle); font-family: var(--font-mono); font-size: 11px; line-height: 15px; white-space: pre-wrap; color: var(--ink-secondary)">{{d.prompt}}</pre>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span class="fg-label">Raw output</span>
+<pre style="margin: 0; padding: 8px; border-radius: 3px; background: var(--surface-sunken); border: 1px solid var(--border-subtle); font-family: var(--font-mono); font-size: 11px; line-height: 15px; white-space: pre-wrap; color: var(--ink)">{{d.output}}</pre>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span class="fg-label">Validation</span>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{d.checks}}" as="c" hint-placeholder-count="4">
+<li style="display: grid; grid-template-columns: 16px minmax(0, 1fr); font-size: 12px; line-height: 16px"><span style="font-family: var(--font-mono); font-weight: 500; color: {{c.color}}">{{c.mark}}</span><span>{{c.text}}</span></li>
+</sc-for>
+</ul>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span class="fg-label">What the engine changed</span>
+<ul style="margin: 0; padding-left: 16px; font-size: 12px; line-height: 17px; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{d.applied}}" as="a" hint-placeholder-count="2"><li>{{a}}</li></sc-for>
+</ul>
+</div>
+<div style="display: flex; gap: 6px">
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Copy JSON</button>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Open tick {{d.tick}} replay</button>
+</div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { sel: 'c3', filter: 'All' };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const OK = { mark: '✓', color: 'var(--positive)' }, NO = { mark: '✗', color: 'var(--danger)' }, WARN = { mark: '!', color: 'var(--signal)' };
+const calls = [
+{ id: 'c1', tick: '1,284', purpose: 'Dispatch', subject: 'Orion Spur regional bulletin', model: 'qwen3.6-35b-a3b', backend: 'Mac Studio', latency: '5.8 s', tokens: '352', result: 'Accepted', schema: 'bulletin_v2',
+prompt: 'SYSTEM: You write the Meridian Dispatch regional bulletin. Use only the EVENTS below. 150-250 words. No numbers that are not in EVENTS.\nEVENTS (14, visible in Orion Spur): ys_trade_talks, sable_withdraws_corvid, talmar_water_found, ...',
+output: '{ "headline": "A quiet arm grows busier", "body": "Traders from Ys are working the lanes again...", "event_ids": ["ys_trade_talks", "sable_withdraws_corvid", "talmar_water_found"] }',
+checks: [[OK, 'Schema valid'], [OK, 'Every cited event exists and is visible in this region'], [OK, 'No numbers outside the event data'], [OK, 'Content filter passed']],
+applied: ['Bulletin published to 3 civilizations in Orion Spur', 'Included in tomorrow’s Dispatch emails'] },
+{ id: 'c2', tick: '1,284', purpose: 'Advisor', subject: 'Answer: "Why did stability drop?"', model: 'qwen3.6-27b', backend: 'Mac Studio', latency: '7.9 s', tokens: '141', result: 'Accepted', schema: 'advisor_answer_v1',
+prompt: 'SYSTEM: You are Tamsin Vey, Chief of Staff (Warm, Cautious, Scholarly). Answer only from CODEX and STATE. Cite every rule.\nCODEX: stability, buildings.civic_forum\nSTATE (Ashenreach, visible): stability 41 (was 47), systems 3 → 4 ...',
+output: '{ "answer": "We claimed Oriel, and each new system costs 3 stability...", "citations": [{"type":"codex","id":"stability"},{"type":"codex","id":"buildings.civic_forum"}], "proposed_actions": [] }',
+checks: [[OK, 'Schema valid'], [OK, '2 citations, both exist'], [OK, 'Only player-visible state referenced'], [OK, 'Content filter passed']],
+applied: ['Answer shown in advisor drawer'] },
+{ id: 'c3', tick: '1,283', purpose: 'NPC', subject: 'Concord of Ys · policy', model: 'qwen3.6-27b', backend: 'Mac Studio', latency: '11.2 s', tokens: '298', result: 'Accepted', schema: 'npc_policy_v3',
+prompt: 'SYSTEM: You are the strategist for The Concord of Ys (driver: Trader). Return JSON matching npc_policy_v3. You may only use STATE.\nSTATE (visible to Ys): minerals 210 (low), energy surplus +9/tick, contacts: Ashenreach (rep +41, open borders), Lantern Accord ...',
+output: '{\n  "intent": "expand_trade",\n  "allocation": { "expansion": 30, "research": 25, "social": 10, "economic": 25, "military": 10 },\n  "treaty_offers": [ { "to": "ashenreach", "type": "trade_pact", "give": { "energy": 6 }, "get": { "minerals": 4 }, "ticks": 240 } ],\n  "rationale": "Ashenreach has spare minerals; we need them for the new outpost."\n}',
+checks: [[OK, 'Schema valid'], [OK, 'Allocation sums to 100%'], [OK, 'Within Trader driver limits (military ≤ 30%)'], [OK, 'Treaty value within ±20% fair band'], [OK, 'Uses only what Ys can know (fog of war)']],
+applied: ['Allocation: expansion 20% → 30%, military 15% → 10%', 'Treaty offer created: Trade Pact to Ashenreach, expires T1,296', 'Next scheduled thought: T1,289'] },
+{ id: 'c4', tick: '1,283', purpose: 'Advisor', subject: 'Proposal: queue Stellar Collectors', model: 'qwen3.6-27b', backend: 'Mac Studio', latency: '6.4 s', tokens: '96', result: 'Awaiting player', schema: 'advisor_answer_v1',
+prompt: 'SYSTEM: Suggest at most one research action that fits STANDING_ORDERS (focus: Propulsion, then Communications) or explains why not...',
+output: '{ "answer": "Hearth is a K2 star; Stellar Collectors would roughly double our energy.", "proposed_actions": [{ "type": "queue_research", "params": { "tech_id": "stellar_collectors" } }] }',
+checks: [[OK, 'Schema valid'], [OK, 'Tech is available and affordable'], [WARN, 'Outside research focus in standing orders, so not auto-approved']],
+applied: ['Proposal card shown; waiting for the player to confirm'] },
+{ id: 'c5', tick: '1,282', purpose: 'NPC', subject: 'Sable Ninefold · policy', model: 'qwen3.6-27b', backend: 'Mac Studio', latency: '12.0 s', tokens: '310', result: 'Rejected', schema: 'npc_policy_v3',
+prompt: 'SYSTEM: You are the strategist for The Sable Ninefold (driver: Raider). Return JSON matching npc_policy_v3...',
+output: '{ "intent": "raid", "allocation": { "expansion": 5, "research": 10, "social": 5, "economic": 10, "military": 70 }, "targets": ["corvid_reach"] }',
+checks: [[OK, 'Schema valid'], [NO, 'Military 70% exceeds Raider cap of 50%'], [NO, 'Target Corvid Reach is inside its 168-tick withdrawal cooldown']],
+applied: ['Nothing applied. Retried with the reasons attached (see next call).'] },
+{ id: 'c6', tick: '1,282', purpose: 'NPC', subject: 'Sable Ninefold · policy (retry)', model: 'qwen3.6-27b', backend: 'Mac Studio', latency: '10.6 s', tokens: '274', result: 'Accepted', schema: 'npc_policy_v3',
+prompt: 'Previous output rejected: military 70% > cap 50%; Corvid Reach on cooldown. Revise.',
+output: '{ "intent": "rebuild", "allocation": { "expansion": 10, "research": 20, "social": 10, "economic": 20, "military": 40 }, "targets": [] }',
+checks: [[OK, 'Schema valid'], [OK, 'Within Raider limits'], [OK, 'No illegal targets']],
+applied: ['Allocation updated; no raid this cycle'] },
+{ id: 'c7', tick: '1,279', purpose: 'Advisor', subject: 'Answer: "Is Relay Bloom worth it?"', model: 'template', backend: 'Fallback', latency: '8.0 s', tokens: '0', result: 'Fallback', schema: 'advisor_answer_v1',
+prompt: '(model timed out after 8 s; Mac Studio unreachable)',
+output: '{ "answer": "I can’t reach my thinking engine right now. Here is the Codex entry on Relay Bloom.", "citations": [{"type":"tech","id":"relay_bloom"}] }',
+checks: [[WARN, 'Model timeout after 8 s'], [OK, 'Template answer with Codex link sent instead']],
+applied: ['Player notified when the full answer arrived at T1,280'] },
+{ id: 'c8', tick: '1,278', purpose: 'Persona', subject: 'Advisor generated for a new player', model: 'qwen3.6-27b', backend: 'Mac Studio', latency: '4.1 s', tokens: '120', result: 'Accepted', schema: 'advisor_persona_v1',
+prompt: 'SYSTEM: Create an advisor that fits this civilization. Traits from the allowed list only...',
+output: '{ "name": "Ide Calloway", "title": "Keeper of the Long Count", "traits": ["Formal", "Witty", "Scholarly"], "backstory": "Ide has kept the calendar for thirty years..." }',
+checks: [[OK, 'Schema valid'], [OK, 'Traits from allowed list'], [OK, 'Name and backstory passed content filter']],
+applied: ['Shown as a suggestion on the Meet your advisor screen'] }
+];
+const kick = { NPC: 'fg-kicker--signal', Dispatch: '', Advisor: 'fg-kicker--accent', Persona: 'fg-kicker--accent' };
+const badge = { Accepted: 'fg-badge--positive', Rejected: 'fg-badge--danger', Fallback: 'fg-badge--signal', 'Awaiting player': 'fg-badge--accent' };
+const list = calls.filter((c) => this.state.filter === 'All' || c.purpose === this.state.filter);
+const rows = list.map((c) => ({ ...c, kicker: kick[c.purpose], badge: badge[c.result], sel: c.id === this.state.sel ? 'true' : 'false', pick: () => this.setState({ sel: c.id }) }));
+const s = calls.find((c) => c.id === this.state.sel) || calls[2];
+const d = { ...s, kicker: kick[s.purpose], badge: badge[s.result], checks: s.checks.map(([m, t]) => ({ ...m, text: t })) };
+const chips = ['All', 'NPC', 'Dispatch', 'Advisor', 'Persona'].map((f) => {
+const on = this.state.filter === f;
+return { label: f, pressed: on ? 'true' : 'false', border: on ? 'var(--accent)' : 'var(--border-strong)', bg: on ? 'var(--accent-soft)' : 'var(--surface)', color: on ? 'var(--accent)' : 'var(--ink-secondary)', pick: () => this.setState({ filter: f }) };
+});
+const stats = [
+{ label: 'Calls', value: '142', sub: 'last 24 ticks', color: 'var(--ink)' },
+{ label: 'Accepted first try', value: '94%', sub: '133 of 142', color: 'var(--positive)' },
+{ label: 'Rejected, then fixed', value: '6', sub: 'retry with reasons', color: 'var(--signal)' },
+{ label: 'Fallbacks', value: '3', sub: 'template used', color: 'var(--signal)' },
+{ label: 'Median latency', value: '6.1 s', sub: 'p95 11.8 s', color: 'var(--ink)' },
+{ label: 'Tokens out', value: '38.4k', sub: 'local, no cost', color: 'var(--ink)' }
+];
+return { themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light', rows, d, chips, stats };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Governor</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html" aria-current="page">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch <span class="fg-tab__count">3</span></a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy <span class="fg-tab__count">1</span></a>
+</nav>
+<div class="fg-status">
+<span>tick <b>1,284</b></span>
+<span>next <b style="color: var(--accent)">42 min</b></span>
+<span>AC <b>318</b>/tick</span>
+<span>pop <b>41.2</b></span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h1 class="fg-panel__title" style="font-size: 16px; line-height: 22px">Governance</h1>
+<span class="fg-meta">changes take effect in 24 ticks · then 72-tick cooldown</span>
+</div>
+<sc-for list="{{axes}}" as="ax" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px solid var(--border-subtle)">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600">{{ax.name}}</h2>
+<span class="fg-meta">{{ax.hint}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{ax.options}}" as="o" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 3px; padding: 7px 10px; border-radius: 4px; border: {{o.border}}; background: {{o.bg}}; color: var(--ink); font-family: var(--font-sans)">
+<span style="display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%">
+<span style="font-size: 13px; line-height: 18px; font-weight: 600">{{o.label}}</span>
+<span class="fg-kicker fg-kicker--accent">{{o.tag}}</span>
+</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--positive)">+ {{o.plus}}</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--signal)">− {{o.minus}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Action credit allocation</h2>
+<span class="fg-meta">318 AC per tick · banked 1,940 of 15,264</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{ledgers}}" as="l" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div class="fg-meter">
+<div class="fg-meter__row"><span style="font-weight: 600; color: var(--ink)">{{l.name}}</span><span class="fg-meter__value">{{l.pct}}%</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: {{l.pct}}%"></div></div>
+</div>
+<span class="fg-meta">{{l.ac}} AC · {{l.note}}</span>
+<div style="display: flex; gap: 6px">
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" aria-label="Decrease {{l.name}}" style="flex: 1">−5%</button>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" aria-label="Increase {{l.name}}" style="flex: 1">+5%</button>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Net modifiers</h2>
+<span class="fg-meta">attributes + governance + techs</span>
+</div>
+<table class="fg-table">
+<thead><tr><th>Output</th><th class="num">Base</th><th class="num">Attributes</th><th class="num">Governance</th><th class="num">Tech</th><th class="num">Net</th></tr></thead>
+<tbody>
+<tr><td>Research</td><td class="num">72</td><td class="num">+10%</td><td class="num">+15%</td><td class="num">−10%</td><td class="num" style="font-weight: 600">83</td></tr>
+<tr><td>Minerals</td><td class="num">14</td><td class="num">0%</td><td class="num">0%</td><td class="num">+25%</td><td class="num" style="font-weight: 600">17.5</td></tr>
+<tr><td>Energy</td><td class="num">5</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num" style="font-weight: 600">5</td></tr>
+<tr><td>Stability</td><td class="num">60</td><td class="num">+5</td><td class="num">+10</td><td class="num">−4</td><td class="num" style="font-weight: 600">71</td></tr>
+<tr><td>Fleet upkeep</td><td class="num">17</td><td class="num">+10%</td><td class="num">+10%</td><td class="num">0%</td><td class="num" style="font-weight: 600; color: var(--signal)">20.4</td></tr>
+</tbody>
+</table>
+</section>
+</div>
+
+<aside style="flex: 1 1 340px; max-width: 400px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel" style="border-color: var(--accent)">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Advisor</h2>
+<span class="fg-badge fg-badge--accent">Suggestion</span>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 18px; font-weight: 600">Shift 10% from Military to Expansion for the next 48 ticks.</p>
+<p style="margin: 0; font-size: 12px; line-height: 16px; color: var(--ink-secondary)">No hostile fleets are within 12 ly, and Talmar IV is unclaimed. The Concord of Ys has an outpost 9 ly from Talmar, so claiming it soon keeps the sole-occupancy bonus.</p>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px" class="fg-meta">
+<div><dt>Military</dt><dd style="margin: 0; color: var(--ink)">15% → 5%</dd></div>
+<div><dt>Expansion</dt><dd style="margin: 0; color: var(--ink)">20% → 30%</dd></div>
+</dl>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<button type="button" class="fg-btn fg-btn--primary">Approve</button>
+<button type="button" class="fg-btn fg-btn--secondary">Dismiss</button>
+<a class="fg-btn fg-btn--ghost" href="#">See reasoning</a>
+</div>
+<p class="fg-help" style="margin: 0">Written by your server's AI advisor. The game engine checks every suggestion against the rules before it applies.</p>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Standing orders</h2>
+<span class="fg-meta">governor acts with no delay</span>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="so-defense">When attacked</label>
+<select class="fg-select" id="so-defense"><option>Defend at 2:1 odds or better, else retreat</option></select>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="so-colony">Colonization</label>
+<select class="fg-select" id="so-colony"><option>Outpost habitable worlds within 6 ly</option></select>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="so-research">Research focus</label>
+<select class="fg-select" id="so-research"><option>Propulsion, then Communications</option></select>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="so-trade">Incoming trade offers</label>
+<select class="fg-select" id="so-trade"><option>Accept from reputation +20 or higher</option></select>
+</div>
+<div class="fg-field">
+<label class="fg-label" for="so-upkeep">If upkeep runs short</label>
+<select class="fg-select" id="so-upkeep"><option>Retire the oldest hulls first</option></select>
+</div>
+<label style="display: flex; gap: 10px; align-items: flex-start; font-size: 12px; line-height: 16px; color: var(--ink-secondary)">
+<input type="checkbox" style="width: 14px; height: 14px; margin: 0; accent-color: var(--accent)">
+<span>Auto-approve advisor suggestions that stay inside these orders</span>
+</label>
+</section>
+</aside>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { authority: 'consensus', economy: 'market', priority: 'knowledge' };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const defs = [
+{ key: 'authority', name: 'Authority', hint: 'how decisions are made', options: [
+{ id: 'consensus', label: 'Consensus', plus: 'Stability +10', minus: 'Policy cooldown +24 ticks' },
+{ id: 'directive', label: 'Directive', plus: 'AC efficiency +8%', minus: 'Reputation −1 per day' },
+{ id: 'council', label: 'Council', plus: 'Diplomacy terms +10%', minus: 'Command lag +1 tick' }
+] },
+{ key: 'economy', name: 'Economy', hint: 'how wealth moves', options: [
+{ id: 'commons', label: 'Commons', plus: 'Population growth +10%', minus: 'Mineral yield −5%' },
+{ id: 'market', label: 'Market', plus: 'Trade income +15%', minus: 'Cohesion −1' },
+{ id: 'planned', label: 'Planned', plus: 'Shipyard output +12%', minus: 'Research −5%' }
+] },
+{ key: 'priority', name: 'Priority', hint: 'what your people value most', options: [
+{ id: 'knowledge', label: 'Knowledge', plus: 'Research +15%', minus: 'Fleet upkeep +10%' },
+{ id: 'prosperity', label: 'Prosperity', plus: 'Energy +10%', minus: 'Defenses −10%' },
+{ id: 'security', label: 'Security', plus: 'Defenses +15%', minus: 'Expansion cost +10%' }
+] }
+];
+const axes = defs.map((ax) => ({
+name: ax.name,
+hint: ax.hint,
+options: ax.options.map((o) => {
+const on = this.state[ax.key] === o.id;
+return {
+...o,
+pressed: on ? 'true' : 'false',
+tag: on ? 'Current' : '',
+border: on ? '2px solid var(--accent)' : '1px solid var(--border)',
+bg: on ? 'var(--accent-soft)' : 'var(--surface)',
+pick: () => this.setState({ [ax.key]: o.id })
+};
+})
+}));
+const ledgers = [
+{ name: 'Expansion', pct: 20, ac: 64, note: 'outposts, colonies' },
+{ name: 'Research', pct: 30, ac: 95, note: '3 projects' },
+{ name: 'Social', pct: 15, ac: 48, note: 'stability, culture' },
+{ name: 'Economic', pct: 20, ac: 64, note: 'yields, trade' },
+{ name: 'Military', pct: 15, ac: 47, note: 'shipyards, upkeep' }
+];
+return { themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light', axes, ledgers };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Colony management</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html" aria-current="page">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch <span class="fg-tab__count">3</span></a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy <span class="fg-tab__count">1</span></a>
+</nav>
+<div class="fg-status">
+<span>tick <b>1,284</b></span>
+<span>minerals <b>1,840</b>/6,000</span>
+<span>energy <b>62</b>/200</span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline">
+<a href="Galaxy.dc.html" class="fg-meta">Galaxy</a><span class="fg-meta">/</span>
+<h1 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700">Hearth system</h1>
+<span class="fg-meta">K2 V · single star · [Fe/H] +0.08 (+4% minerals) · home · sole occupant (+20% yields)</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+<section class="fg-panel" style="flex: 1 1 280px; max-width: 320px">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Bodies</h2>
+<span class="fg-meta">{{usedSlots}} of 5 slots used</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{bodies}}" as="b" hint-placeholder-count="6">
+<button type="button" aria-pressed="{{b.pressed}}" onClick="{{b.pick}}" style="text-align: left; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 8px; padding: 6px 8px; border-radius: 3px; font-family: var(--font-sans); color: var(--ink); border: {{b.border}}; background: {{b.bg}}">
+<span style="font-size: 13px; line-height: 17px; font-weight: 600">{{b.name}}</span>
+<span class="fg-badge {{b.badge}}">{{b.status}}</span>
+<span style="font-size: 11px; line-height: 15px; color: var(--ink-muted)">{{b.kindLabel}}</span>
+<span style="font-family: var(--font-mono); font-size: 11px; line-height: 15px; color: var(--ink-secondary)">{{b.slotLabel}}</span>
+</button>
+</sc-for>
+</div>
+</section>
+
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span class="fg-kicker">{{sel.kindLabel}}</span>
+<h2 style="margin: 0; font-size: 16px; line-height: 22px; font-weight: 700">{{sel.name}}</h2>
+</div>
+<span class="fg-meta">{{sel.facts}}</span>
+</div>
+<sc-if value="{{sel.hasPop}}" hint-placeholder-val="{{false}}">
+<div class="fg-meter">
+<div class="fg-meter__row"><span>Population</span><span class="fg-meter__value">{{sel.pop}} of {{sel.cap}} · +{{sel.growth}} per tick</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: {{sel.popPct}}%"></div></div>
+</div>
+</sc-if>
+<table class="fg-table">
+<thead><tr><th>Per tick</th><th class="num">Base</th><th class="num">Development</th><th class="num">Building</th><th class="num">Attributes</th><th class="num">Tech + bonuses</th><th class="num">Net</th></tr></thead>
+<tbody>
+<sc-for list="{{sel.rows}}" as="r" hint-placeholder-count="2">
+<tr><td>{{r.res}}</td><td class="num">{{r.base}}</td><td class="num">{{r.dev}}</td><td class="num">{{r.bldg}}</td><td class="num">{{r.attr}}</td><td class="num">{{r.tech}}</td><td class="num" style="font-weight: 600">{{r.net}}</td></tr>
+</sc-for>
+</tbody>
+</table>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid var(--border-subtle)">
+<div class="fg-meter" style="flex: 1 1 240px">
+<div class="fg-meter__row"><span>Development level</span><span class="fg-meter__value">{{sel.dev}} of 5 · each level +1 to this body's main yield</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill fg-meter__fill--positive" style="width: {{sel.devPct}}%"></div></div>
+</div>
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" disabled="{{sel.devMax}}">{{sel.devLabel}}</button>
+</div>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">{{buildTitle}}</h2>
+<span class="fg-meta">paid from your Economic budget · 12 ticks to build · repeat copies cost 15% more</span>
+</div>
+<sc-if value="{{showMenu}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{menu}}" as="m" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 3px; padding: 8px; border-radius: 3px; border: {{m.border}}; background: {{m.bg}}; opacity: {{m.opacity}}">
+<span style="font-size: 13px; line-height: 17px; font-weight: 600">{{m.name}}</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--positive)">+ {{m.effect}}</span>
+<span style="font-family: var(--font-mono); font-size: 11px; line-height: 15px; color: var(--ink-secondary)">{{m.cost}}</span>
+<span style="font-family: var(--font-mono); font-size: 11px; line-height: 15px; color: var(--ink-muted)">{{m.upkeep}}</span>
+<button type="button" class="fg-btn fg-btn--primary fg-btn--sm" style="align-self: flex-start; margin-top: 2px" disabled="{{m.disabled}}" onClick="{{m.build}}">{{m.action}}</button>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{showOccupied}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 3px; background: var(--surface-sunken); border: 1px solid var(--border-subtle)">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; line-height: 17px; font-weight: 600">{{sel.building}}</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary)">{{sel.buildingNote}}</span>
+</div>
+<div style="display: flex; gap: 6px">
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" disabled="{{yes}}">Upgrade · PoC 2</button>
+<button type="button" class="fg-btn fg-btn--ghost fg-btn--sm">Demolish</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showUnclaimed}}" hint-placeholder-val="{{false}}">
+<div style="padding: 8px 10px; border-radius: 3px; border: 1px dashed var(--border-strong); font-size: 12px; line-height: 17px; color: var(--ink-secondary)">Claim this body first, then a building slot opens. Claims inside a system you already hold cost 150 AC and 50 minerals.</div>
+</sc-if>
+</section>
+</div>
+
+<aside style="flex: 1 1 300px; max-width: 360px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">System totals</h2><span class="fg-meta">per tick</span></div>
+<table class="fg-table">
+<tbody>
+<tr><td>Energy</td><td class="num">+4.0 in</td><td class="num" style="color: var(--signal)">−3.0 upkeep</td><td class="num" style="font-weight: 600">+1.0</td></tr>
+<tr><td>Minerals</td><td class="num">+26.2</td><td class="num" style="color: var(--signal)">−17.3 fleet</td><td class="num" style="font-weight: 600">+8.9</td></tr>
+<tr><td>Research</td><td class="num">+3</td><td class="num">—</td><td class="num" style="font-weight: 600">+3</td></tr>
+<tr><td>Action credits</td><td class="num">+118</td><td class="num" style="color: var(--signal)">−6 admin</td><td class="num" style="font-weight: 600">+112</td></tr>
+</tbody>
+</table>
+<p class="fg-help" style="margin: 0">Energy is tight. Another building with upkeep would push it negative and cut mineral and research output by 10% while the store is empty.</p>
+</section>
+<section class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Construction</h2><span class="fg-meta">civilization-wide</span></div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{queue}}" as="q" hint-placeholder-count="2">
+<li class="fg-meter">
+<div class="fg-meter__row"><span style="color: var(--ink); font-weight: 500">{{q.name}}</span><span class="fg-meter__value">{{q.eta}}</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: {{q.pct}}%"></div></div>
+</li>
+</sc-for>
+</ol>
+</section>
+<section class="fg-panel" style="border-color: var(--accent)">
+<span class="fg-kicker fg-kicker--accent">Tamsin</span>
+<p style="margin: 0; font-size: 12px; line-height: 17px">Build a Fusion Plant on the star before anything else. It costs no upkeep and gives us room for the Civic Forum we will need when Talmar joins.</p>
+<a href="FirstPlay.dc.html" class="fg-btn fg-btn--ghost fg-btn--sm" style="align-self: flex-start">Ask a follow-up</a>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { sel: 'star', starBuilt: null };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const R = (res, base, dev, bldg, attr, tech, net) => ({ res, base, dev, bldg, attr, tech, net });
+const bodies = [
+{ id: 'star', name: 'Hearth', kindLabel: 'K2 V star', building: this.state.starBuilt, dev: 0, devMax: true, facts: 'luminosity 0.35 L☉ · energy scales with luminosity',
+rows: [R('Energy', '2', '—', this.state.starBuilt === 'Fusion Plant' ? '+3' : '—', '0%', '+20% sole', this.state.starBuilt === 'Fusion Plant' ? '6.0' : '2.4')] },
+{ id: 'h1', name: 'Hearth I', kindLabel: 'Rocky world', building: 'Extraction Complex', dev: 2, facts: '0.8 g · airless · 412 K',
+rows: [R('Minerals', '3', '+2', '+2', '0%', '+25% +4% +20%', '10.9')] },
+{ id: 'h2', name: 'Hearth II', kindLabel: 'Verdant world · capital', building: 'Habitat Ring', dev: 1, hasPop: true, pop: '14.2', cap: '20', popPct: 71, growth: '0.03', facts: '0.94 g · 26 h day · 288 K · N₂/O₂ air',
+rows: [R('Minerals', '1', '+1', '—', '0%', '+25% +4% +20%', '3.1'), R('Action credits', '114', '—', '—', '+4% cohesion', 'stability ×1.0', '118')] },
+{ id: 'h3', name: 'Hearth III', kindLabel: 'Gas giant · outpost', building: 'Research Station', dev: 0, devMax: true, facts: '1.9 Jupiter masses · 9 moons',
+rows: [R('Energy', '1', '—', '—', '0%', '+20% sole', '1.2'), R('Research', '1', '—', '+2', '+10% curiosity', '+5% archives', '3')] },
+{ id: 'belt', name: 'Inner belt', kindLabel: 'Asteroid belt', building: 'Extraction Complex', dev: 3, facts: '2.1–2.8 AU · metal-rich',
+rows: [R('Minerals', '4', '+3', '+2', '0%', '+25% belt +25% +20%', '12.2')] },
+{ id: 'h4', name: 'Hearth IV', kindLabel: 'Ice giant', building: null, unclaimed: true, dev: 0, devMax: true, facts: 'unclaimed · 14 AU',
+rows: [R('Minerals', '1', '—', '—', '—', '—', '0 (unclaimed)')] }
+];
+const s = bodies.find((b) => b.id === this.state.sel) || bodies[0];
+const used = bodies.filter((b) => b.building).length;
+const view = bodies.map((b) => {
+const on = b.id === s.id;
+return {
+name: b.name, kindLabel: b.kindLabel,
+status: b.unclaimed ? 'Unclaimed' : b.building ? 'Built' : 'Empty slot',
+badge: b.unclaimed ? 'fg-badge--neutral' : b.building ? 'fg-badge--accent' : 'fg-badge--signal',
+slotLabel: b.building ? b.building : b.unclaimed ? '—' : 'open',
+pressed: on ? 'true' : 'false',
+border: on ? '2px solid var(--accent)' : '1px solid var(--border)',
+bg: on ? 'var(--accent-soft)' : 'var(--surface)',
+pick: () => this.setState({ sel: b.id })
+};
+});
+const counts = { 'Extraction Complex': 2, 'Research Station': 1, 'Habitat Ring': 1, 'Civic Forum': 0, 'Fusion Plant': 0, 'Defense Battery': 1, 'Warehouse': 0, 'Shipyard': 0, 'Relay Station': 0 };
+const specs = [
+['Fusion Plant', '3 energy', 400, 200, 'no upkeep', true],
+['Research Station', '2 research', 800, 400, '1 energy upkeep', true],
+['Civic Forum', '4 stability, civilization-wide', 700, 350, '1 energy upkeep', true],
+['Defense Battery', '200 defense in this system', 400, 100, '1 mineral upkeep', true],
+['Warehouse', '2,000 mineral storage', 300, 100, 'no upkeep', true],
+['Relay Station', '4 ly comms range', 500, 200, '1 energy upkeep', false]
+];
+const menu = specs.map(([name, effect, m, a, up, ok]) => {
+const f = 1 + 0.15 * counts[name];
+return {
+name, effect,
+cost: Math.round(m * f).toLocaleString('en-US') + ' minerals · ' + Math.round(a * f) + ' AC',
+upkeep: up,
+disabled: !ok, action: ok ? 'Build' : 'Needs Relay Network',
+border: ok ? '1px solid var(--border-strong)' : '1px dashed var(--border-strong)',
+bg: ok ? 'var(--surface)' : 'transparent', opacity: ok ? '1' : '0.7',
+build: () => { if (ok && s.id === 'star') this.setState({ starBuilt: name }); }
+};
+});
+const notes = {
+'Extraction Complex': '+2 minerals on this body · 0.5 energy upkeep',
+'Habitat Ring': '+4 population capacity · 1 energy upkeep',
+'Research Station': '+2 research · 1 energy upkeep'
+};
+const sel = {
+...s,
+hasPop: !!s.hasPop, devMax: !!s.devMax || s.dev >= 5,
+devPct: s.dev * 20,
+devLabel: s.devMax ? 'No development here' : 'Develop to level ' + (s.dev + 1) + ' · ' + (700 * (s.dev + 1)).toLocaleString('en-US') + ' AC',
+buildingNote: notes[s.building] || 'Under construction · 12 ticks',
+building: s.building || ''
+};
+const queue = [
+{ name: 'Extraction Complex · Oriel I', eta: '4 ticks', pct: 67 },
+{ name: 'Civic Forum · Hearth II (queued)', eta: 'waits for 805 minerals', pct: 0 }
+];
+if (this.state.starBuilt) queue.unshift({ name: this.state.starBuilt + ' · Hearth', eta: '12 ticks', pct: 2 });
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light', yes: true,
+bodies: view, sel, usedSlots: String(used),
+showMenu: !s.building && !s.unclaimed, showOccupied: !!s.building, showUnclaimed: !!s.unclaimed,
+buildTitle: s.unclaimed ? 'Unclaimed body' : s.building ? 'Building on ' + s.name : 'Build on ' + s.name + ' · 1 open slot',
+menu, queue
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+# Farglow — PoC objectives (config/objectives.poc.yaml)
+# Status: PROPOSED v1. "objectives" is the internal engine name; the player-facing umbrella name is still open.
+# Three kinds, one lifecycle:
+#   Charters        personal, offered by the engine, small and frequent
+#   Triumphs        civilization feats, unlocked by tech or Honors, timed, anyone can attempt
+#   Galactic Events server-wide story arcs (e.g. a plague), cooperative, multi-stage
+# Rules the engine enforces (from the design discussion, Nov 2026):
+#   - The engine owns every number and every success/failure check. The LLM writes titles, petitions and news only.
+#   - Targets are picked only from what the civilization has discovered (fog of war), so every objective is achievable.
+#   - Failure penalties are LIGHT: just enough that picking one up and dropping it casually isn't free.
+#   - Permanent bonuses do not stack; each lands in a category with a cap ("can max out").
+#   - Failure caused by another player counts as a normal failure (penalties are light, so this is fair).
+#   - No streaks, no daily-login rewards, nothing that disappears forever.
+# All durations are ticks (1 tick = 1 hour in production).
+
+lifecycle:
+  states: [offered, held, active, completed, failed, abandoned]
+  held_never_expires: true            # you can keep an unlocked objective indefinitely; no clock until you start it
+  grace_ticks: 6                      # abandoning within 6 ticks of starting is free (covers misclicks on email action links)
+  start_requires_signed_in_or_signed_link: true   # starting is a commitment; email links are single-use and signed
+  advisor_may_start: confirm_only     # the advisor can recommend and queue; the player confirms
+
+slots:                                # how many can be ACTIVE at once, per kind (separate pools)
+  charter:  { base: 1, max: 3 }       # +1 Federated Councils (lattice tech), +1 Honor "A Hundred Charters"
+  triumph:  { base: 1, max: 1 }       # a Triumph asks you to refocus your civ; two at once makes no sense
+  galactic_event: { base: 1, max: 1 } # own slot, so an event never forces you to drop a Triumph
+
+held_limit: { charter: 5 }            # [assumption] keeps the board readable; Triumphs have no limit (they're a fixed list)
+
+penalties:                            # applied as a temporary modifier on target stability, decaying linearly to 0
+  abandon:  { stability: -3, decay_ticks: 24 }
+  fail:     { stability: -5, decay_ticks: 24 }   # "fail" = ran out of time, or the target became impossible
+  retry_cooldown_ticks: 48            # can't restart the SAME objective for 2 days. This is the real anti-casual-drop rule.
+  # Context: stability starts at 60 and moves at most 1/tick toward its target, so −5 for a day is noticeable, not painful.
+
+permanent_bonus_caps:                 # categories mirror the six attributes; cap ≈ two attribute points
+  research:   { key: research_output, op: pct, cap: 10 }    # curiosity
+  industry:   { key: mineral_yield,   op: pct, cap: 10 }    # industry
+  growth:     { key: pop_capacity,    op: pct, cap: 10 }    # growth
+  cohesion:   { key: stability,       op: add, cap: 10 }    # cohesion (points, not %)
+  martial:    { key: combat_defense,  op: pct, cap: 10 }    # martial
+  openness:   { key: trade_income,    op: pct, cap: 10 }    # openness
+  rule: "Each objective grants its permanent bonus once per civilization. Repeating it later grants the temporary boon only."
+
+# ---------------------------------------------------------------------------
+# CHARTERS — personal tasks offered by the engine. The LLM frames them as petitions
+# ("The miners of Talmar ask the council…"); the engine picks template + parameters.
+# ---------------------------------------------------------------------------
+charters:
+  board: { offers: 3, refresh_ticks: 24 }   # refresh replaces un-held offers only; ignoring an offer costs nothing
+  attribute_weighting: 0.15                 # each attribute point shifts template odds 15% toward its theme
+  duration_ticks: [24, 120]                 # 1-5 days, sized so a 5-minute-a-day player can finish
+  reward:
+    lump_sum_value: "≈ one building (400-600 minerals or equivalent)"
+    or_temporary: { yield_pct: 20, ticks: 48 }
+    reputation: 2
+    permanent_chance: 0.10                  # 1 in 10 Charters also grants +1% in its category (counts toward the cap)
+  templates:                                # objective primitives the engine can check every tick
+    - { id: survey_systems,     theme: curiosity, params: { count: [2, 5] } }
+    - { id: study_phenomenon,   theme: curiosity, params: { phenomenon: known_unstudied } }
+    - { id: reach_stockpile,    theme: industry,  params: { resource: [minerals, energy], multiple_of_hourly_income: [24, 48] } }
+    - { id: build_building,     theme: industry,  params: { building: affordable_not_built } }
+    - { id: colonize_body_type, theme: growth,    params: { type: [verdant, ocean, super_earth] } }
+    - { id: grow_population,    theme: growth,    params: { pct: [10, 20] } }
+    - { id: hold_stability,     theme: cohesion,  params: { min: [55, 70], ticks: [24, 72] } }
+    - { id: complete_tech,      theme: curiosity, params: { tech: available } }
+    - { id: sign_treaty,        theme: openness,  params: { with: known_civ, kind: [trade, non_aggression, research] } }
+    - { id: deliver_aid,        theme: openness,  params: { to: known_civ, minerals: [200, 600] } }
+    - { id: defend_system,      theme: martial,   params: { system: owned_border, ticks: [24, 72] } }
+    - { id: patrol_lane,        theme: martial,   params: { lane: owned_or_adjacent, ticks: [24, 48] } }
+  tutorial:                                 # "First light" walkthrough Charters: cannot fail, no penalty, no cooldown
+    can_fail: false
+    list: [first_tech, first_survey, first_building, first_outpost, first_dispatch_reply]
+
+# ---------------------------------------------------------------------------
+# TRIUMPHS — civilization feats. Unlocked by tech or Honors; every civ can attempt them.
+# Targets are RELATIVE to the civ's own output when it starts (snapshot at start), so a Triumph is
+# equally hard on day 10 and day 80, and a big civ can't coast through it.
+#   target = rate_at_start × window × multiplier
+# Calibrated with sim.py: an unfocused civ generates 1.01-1.15× its starting rate over 120 ticks (fails);
+# a civ that shifts research allocation 30% → 50% at the start generates 1.44-1.74× (succeeds with ~20% margin).
+# ---------------------------------------------------------------------------
+triumphs:
+  - id: bright_ascent
+    name: The Bright Ascent
+    theme: curiosity
+    unlock: { tier_open: lattice }
+    objective: { metric: research_generated, multiplier: 1.35, window_ticks: 120 }   # CALIBRATED
+    boon:      { research_output_pct: 20, ticks: 72 }
+    permanent: { growth: 3 }               # your example: a temporary research boost plus a population bonus
+
+  - id: hundred_forges
+    name: The Hundred Forges
+    theme: industry
+    unlock: { tech: autonomous_foundries }
+    objective: { metric: minerals_mined, multiplier: 1.35, window_ticks: 120 }       # estimate; calibrate
+    boon:      { mineral_yield_pct: 25, ticks: 72 }
+    permanent: { industry: 3 }
+
+  - id: many_hearths
+    name: Many Hearths
+    theme: growth
+    unlock: { tech: dome_habitats }
+    objective: { metric: population_growth_pct, target: 20, window_ticks: 168 }      # estimate; calibrate
+    boon:      { pop_growth_pct: 50, ticks: 72 }
+    permanent: { growth: 3 }
+
+  - id: quiet_years
+    name: The Quiet Years
+    theme: cohesion
+    unlock: { tech: civic_archives }
+    objective: { metric: stability_held, min: 60, consecutive_ticks: 120, window_ticks: 168 }  # estimate; calibrate
+    boon:      { ac_efficiency_pct: 15, ticks: 48 }
+    permanent: { cohesion: 3 }
+
+  - id: long_survey
+    name: The Long Survey
+    theme: curiosity
+    unlock: { tech: orbital_survey_array }
+    objective: { metric: systems_surveyed, target: 6, window_ticks: 168 }            # estimate; depends on map density
+    boon:      { survey_range_ly: 3, ticks: 72 }
+    permanent: { research: 2 }
+
+  - id: first_handshake
+    name: The First Handshake
+    theme: openness
+    unlock: { honor: met_player_civilization }        # your example: unlocked by finding a player civ
+    objective: { metric: treaty_signed, with: that_civ, window_ticks: 168 }
+    boon:      { trade_income_pct: 15, ticks: 72, reputation: 10 }
+    permanent: { openness: 3 }
+
+  - id: iron_vigil
+    name: The Iron Vigil
+    theme: martial
+    unlock: { tech: braided_hulls }
+    objective: { metric: readiness_held, min_pct: 75, fleet_tons_min: 1000, consecutive_ticks: 72, window_ticks: 120 }  # combat not yet simulated
+    boon:      { combat_defense_pct: 15, ticks: 72 }
+    permanent: { martial: 3 }
+
+# ---------------------------------------------------------------------------
+# GALACTIC EVENTS — server-wide, multi-stage, cooperative story arcs.
+# Each event declares its own failure rule (flat | contribution | mitigation | contribution_and_mitigation).
+# Requirements scale with the number of exposed civs, so 5 friends and 50 strangers both have a fair shot.
+# ---------------------------------------------------------------------------
+galactic_events:
+  trigger:
+    host_schedule: true                   # hosts can schedule or disable events (Settings → Host admin)
+    engine_condition: "≥ 50% of active civs have reached the Lattice tier, and no event in the last 336 ticks"
+  coalition:                              # how civs cooperate on an event
+    form: event_guild                     # a temporary guild created for the event; anyone exposed can found or join one
+    existing_guilds_may_join_as_block: true
+    dissolves_at_event_end: true          # members may vote to keep it as a permanent guild
+    max_coalitions_per_event: 0           # 0 = unlimited; coalitions pool toward the same server-wide goal
+    chat_rules: same_as_guild             # under-18 restrictions and content filter still apply
+
+  list:
+    - id: grey_bloom
+      name: The Grey Bloom                # a spore plague carried along trade lanes
+      exposure: civs_with_trade_lanes_to_an_infected_system
+      stages:
+        - id: outbreak
+          ticks: 24
+          does: "Seed 1-2 infected systems near busy trade lanes. The galactic news agency breaks the story."
+        - id: spread
+          ticks: 240                      # runs in parallel with the cure stage
+          spread_chance_per_lane_per_tick: 0.02
+          quarantine_policy_spread_mult: 0.25   # a civ that quarantines cuts its spread by 75% but loses 30% trade income
+          infected_system_effects: { stability: -2, stability_cap: -10, trade_income_pct: -10 }
+        - id: cure
+          ticks: 240
+          pledge_pool:
+            resource: research
+            target: "0.20 × Σ(research rate of all exposed civs at outbreak) × 240"
+            # i.e. if every exposed civ pledges 20% of its research for 10 days, the cure lands.
+            # If only half take part, they need about 40% each. Free riders make it harder for everyone.
+          event_tech: { id: field_hospitals, cost_multiplier_of_reach: 0.5, effect: "−5 points of plague loss for this civ" }
+      success:
+        all_exposed: { reputation: 5 }
+        contributors: { reputation: "5 + 10 × share_of_pool", honor: plaguebreaker, permanent: { cohesion: 2 } }
+      failure:
+        rule: contribution_and_mitigation
+        max_population_loss_pct: 15       # your number
+        applies_to: infected_systems
+        reductions:                       # percentage points off the 15
+          quarantine_policy: 5
+          field_hospitals_researched: 5
+          pledged_at_least_fair_share: 5  # fair share = 20% of own research for the cure window
+        recovery_wave: { pop_growth_mult: 3, ticks: 120 }
+        # Without the wave, a 15% loss takes ~13 days to recover to 95% of the old population (~31 to fully recover).
+        # With it, ~4.4 days to 95%. A disaster, not a month-long setback.
+
+# ---------------------------------------------------------------------------
+# HONORS used as unlocks above (the full Honors / Titles list belongs to the year-two design)
+# ---------------------------------------------------------------------------
+honors:
+  met_player_civilization: { when: "first contact with a player-run civilization" }
+  a_hundred_charters:      { when: "complete 25 Charters", grants: { charter_slots: 1 } }   # name is a nod; 25 keeps it reachable in one run
+  plaguebreaker:           { when: "contributed to curing a plague Galactic Event", title: "Plaguebreaker" }
+
+open_questions:
+  - "Player-facing umbrella name for the screen that lists all three (internal name: objectives)."
+  - "Transcendence: PARKED. Unlocked through the tech tree; duration depends on tech progress. Design lineage rules later (Starfield NG+ model)."
+  - "'Diplomacy points' from the plague example: we only have reputation. Proposed: reputation only, no new resource."
+  - "Coalition = temporary event guild (reconciles 'create a guild' with solo players and small servers). Confirm."

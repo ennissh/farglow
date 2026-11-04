@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">Settings</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch</a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy</a>
+</nav>
+<span class="fg-meta">Saved automatically</span>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+
+<nav aria-label="Settings sections" class="fg-panel" style="flex: 1 1 200px; max-width: 220px; gap: 2px">
+<a href="#account" style="padding: 6px 8px; border-radius: 3px; font-size: 13px; text-decoration: none; color: var(--on-accent); background: var(--accent); font-weight: 600">Account</a>
+<a href="#advisor" style="padding: 6px 8px; border-radius: 3px; font-size: 13px; text-decoration: none; color: var(--ink-secondary)">Advisor</a>
+<a href="#email" style="padding: 6px 8px; border-radius: 3px; font-size: 13px; text-decoration: none; color: var(--ink-secondary)">Email and Dispatch</a>
+<a href="#display" style="padding: 6px 8px; border-radius: 3px; font-size: 13px; text-decoration: none; color: var(--ink-secondary)">Display</a>
+<a href="#away" style="padding: 6px 8px; border-radius: 3px; font-size: 13px; text-decoration: none; color: var(--ink-secondary)">Time away</a>
+<a href="#privacy" style="padding: 6px 8px; border-radius: 3px; font-size: 13px; text-decoration: none; color: var(--ink-secondary)">Privacy and data</a>
+</nav>
+
+<div style="flex: 999 1 700px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start">
+
+<section id="account" class="fg-panel">
+<div class="fg-panel__head"><h1 class="fg-panel__title">Account</h1><span class="fg-meta">since tick 0</span></div>
+<div class="fg-field"><label class="fg-label" for="s-email">Email</label><input class="fg-input" id="s-email" type="email" value="you@example.com"></div>
+<div class="fg-field"><label class="fg-label" for="s-name">Display name</label><input class="fg-input" id="s-name" type="text" value="ashenreach"></div>
+<div class="fg-field"><label class="fg-label" for="s-civ">Civilization name</label><input class="fg-input" id="s-civ" type="text" value="The Ashenreach Collective"><span class="fg-help">Renaming is announced in the Dispatch so neighbors are not confused.</span></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px"><button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Sign out of other devices (2)</button></div>
+</section>
+
+<section id="advisor" class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Advisor</h2><a class="fg-btn fg-btn--ghost fg-btn--sm" href="AdvisorSetup.dc.html">Edit advisor</a></div>
+<div style="display: flex; gap: 10px; align-items: center">
+<span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); border: 1.5px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 13px; font-weight: 500">TV</span>
+<div style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 700">Tamsin Vey</span><span class="fg-meta">Chief of Staff · Warm · Cautious · Scholarly</span></div>
+</div>
+<label style="display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 18px"><input type="checkbox" checked style="width: 14px; height: 14px; margin: 2px 0 0; accent-color: var(--accent)"><span>Auto-approve suggestions that stay inside my standing orders<span class="fg-help" style="display: block">Never applies to doctrines, war, treaties or transcendence.</span></span></label>
+<label style="display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 18px"><input type="checkbox" checked style="width: 14px; height: 14px; margin: 2px 0 0; accent-color: var(--accent)"><span>Show tips on screens I haven't used yet</span></label>
+<div style="display: flex; gap: 6px"><a class="fg-btn fg-btn--secondary fg-btn--sm" href="FirstPlay.dc.html">Replay First light</a><button type="button" class="fg-btn fg-btn--ghost fg-btn--sm">Clear chat history</button></div>
+</section>
+
+<section id="email" class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Email and Dispatch</h2><span class="fg-meta">delivered via server relay</span></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div class="fg-field"><label class="fg-label" for="s-time">Morning Dispatch at</label><select class="fg-select" id="s-time"><option>07:00</option></select></div>
+<div class="fg-field"><label class="fg-label" for="s-tz">Time zone</label><select class="fg-select" id="s-tz"><option>America/Chicago</option></select></div>
+</div>
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 4px">
+<legend class="fg-label" style="margin-bottom: 4px">Also email me when</legend>
+<sc-for list="{{emailOpts}}" as="o" hint-placeholder-count="5">
+<label style="display: flex; gap: 8px; align-items: center; font-size: 13px; line-height: 18px"><input type="checkbox" checked="{{o.on}}" onChange="{{o.toggle}}" style="width: 14px; height: 14px; margin: 0; accent-color: var(--accent)"><span>{{o.label}}</span></label>
+</sc-for>
+</fieldset>
+<span class="fg-help">At most 3 alert emails a day; extras roll into the next Dispatch.</span>
+</section>
+
+<section id="display" class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Display</h2><span class="fg-meta">this browser</span></div>
+<div class="fg-field">
+<span class="fg-label">Theme</span>
+<div class="fg-tabs" role="group" aria-label="Theme" style="align-self: flex-start">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="3">
+<button type="button" class="fg-tab" aria-current="{{t.current}}" onClick="{{t.pick}}" style="border: none; cursor: pointer; font-family: var(--font-sans)">{{t.label}}</button>
+</sc-for>
+</div>
+<span class="fg-help">System follows your device's light or dark setting.</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div class="fg-field"><label class="fg-label" for="s-num">Numbers</label><select class="fg-select" id="s-num"><option>1,284.5</option></select></div>
+<div class="fg-field"><label class="fg-label" for="s-time2">Show time as</label><select class="fg-select" id="s-time2"><option>Ticks, with real time on hover</option></select></div>
+</div>
+<label style="display: flex; gap: 8px; align-items: center; font-size: 13px"><input type="checkbox" style="width: 14px; height: 14px; margin: 0; accent-color: var(--accent)"><span>Reduce motion on the star map</span></label>
+</section>
+
+<section id="away" class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Time away</h2><span class="fg-meta">your governor keeps running</span></div>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--ink-secondary)">Going on holiday? Your governor follows your standing orders as usual. Set a quiet period and Tamsin pauses alert emails and sends one summary when you are back.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div class="fg-field"><label class="fg-label" for="s-from">From</label><input class="fg-input" id="s-from" type="date"></div>
+<div class="fg-field"><label class="fg-label" for="s-to">Until</label><input class="fg-input" id="s-to" type="date"></div>
+</div>
+<span class="fg-help">Time away does not protect you from attack; check your standing orders before you go.</span>
+</section>
+
+<section id="privacy" class="fg-panel">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Privacy and data</h2><span class="fg-meta">this server: The Quiet Arm</span></div>
+<table class="fg-table">
+<tbody>
+<tr><td style="color: var(--ink-secondary)">Advisor chat kept for</td><td class="num">30 days</td></tr>
+<tr><td style="color: var(--ink-secondary)">Who can message me</td><td class="num">Anyone I've met</td></tr>
+<tr><td style="color: var(--ink-secondary)">Server host</td><td class="num">[HOST NAME]</td></tr>
+</tbody>
+</table>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm">Download my data</button>
+<button type="button" class="fg-btn fg-btn--danger fg-btn--sm">Delete my account…</button>
+</div>
+<span class="fg-help">Deleting retires your civilization: its home becomes a protected Remnant and your other systems return to unowned.</span>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, email: { decisions: true, attacks: true, offers: true, contact: true, weekly: false } };
+}
+renderVals() {
+const chosen = this.state.theme || (this.props.theme === 'dark' ? 'Dark' : 'Light');
+const effective = chosen === 'System' ? (this.props.theme === 'dark' ? 'dark' : 'light') : chosen.toLowerCase();
+const labels = { decisions: 'A decision is waiting with a deadline under 24 ticks', attacks: 'One of my systems or fleets is attacked', offers: 'Someone sends me a treaty or trade offer', contact: 'We meet a new civilization', weekly: 'Weekly summary of my civilization' };
+const emailOpts = Object.keys(labels).map((k) => ({ label: labels[k], on: this.state.email[k], toggle: () => this.setState({ email: { ...this.state.email, [k]: !this.state.email[k] } }) }));
+const themes = ['Light', 'Dark', 'System'].map((t) => ({ label: t, current: t === chosen ? 'page' : 'false', pick: () => this.setState({ theme: t }) }));
+return { themeClass: effective === 'dark' ? 'fg-dark' : 'fg-light', emailOpts, themes };
+}
+}
+</script>
+</body>
+</html>

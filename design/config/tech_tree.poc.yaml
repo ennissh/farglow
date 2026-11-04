@@ -1,0 +1,394 @@
+# Farglow — PoC tech tree (config/tech_tree.poc.yaml)
+# Status: PROPOSED (not yet approved). Names, numbers and effects are tunable data.
+#
+# Rules this file encodes (from the build bundle):
+#   - Every researchable node has at least one drawback. Nothing is free.
+#   - One mutually exclusive DOCTRINE group per tier: pick 1 of 3, the other two lock forever.
+#   - Cost scales with how much you already know:  cost = base_cost * (1 + 0.04 * techs_known)
+#   - Repeatables continue past the tree with rising cost (the "knowing the most costs the most" rule).
+#   - The engine owns all numbers. The LLM may write flavor text for a node, never change its effects.
+#   - The PoC civ starts at the Reach tier, so tiers 0-3 are collapsed into `known_at_start`.
+
+version: 1
+start_tier: reach
+
+cost_model:
+  formula: "base_cost * (1 + knowledge_tax * techs_known)"
+  knowledge_tax: 0.04
+  debug_cost_multiplier: 0.1      # applied only when DEBUG=1 so a demo session can reach tier 6
+  repeatable_growth: 1.25          # each repeat level costs 25% more than the last
+
+tiers:
+  - { id: reach,   order: 4, name: Reach,   base_cost: 600 }
+  - { id: lattice, order: 5, name: Lattice, base_cost: 3000, unlock: { completed_in_tier: reach,   count: 6 } }
+  - { id: concord, order: 6, name: Concord, base_cost: 7500, unlock: { completed_in_tier: lattice, count: 6 } }
+
+fields: [propulsion, communications, industry, life_sciences, society, defense]
+
+# Effect vocabulary the engine understands. Unknown keys are a load error.
+#   op: add      -> flat change to a stat
+#   op: pct      -> percentage change to a stat (+25 = +25%)
+#   op: unlock   -> enables a capability, building, governance option or body type
+effect_keys:
+  charter_slots:            "How many Charters can be active at once"
+  ftl_speed_ly_per_tick:    "Fleet travel speed"
+  comms_speed_ly_per_tick:  "How fast orders and news travel"
+  command_lag_ticks:        "Extra ticks added to every remote order"
+  survey_range_ly:          "Distance at which systems are revealed"
+  research_output:          "Research points per tick"
+  research_efficiency:      "Multiplier on research output from all sources"
+  mineral_yield:            "Minerals from all owned bodies"
+  belt_mineral_yield:       "Minerals from asteroid belts only"
+  ice_mineral_yield:        "Minerals from ice giants and dwarfs"
+  energy_yield:             "Energy from all owned bodies"
+  star_energy_yield:        "Energy from stars only"
+  gas_giant_energy:         "Flat energy per owned gas giant"
+  pop_growth:               "Population growth rate"
+  pop_cap_rocky:            "Flat population capacity on rocky and super-Earth bodies"
+  habitability_step:        "Treat non-ideal worlds one habitability step better"
+  verdant_peak_yield:       "Yields on ideal (verdant) worlds"
+  stability:                "Civilization stability"
+  cohesion:                 "Cohesion attribute"
+  ac_efficiency:            "Action credits per unit of population"
+  policy_cooldown_ticks:    "Wait between governance changes"
+  trade_income:             "Income from trade pacts"
+  reputation_per_day:       "Reputation drift per 24 ticks"
+  intel_on_others:          "Your intel confidence on other civilizations"
+  intel_leak:               "Other civilizations' intel confidence on you"
+  envoy_travel_time:        "Time for envoys to arrive"
+  colonize_cost:            "Action-credit cost to outpost or colonize"
+  admin_cost_exponent:      "Exponent in empire admin cost (systems ^ x)"
+  expansion_cost:           "Action-credit cost of all Expansion spending"
+  shipyard_throughput:      "Tons of hull produced per mineral"
+  fleet_upkeep:             "Mineral upkeep per ton of fleet"
+  readiness_decay:          "Readiness lost per tick from age and use"
+  readiness_decay_away:     "Readiness decay while outside your comms range"
+  combat_attack:            "Fleet attack strength"
+  combat_defense:           "Fleet and installation defense strength"
+  defense_slots_per_body:   "Extra defense slots on every owned body"
+  siege_time:               "Ticks needed to capture a defended body"
+  detection_range_ly:       "Distance at which others can see your fleets"
+  energy_upkeep:            "Flat energy cost per tick"
+  mineral_upkeep:           "Flat mineral cost per tick"
+
+# Collapsed tiers 0-3. The PoC civilization starts with all of these.
+known_at_start:
+  - id: fold_transit
+    name: Fold Transit
+    field: propulsion
+    effects: [ { key: ftl_speed_ly_per_tick, op: add, value: 0.5 } ]
+  - id: lightspeed_relays
+    name: Lightspeed Relays
+    field: communications
+    effects: [ { key: comms_speed_ly_per_tick, op: add, value: 2 }, { key: survey_range_ly, op: add, value: 6 } ]
+  - id: orbital_industry
+    name: Orbital Industry
+    field: industry
+    effects: [ { key: shipyard_throughput, op: add, value: 1.0 } ]
+  - id: closed_ecologies
+    name: Closed Ecologies
+    field: life_sciences
+    effects: [ { key: colonize_cost, op: pct, value: 0 } ]
+    unlocks: [ outpost_verdant, outpost_rocky ]
+  - id: planetary_council
+    name: Planetary Council
+    field: society
+    unlocks: [ governance_consensus, governance_directive, governance_commons, governance_market, governance_planned, governance_knowledge, governance_prosperity, governance_security ]
+  - id: point_defense
+    name: Point Defense
+    field: defense
+    effects: [ { key: defense_slots_per_body, op: add, value: 0 } ]
+
+# ---------------------------------------------------------------------------
+# TIER 4 · REACH  (12 nodes, two per field, no prerequisites beyond the start)
+# ---------------------------------------------------------------------------
+nodes:
+  - id: extended_fold_range
+    name: Extended Fold Range
+    tier: reach
+    field: propulsion
+    description: Longer single folds between stars.
+    effects:   [ { key: ftl_speed_ly_per_tick, op: add, value: 0.15 } ]
+    drawbacks: [ { key: fleet_upkeep, op: pct, value: 5 } ]
+
+  - id: fuel_skimming
+    name: Fuel Skimming
+    tier: reach
+    field: propulsion
+    description: Tankers harvest hydrogen from gas giants.
+    effects:   [ { key: gas_giant_energy, op: add, value: 1 } ]
+    drawbacks: [ { key: readiness_decay, op: pct, value: 5 } ]
+
+  - id: orbital_survey_array
+    name: Orbital Survey Array
+    tier: reach
+    field: communications
+    description: Space telescopes reveal nearby systems without a visit.
+    effects:   [ { key: survey_range_ly, op: add, value: 2 } ]
+    drawbacks: [ { key: energy_upkeep, op: add, value: 1 } ]
+
+  - id: signal_compression
+    name: Signal Compression
+    tier: reach
+    field: communications
+    description: Denser transmissions carry orders farther per tick.
+    effects:   [ { key: comms_speed_ly_per_tick, op: add, value: 1 } ]
+    drawbacks: [ { key: intel_leak, op: pct, value: 10 } ]
+
+  - id: belt_extraction_rigs
+    name: Belt Extraction Rigs
+    tier: reach
+    field: industry
+    description: Automated mining across asteroid belts.
+    effects:   [ { key: belt_mineral_yield, op: pct, value: 25 } ]
+    drawbacks: [ { key: stability, op: add, value: -2 } ]
+
+  - id: autonomous_foundries
+    name: Autonomous Foundries
+    tier: reach
+    field: industry
+    description: Self-running factories that need few workers.
+    effects:   [ { key: mineral_yield, op: pct, value: 25 } ]
+    drawbacks: [ { key: cohesion, op: add, value: -1 } ]
+
+  - id: dome_habitats
+    name: Dome Habitats
+    tier: reach
+    field: life_sciences
+    description: Sealed cities on airless or hostile rock.
+    effects:   [ { key: pop_cap_rocky, op: add, value: 2 } ]
+    drawbacks: [ { key: energy_upkeep, op: add, value: 1 } ]
+
+  - id: ocean_colonization
+    name: Ocean Colonization
+    tier: reach
+    field: life_sciences
+    description: Floating and seabed settlements on water worlds.
+    unlocks:   [ outpost_ocean ]
+    drawbacks: [ { key: colonize_cost, op: pct, value: 10 } ]
+
+  - id: civic_archives
+    name: Civic Archives
+    tier: reach
+    field: society
+    description: Public records that build trust and memory.
+    effects:   [ { key: stability, op: add, value: 5 }, { key: research_output, op: pct, value: 5 } ]
+    drawbacks: [ { key: ac_efficiency, op: pct, value: -3 } ]
+
+  - id: envoy_corps
+    name: Envoy Corps
+    tier: reach
+    field: society
+    description: Trained diplomats posted to every contact.
+    effects:   [ { key: envoy_travel_time, op: pct, value: -25 }, { key: trade_income, op: pct, value: 5 } ]
+    drawbacks: [ { key: intel_leak, op: pct, value: 10 } ]
+
+  - id: braided_hulls
+    name: Braided Hulls
+    tier: reach
+    field: defense
+    description: Woven structural frames that shrug off wear.
+    effects:   [ { key: combat_defense, op: pct, value: 15 }, { key: readiness_decay, op: pct, value: -20 } ]
+    drawbacks: [ { key: shipyard_throughput, op: pct, value: -10 } ]
+
+  - id: orbital_batteries
+    name: Orbital Batteries
+    tier: reach
+    field: defense
+    description: Fixed guns on every claimed world.
+    effects:   [ { key: defense_slots_per_body, op: add, value: 1 } ]
+    drawbacks: [ { key: mineral_upkeep, op: add, value: 2 } ]
+
+# ---------------------------------------------------------------------------
+# TIER 5 · LATTICE  (unlocks after any 6 Reach nodes; 9 nodes + 1 doctrine choice)
+# ---------------------------------------------------------------------------
+  - id: fleet_tenders
+    name: Fleet Tenders
+    tier: lattice
+    field: propulsion
+    requires: [ fuel_skimming ]
+    description: Supply ships that keep fleets fit far from home.
+    effects:   [ { key: readiness_decay_away, op: pct, value: -30 } ]
+    drawbacks: [ { key: fleet_upkeep, op: pct, value: 10 } ]
+
+  - id: relay_network
+    name: Relay Network
+    tier: lattice
+    field: communications
+    requires: [ signal_compression ]
+    description: Build relay stations that extend your comms range.
+    unlocks:   [ building_relay_station ]
+    drawbacks: [ { key: energy_upkeep, op: add, value: 1, per: relay_station } ]
+
+  - id: stellar_collectors
+    name: Stellar Collectors
+    tier: lattice
+    field: industry
+    requires: [ orbital_survey_array ]
+    description: Vast mirror arrays harvest starlight directly.
+    effects:   [ { key: star_energy_yield, op: pct, value: 50 } ]
+    drawbacks: [ { key: stability, op: add, value: -3 } ]
+
+  - id: ice_mining
+    name: Ice Mining
+    tier: lattice
+    field: industry
+    requires: [ belt_extraction_rigs ]
+    description: Volatiles and metals pulled from frozen worlds.
+    effects:   [ { key: ice_mineral_yield, op: add, value: 2 } ]
+    drawbacks: [ { key: pop_growth, op: pct, value: -5 } ]
+
+  - id: gene_banks
+    name: Gene Banks
+    tier: lattice
+    field: life_sciences
+    requires: [ dome_habitats ]
+    description: Seed vaults that make new colonies thrive.
+    effects:   [ { key: pop_growth, op: pct, value: 15 } ]
+    drawbacks: [ { key: research_efficiency, op: pct, value: -5 } ]
+
+  - id: adaptive_biomes
+    name: Adaptive Biomes
+    tier: lattice
+    field: life_sciences
+    requires: [ ocean_colonization ]
+    description: Engineered ecosystems for imperfect worlds.
+    effects:   [ { key: habitability_step, op: add, value: 1 } ]
+    drawbacks: [ { key: verdant_peak_yield, op: pct, value: -10 } ]
+
+  - id: federated_councils
+    name: Federated Councils
+    tier: lattice
+    field: society
+    requires: [ civic_archives ]
+    description: Each colony sends voices to a shared council.
+    effects:   [ { key: stability, op: add, value: 8 }, { key: charter_slots, op: add, value: 1 } ]
+    unlocks:   [ governance_council ]
+    drawbacks: [ { key: policy_cooldown_ticks, op: add, value: 24 } ]
+
+  - id: market_exchanges
+    name: Market Exchanges
+    tier: lattice
+    field: society
+    requires: [ envoy_corps ]
+    description: Open trading floors with your neighbors.
+    effects:   [ { key: trade_income, op: pct, value: 20 } ]
+    drawbacks: [ { key: cohesion, op: add, value: -1 } ]
+
+  - id: siege_engineering
+    name: Siege Engineering
+    tier: lattice
+    field: defense
+    requires: [ orbital_batteries ]
+    description: Methods for breaking fortified worlds.
+    effects:   [ { key: siege_time, op: pct, value: -25 } ]
+    drawbacks: [ { key: reputation_per_day, op: add, value: -2, while: besieging } ]
+
+  # Doctrine: choose ONE. The other two lock permanently.
+  - id: fold_lensing
+    name: Fold Lensing
+    tier: lattice
+    field: propulsion
+    exclusive_group: lattice_doctrine
+    description: Bend the fold itself for much faster travel.
+    effects:   [ { key: ftl_speed_ly_per_tick, op: pct, value: 30 } ]
+    drawbacks: [ { key: research_efficiency, op: pct, value: -10 } ]
+
+  - id: relay_bloom
+    name: Relay Bloom
+    tier: lattice
+    field: communications
+    exclusive_group: lattice_doctrine
+    description: Self-replicating relays saturate your space.
+    effects:   [ { key: comms_speed_ly_per_tick, op: add, value: 3 }, { key: command_lag_ticks, op: add, value: -1 } ]
+    drawbacks: [ { key: fleet_upkeep, op: pct, value: 10 } ]
+
+  - id: quiet_drives
+    name: Quiet Drives
+    tier: lattice
+    field: defense
+    exclusive_group: lattice_doctrine
+    description: Fleets move with almost no signature.
+    effects:   [ { key: detection_range_ly, op: add, value: -3 } ]
+    drawbacks: [ { key: trade_income, op: pct, value: -10 }, { key: reputation_per_day, op: add, value: -1 } ]
+
+# ---------------------------------------------------------------------------
+# TIER 6 · CONCORD  (unlocks after any 6 Lattice nodes; 3 nodes + 1 doctrine choice)
+# ---------------------------------------------------------------------------
+  - id: long_baseline_interferometry
+    name: Long-Baseline Interferometry
+    tier: concord
+    field: communications
+    requires: [ relay_network ]
+    description: Telescopes linked across systems see far and clearly.
+    effects:   [ { key: intel_on_others, op: pct, value: 20 }, { key: survey_range_ly, op: add, value: 4 } ]
+    drawbacks: [ { key: energy_upkeep, op: add, value: 2 } ]
+
+  - id: terraforming_pilot
+    name: Terraforming Pilot
+    tier: concord
+    field: life_sciences
+    requires: [ adaptive_biomes ]
+    description: Slowly turn one rocky world verdant over 200 ticks.
+    unlocks:   [ project_terraform ]
+    drawbacks: [ { key: stability, op: add, value: -2, while: terraforming } ]
+
+  - id: fold_corridors
+    name: Fold Corridors
+    tier: concord
+    field: propulsion
+    requires: [ fleet_tenders ]
+    description: Charted lanes that double speed between your relays.
+    unlocks:   [ corridor_travel ]
+    drawbacks: [ { key: energy_upkeep, op: add, value: 1, per: corridor } ]
+
+  # Doctrine: choose ONE.
+  - id: sector_logistics
+    name: Sector Logistics
+    tier: concord
+    field: society
+    exclusive_group: concord_doctrine
+    description: Run a wide empire without drowning in paperwork.
+    effects:   [ { key: admin_cost_exponent, op: add, value: -0.1 } ]
+    drawbacks: [ { key: stability, op: add, value: -4 } ]
+
+  - id: deep_archive
+    name: Deep Archive
+    tier: concord
+    field: society
+    exclusive_group: concord_doctrine
+    description: A civilization devoted to knowing.
+    effects:   [ { key: research_output, op: pct, value: 20 } ]
+    drawbacks: [ { key: expansion_cost, op: pct, value: 15 } ]
+
+  - id: bastion_doctrine
+    name: Bastion Doctrine
+    tier: concord
+    field: defense
+    exclusive_group: concord_doctrine
+    description: Every world a fortress.
+    effects:   [ { key: combat_defense, op: pct, value: 25 } ]
+    drawbacks: [ { key: ftl_speed_ly_per_tick, op: pct, value: -15 } ]
+
+# ---------------------------------------------------------------------------
+# REPEATABLES  (available after any Concord node; cost grows 25% per level)
+# ---------------------------------------------------------------------------
+  - id: refined_method
+    name: Refined Method
+    tier: concord
+    field: society
+    repeatable: true
+    requires_any_in_tier: concord
+    description: Small, endless improvements to how you learn.
+    effects:   [ { key: research_output, op: pct, value: 1, per_level: true } ]
+    drawbacks: [ { key: stability, op: add, value: -0.5, per_level: true } ]
+
+  - id: hull_refinement
+    name: Hull Refinement
+    tier: concord
+    field: defense
+    repeatable: true
+    requires_any_in_tier: concord
+    description: Incremental gains in hull strength.
+    effects:   [ { key: combat_attack, op: pct, value: 1, per_level: true } ]
+    drawbacks: [ { key: fleet_upkeep, op: pct, value: 0.5, per_level: true } ]

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Research</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html" aria-current="page">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html">Dispatch <span class="fg-tab__count">3</span></a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy <span class="fg-tab__count">1</span></a>
+</nav>
+<div class="fg-status">
+<span>tick <b>1,284</b></span>
+<span>next <b style="color: var(--accent)">42 min</b></span>
+<span>research <b>83</b>/tick</span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+
+<section class="fg-panel" style="flex: 999 1 760px; min-width: 0">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<h1 class="fg-panel__title" style="font-size: 16px; line-height: 22px">Research</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 6px 14px" class="fg-meta">
+<span>known <b style="color: var(--ink); font-weight: 500">{{known}}</b></span>
+<span>knowledge tax <b style="color: var(--signal); font-weight: 500">+{{taxPct}}%</b> on every cost</span>
+<span>Lattice <b style="color: var(--positive); font-weight: 500">open</b> (6 of 6 Reach)</span>
+<span>Concord opens after 6 Lattice · <b style="color: var(--ink); font-weight: 500">0</b> done</span>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; line-height: 15px; color: var(--ink-muted)">
+<span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--positive-soft); border: 1px solid var(--positive); vertical-align: -1px"></span> researched</span>
+<span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--surface); border: 2px solid var(--accent); vertical-align: -2px"></span> in progress</span>
+<span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--surface); border: 1px solid var(--border-strong); vertical-align: -1px"></span> available</span>
+<span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; border: 1px dashed var(--border-strong); vertical-align: -1px"></span> locked</span>
+<span><span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--accent-soft); vertical-align: -1px"></span> doctrine row: pick one, others lock</span>
+</div>
+
+<div style="overflow-x: auto">
+<div style="min-width: 760px; display: flex; flex-direction: column; gap: 2px">
+<div style="display: grid; grid-template-columns: 96px repeat(6, minmax(0, 1fr)); gap: 6px">
+<span></span>
+<sc-for list="{{fields}}" as="f" hint-placeholder-count="6">
+<span style="font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink-secondary); padding-bottom: 3px; border-bottom: 2px solid var(--accent)">{{f}}</span>
+</sc-for>
+</div>
+<sc-for list="{{rows}}" as="row" hint-placeholder-count="7">
+<div style="display: grid; grid-template-columns: 96px repeat(6, minmax(0, 1fr)); gap: 6px; padding: 5px 4px; margin: 0 -4px; border-top: {{row.rule}}; background: {{row.bg}}">
+<div style="display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: 13px; line-height: 17px; font-weight: 700; color: {{row.labelColor}}">{{row.label}}</span>
+<span class="fg-meta">{{row.sub}}</span>
+</div>
+<sc-for list="{{row.cells}}" as="cell" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<sc-for list="{{cell.nodes}}" as="n" hint-placeholder-count="1">
+<button type="button" onClick="{{n.pick}}" aria-pressed="{{n.pressed}}" style="text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 1px; padding: 4px 6px 5px; border-radius: 3px; font-family: var(--font-sans); color: var(--ink); border: {{n.border}}; background: {{n.bg}}; opacity: {{n.opacity}}; outline: {{n.outline}}; outline-offset: 1px">
+<span style="font-size: 12px; line-height: 16px; font-weight: 600; text-decoration: {{n.strike}}">{{n.name}}</span>
+<sc-if value="{{n.showPro}}" hint-placeholder-val="{{true}}">
+<span style="font-size: 11px; line-height: 14px; color: var(--ink-secondary)">{{n.pro}}</span>
+</sc-if>
+<sc-if value="{{n.showBar}}" hint-placeholder-val="{{false}}">
+<span style="display: block; height: 3px; border-radius: 2px; background: var(--surface-raised); margin: 2px 0 1px"><span style="display: block; height: 3px; border-radius: 2px; background: var(--accent); width: {{n.pct}}%"></span></span>
+</sc-if>
+<span style="font-family: var(--font-mono); font-size: 11px; line-height: 14px; color: {{n.statusColor}}">{{n.status}}</span>
+</button>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<aside style="flex: 1 1 340px; max-width: 400px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker {{sel.kickerClass}}">{{sel.kicker}}</span>
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+<h2 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700; letter-spacing: -0.01em">{{sel.name}}</h2>
+<span class="fg-badge {{sel.badge}}">{{sel.statusWord}}</span>
+</div>
+</div>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{sel.pros}}" as="p" hint-placeholder-count="2">
+<li style="display: grid; grid-template-columns: 14px minmax(0, 1fr); font-size: 13px; line-height: 18px"><span style="color: var(--positive); font-family: var(--font-mono); font-weight: 500">+</span><span>{{p}}</span></li>
+</sc-for>
+<sc-for list="{{sel.cons}}" as="c" hint-placeholder-count="1">
+<li style="display: grid; grid-template-columns: 14px minmax(0, 1fr); font-size: 13px; line-height: 18px"><span style="color: var(--signal); font-family: var(--font-mono); font-weight: 500">−</span><span>{{c}}</span></li>
+</sc-for>
+</ul>
+
+<sc-if value="{{sel.isDoctrine}}" hint-placeholder-val="{{true}}">
+<div style="padding: 8px; border-radius: 4px; background: var(--signal-soft); border: 1px solid var(--signal); font-size: 12px; line-height: 16px">
+<b style="color: var(--signal)">Permanent choice.</b> Researching {{sel.name}} locks {{sel.rivals}} for the rest of this civilization's life.
+</div>
+</sc-if>
+
+<table class="fg-table">
+<tbody>
+<tr><td style="color: var(--ink-secondary)">Base cost · {{sel.tierName}}</td><td class="num">{{sel.base}} RP</td></tr>
+<tr><td style="color: var(--ink-secondary)">Knowledge tax · {{known}} known</td><td class="num">× {{taxMult}}</td></tr>
+<tr><td style="font-weight: 600">Cost</td><td class="num" style="font-weight: 600">{{sel.cost}} RP</td></tr>
+<tr><td style="color: var(--ink-secondary)">Time at 83 RP/tick</td><td class="num">{{sel.eta}}</td></tr>
+</tbody>
+</table>
+
+<dl style="margin: 0; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 3px 8px; font-size: 12px; line-height: 16px">
+<dt style="color: var(--ink-muted)">Needs</dt><dd style="margin: 0">{{sel.needs}}</dd>
+<dt style="color: var(--ink-muted)">Leads to</dt><dd style="margin: 0">{{sel.leads}}</dd>
+</dl>
+
+<sc-if value="{{sel.hasNote}}" hint-placeholder-val="{{true}}">
+<div style="padding: 8px; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent-soft); font-size: 12px; line-height: 16px">
+<span class="fg-kicker fg-kicker--accent">Advisor</span>
+<div style="margin-top: 2px; color: var(--ink)">{{sel.note}}</div>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<button type="button" class="fg-btn fg-btn--primary" disabled="{{sel.cannot}}" onClick="{{researchNow}}">Research now</button>
+<button type="button" class="fg-btn fg-btn--secondary" disabled="{{sel.cannot}}" onClick="{{addToQueue}}">Add to queue</button>
+</div>
+<span class="fg-help">{{sel.hint}}</span>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Queue</h2>
+<span class="fg-meta">{{queueTotal}} ticks to clear</span>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{queue}}" as="q" hint-placeholder-count="3">
+<li style="display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center">
+<span class="fg-meta" style="text-align: right">{{q.pos}}</span>
+<div class="fg-meter">
+<div class="fg-meter__row"><span style="color: var(--ink); font-weight: 500">{{q.name}}</span><span class="fg-meter__value">{{q.eta}}</span></div>
+<div class="fg-meter__track"><div class="fg-meter__fill" style="width: {{q.pct}}%"></div></div>
+</div>
+<button type="button" class="fg-btn fg-btn--ghost fg-btn--sm" aria-label="Remove {{q.name}} from queue" onClick="{{q.remove}}">Remove</button>
+</li>
+</sc-for>
+</ol>
+<p class="fg-help" style="margin: 0">Research spends 30% of your action credits (set in Governor). When the queue empties, your governor follows its research focus: Propulsion, then Communications.</p>
+</section>
+</aside>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { selected: 'relay_bloom', queue: ['dome_habitats', 'stellar_collectors', 'ocean_colonization'] };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const FIELDS = ['propulsion', 'communications', 'industry', 'life_sciences', 'society', 'defense'];
+const FIELD_NAME = { propulsion: 'Propulsion', communications: 'Communications', industry: 'Industry', life_sciences: 'Life sciences', society: 'Society', defense: 'Defense' };
+const TIER = { reach: { name: 'Reach', base: 600 }, lattice: { name: 'Lattice', base: 3000 }, concord: { name: 'Concord', base: 7500 } };
+const N = (id, name, tier, field, pros, cons, req, group, extra) => ({ id, name, tier, field, pros, cons, req: req || null, group: group || null, ...(extra || {}) });
+const nodes = [
+N('extended_fold_range', 'Extended Fold Range', 'reach', 'propulsion', ['+0.15 ly/tick travel speed'], ['+5% fleet upkeep']),
+N('fuel_skimming', 'Fuel Skimming', 'reach', 'propulsion', ['+1 energy per gas giant'], ['+5% readiness decay']),
+N('orbital_survey_array', 'Orbital Survey Array', 'reach', 'communications', ['+2 ly survey range'], ['+1 energy upkeep']),
+N('signal_compression', 'Signal Compression', 'reach', 'communications', ['+1 ly/tick comms speed'], ['+10% intel others hold on you']),
+N('belt_extraction_rigs', 'Belt Extraction Rigs', 'reach', 'industry', ['+25% belt minerals'], ['−2 stability']),
+N('autonomous_foundries', 'Autonomous Foundries', 'reach', 'industry', ['+25% minerals'], ['−1 Cohesion']),
+N('dome_habitats', 'Dome Habitats', 'reach', 'life_sciences', ['+2 pop cap on rocky worlds'], ['+1 energy upkeep']),
+N('ocean_colonization', 'Ocean Colonization', 'reach', 'life_sciences', ['Unlocks ocean-world colonies'], ['+10% colonize cost']),
+N('civic_archives', 'Civic Archives', 'reach', 'society', ['+5 stability', '+5% research'], ['−3% action-credit efficiency']),
+N('envoy_corps', 'Envoy Corps', 'reach', 'society', ['−25% envoy travel time', '+5% trade income'], ['+10% intel others hold on you']),
+N('braided_hulls', 'Braided Hulls', 'reach', 'defense', ['+15% defense', '−20% readiness decay'], ['−10% shipyard output']),
+N('orbital_batteries', 'Orbital Batteries', 'reach', 'defense', ['+1 defense slot per world'], ['+2 mineral upkeep']),
+N('fleet_tenders', 'Fleet Tenders', 'lattice', 'propulsion', ['−30% decay outside comms range'], ['+10% fleet upkeep'], 'fuel_skimming'),
+N('relay_network', 'Relay Network', 'lattice', 'communications', ['Unlocks relay stations'], ['+1 energy upkeep per relay'], 'signal_compression'),
+N('stellar_collectors', 'Stellar Collectors', 'lattice', 'industry', ['+50% star energy'], ['−3 stability'], 'orbital_survey_array'),
+N('ice_mining', 'Ice Mining', 'lattice', 'industry', ['+2 minerals per ice world'], ['−5% population growth'], 'belt_extraction_rigs'),
+N('gene_banks', 'Gene Banks', 'lattice', 'life_sciences', ['+15% population growth'], ['−5% research efficiency'], 'dome_habitats'),
+N('adaptive_biomes', 'Adaptive Biomes', 'lattice', 'life_sciences', ['+1 habitability step'], ['−10% verdant-world yields'], 'ocean_colonization'),
+N('federated_councils', 'Federated Councils', 'lattice', 'society', ['+8 stability', 'Unlocks Council authority'], ['+24 ticks policy cooldown'], 'civic_archives'),
+N('market_exchanges', 'Market Exchanges', 'lattice', 'society', ['+20% trade income'], ['−1 Cohesion'], 'envoy_corps'),
+N('siege_engineering', 'Siege Engineering', 'lattice', 'defense', ['−25% siege time'], ['−2 reputation per day while besieging'], 'orbital_batteries'),
+N('fold_lensing', 'Fold Lensing', 'lattice', 'propulsion', ['+30% travel speed'], ['−10% research efficiency'], null, 'lattice_doctrine'),
+N('relay_bloom', 'Relay Bloom', 'lattice', 'communications', ['+3 ly/tick comms speed', '−1 tick order lag'], ['+10% fleet upkeep'], null, 'lattice_doctrine'),
+N('quiet_drives', 'Quiet Drives', 'lattice', 'defense', ['−3 ly detection range for your fleets'], ['−10% trade income', '−1 reputation per day'], null, 'lattice_doctrine'),
+N('fold_corridors', 'Fold Corridors', 'concord', 'propulsion', ['Unlocks fold corridors'], ['+1 energy upkeep per corridor'], 'fleet_tenders'),
+N('long_baseline_interferometry', 'Long-Baseline Interferometry', 'concord', 'communications', ['+20% intel on others', '+4 ly survey range'], ['+2 energy upkeep'], 'relay_network'),
+N('terraforming_pilot', 'Terraforming Pilot', 'concord', 'life_sciences', ['Unlocks terraform project'], ['−2 stability while terraforming'], 'adaptive_biomes'),
+N('sector_logistics', 'Sector Logistics', 'concord', 'society', ['−0.1 admin cost exponent'], ['−4 stability'], null, 'concord_doctrine'),
+N('deep_archive', 'Deep Archive', 'concord', 'society', ['+20% research'], ['+15% expansion cost'], null, 'concord_doctrine'),
+N('bastion_doctrine', 'Bastion Doctrine', 'concord', 'defense', ['+25% defense'], ['−15% travel speed'], null, 'concord_doctrine'),
+N('refined_method', 'Refined Method', 'concord', 'society', ['+1% research per level'], ['−0.5 stability per level'], null, null, { repeatable: true }),
+N('hull_refinement', 'Hull Refinement', 'concord', 'defense', ['+1% attack per level'], ['+0.5% fleet upkeep per level'], null, null, { repeatable: true })
+];
+const start = [
+['Fold Transit', 'propulsion'], ['Lightspeed Relays', 'communications'], ['Orbital Industry', 'industry'],
+['Closed Ecologies', 'life_sciences'], ['Planetary Council', 'society'], ['Point Defense', 'defense']
+];
+const notes = {
+relay_bloom: 'Relay Bloom gets orders to Oriel 2 ticks sooner and pairs with your Relay Network path. Your fleets are small, so the upkeep cost is low today.',
+fold_lensing: 'Fastest route to Talmar, but the research penalty slows every tech that follows.',
+stellar_collectors: 'Hearth is a K2 star; this roughly doubles your energy income.'
+};
+const done = new Set(['orbital_survey_array', 'autonomous_foundries', 'braided_hulls', 'civic_archives', 'signal_compression', 'belt_extraction_rigs']);
+const progress = { dome_habitats: 40 };
+const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+const known = 6 + done.size;
+const mult = 1 + 0.04 * known;
+const reachDone = nodes.filter((n) => n.tier === 'reach' && done.has(n.id)).length;
+const latticeDone = nodes.filter((n) => n.tier === 'lattice' && done.has(n.id)).length;
+const tierOpen = { reach: true, lattice: reachDone >= 6, concord: latticeDone >= 6 };
+const fmt = (x) => Math.round(x).toLocaleString('en-US');
+const costOf = (n) => TIER[n.tier].base * mult;
+const ticksFor = (n) => {
+const c = costOf(n) * (1 - (progress[n.id] || 0) / 100);
+return Math.ceil(c / 83);
+};
+const statusOf = (n) => {
+if (done.has(n.id)) return 'done';
+if (progress[n.id] !== undefined) return 'active';
+if (n.group && nodes.some((m) => m.group === n.group && m.id !== n.id && done.has(m.id))) return 'excluded';
+if (!tierOpen[n.tier]) return 'locked';
+if (n.req && !done.has(n.req)) return 'locked';
+return 'available';
+};
+const view = (n) => {
+const st = statusOf(n);
+const on = this.state.selected === n.id;
+let status = '', color = 'var(--ink-muted)', border = '1px solid var(--border-strong)', bg = 'var(--surface)', opacity = '1', strike = 'none';
+if (st === 'done') { status = 'Researched'; color = 'var(--positive)'; border = '1px solid var(--positive)'; bg = 'var(--positive-soft)'; }
+else if (st === 'active') { status = progress[n.id] + '% · ' + ticksFor(n) + ' ticks left'; color = 'var(--accent)'; border = '2px solid var(--accent)'; }
+else if (st === 'available') { status = fmt(costOf(n)) + ' RP · ' + ticksFor(n) + ' ticks'; color = 'var(--ink-secondary)'; }
+else if (st === 'excluded') { status = 'Locked out by doctrine'; border = '1px solid var(--border)'; bg = 'var(--surface-raised)'; opacity = '0.75'; strike = 'line-through'; }
+else { status = !tierOpen[n.tier] ? 'Opens after 6 ' + (n.tier === 'concord' ? 'Lattice' : 'Reach') : 'Needs ' + byId[n.req].name; border = '1px dashed var(--border-strong)'; bg = 'transparent'; }
+return {
+name: n.name, status, statusColor: color, border, bg, opacity, strike,
+pro: n.pros[0], showPro: st !== 'locked',
+showBar: st === 'active', pct: progress[n.id] || 0,
+pressed: on ? 'true' : 'false',
+outline: on ? '2px solid var(--accent)' : 'none',
+pick: () => this.setState({ selected: n.id })
+};
+};
+const cellsFor = (filter) => FIELDS.map((f) => ({ nodes: nodes.filter((n) => n.field === f && filter(n)).map(view) }));
+const plain = 'transparent', band = 'var(--accent-soft)';
+const ruleSolid = '1px solid var(--border-subtle)', ruleDash = '1px dashed var(--accent)';
+const rows = [
+{ label: 'Known', sub: 'tiers 0–3', bg: plain, rule: ruleSolid, labelColor: 'var(--ink)',
+cells: FIELDS.map((f) => ({ nodes: start.filter((s) => s[1] === f).map((s) => ({ name: s[0], status: 'At start', statusColor: 'var(--ink-muted)', border: '1px solid var(--surface-raised)', bg: 'var(--surface-raised)', opacity: '1', strike: 'none', showPro: false, pro: '', showBar: false, pct: 0, pressed: 'false', outline: 'none', pick: () => {} })) })) },
+{ label: 'Reach', sub: 'tier 4 · ' + reachDone + '/12', bg: plain, rule: ruleSolid, labelColor: 'var(--ink)', cells: cellsFor((n) => n.tier === 'reach') },
+{ label: 'Lattice', sub: 'tier 5 · ' + latticeDone + '/9', bg: plain, rule: ruleSolid, labelColor: 'var(--ink)', cells: cellsFor((n) => n.tier === 'lattice' && !n.group) },
+{ label: 'Doctrine', sub: 'choose 1 of 3', bg: band, rule: ruleDash, labelColor: 'var(--accent)', cells: cellsFor((n) => n.group === 'lattice_doctrine') },
+{ label: 'Concord', sub: 'tier 6 · 0/3', bg: plain, rule: ruleSolid, labelColor: 'var(--ink)', cells: cellsFor((n) => n.tier === 'concord' && !n.group && !n.repeatable) },
+{ label: 'Doctrine', sub: 'choose 1 of 3', bg: band, rule: ruleDash, labelColor: 'var(--accent)', cells: cellsFor((n) => n.group === 'concord_doctrine') },
+{ label: 'Repeatable', sub: '+25% per level', bg: plain, rule: ruleSolid, labelColor: 'var(--ink)', cells: cellsFor((n) => n.repeatable) }
+];
+const s = byId[this.state.selected] || byId.relay_bloom;
+const sst = statusOf(s);
+const word = { done: 'Researched', active: 'In progress', available: 'Available', locked: 'Locked', excluded: 'Locked out' }[sst];
+const badge = { done: 'fg-badge--positive', active: 'fg-badge--accent', available: 'fg-badge--neutral', locked: 'fg-badge--neutral', excluded: 'fg-badge--signal' }[sst];
+const rivals = s.group ? nodes.filter((m) => m.group === s.group && m.id !== s.id).map((m) => m.name).join(' and ') : '';
+const leads = nodes.filter((m) => m.req === s.id).map((m) => m.name);
+const inQueue = this.state.queue.includes(s.id);
+const cannot = !(sst === 'available' || sst === 'active') || (inQueue && sst !== 'active');
+let hint = '';
+if (sst === 'locked') hint = !tierOpen[s.tier] ? 'This tier opens after 6 techs from the tier before it.' : 'Research ' + byId[s.req].name + ' first.';
+else if (sst === 'done') hint = 'Already part of your civilization.';
+else if (sst === 'excluded') hint = 'Your civilization chose a different doctrine.';
+else if (inQueue) hint = 'Already in your queue.';
+else hint = 'Costs rise 4% for every tech you know, so order matters.';
+const sel = {
+name: s.name,
+kicker: TIER[s.tier].name + ' · ' + FIELD_NAME[s.field] + (s.group ? ' · doctrine' : s.repeatable ? ' · repeatable' : ''),
+kickerClass: s.group ? 'fg-kicker--accent' : '',
+statusWord: word, badge,
+pros: s.pros, cons: s.cons,
+isDoctrine: !!s.group && sst !== 'done' && sst !== 'excluded', rivals,
+tierName: TIER[s.tier].name,
+base: fmt(TIER[s.tier].base), cost: fmt(costOf(s)),
+eta: sst === 'done' ? '—' : ticksFor(s) + ' ticks (~' + ticksFor(s) + ' h)',
+needs: s.req ? byId[s.req].name : (s.group ? 'Lattice tier open' : 'Nothing'),
+leads: leads.length ? leads.join(', ') : '—',
+hasNote: !!notes[s.id], note: notes[s.id] || '',
+cannot, hint
+};
+let total = 0;
+const queue = this.state.queue.map((id, i) => {
+const n = byId[id];
+const t = ticksFor(n);
+total += t;
+return {
+pos: String(i + 1), name: n.name, pct: progress[id] || 0,
+eta: (progress[id] ? progress[id] + '% · ' : '') + t + ' ticks',
+remove: () => this.setState({ queue: this.state.queue.filter((q) => q !== id) })
+};
+});
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+fields: FIELDS.map((f) => FIELD_NAME[f]),
+rows, sel, queue, queueTotal: String(total),
+known: String(known), taxPct: String(Math.round((mult - 1) * 100)), taxMult: mult.toFixed(2),
+researchNow: () => { if (!cannot) this.setState({ queue: [s.id, ...this.state.queue.filter((q) => q !== s.id)] }); },
+addToQueue: () => { if (!cannot && !inQueue) this.setState({ queue: [...this.state.queue, s.id] }); }
+};
+}
+}
+</script>
+</body>
+</html>

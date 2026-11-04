@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Set up your galaxy</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">Set up your galaxy · server v0.1.0 · first run</span>
+</div>
+<span class="fg-meta">Every choice can be changed later in Host admin</span>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 20px 24px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; max-width: 1320px; width: 100%; margin: 0 auto">
+
+<nav aria-label="Setup steps" class="fg-panel" style="flex: 1 1 220px; max-width: 240px; gap: 2px">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+<button type="button" onClick="{{s.pick}}" aria-current="{{s.current}}" style="text-align: left; cursor: pointer; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; align-items: center; padding: 6px 6px; border: none; border-radius: 3px; font-family: var(--font-sans); color: var(--ink); background: {{s.bg}}">
+<span style="width: 18px; height: 18px; border-radius: 50%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; border: 1.5px solid {{s.ring}}; background: {{s.dot}}; color: {{s.numColor}}">{{s.mark}}</span>
+<span style="font-size: 13px; line-height: 17px; font-weight: {{s.weight}}">{{s.title}}</span>
+</button>
+</sc-for>
+</nav>
+
+<section class="fg-panel" style="flex: 999 1 560px; min-width: 0; padding: 18px; gap: 14px">
+
+<sc-if value="{{is1}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 700">Your host account</h1>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--ink-secondary)">You run this galaxy. Your account gets the Host admin panel and can also play.</p>
+<div class="fg-field"><label class="fg-label" for="w-email">Your email</label><input class="fg-input" id="w-email" type="email" value="host@example.com"></div>
+<div class="fg-field"><label class="fg-label" for="w-url">Public address players will use</label><input class="fg-input" id="w-url" type="text" value="https://galaxy.example.com"><span class="fg-help">Point your domain at this server first. HTTPS certificates are fetched automatically.</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{is2}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 700">Your galaxy</h1>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div class="fg-field"><label class="fg-label" for="w-gname">Galaxy name</label><input class="fg-input" id="w-gname" type="text" value="The Quiet Arm"></div>
+<div class="fg-field"><label class="fg-label" for="w-seed">Seed</label><div style="display: flex; gap: 6px"><input class="fg-input" id="w-seed" type="text" value="0x5F3A91C2"><button type="button" class="fg-btn fg-btn--secondary">Randomize</button></div><span class="fg-help">The same seed always builds the same galaxy.</span></div>
+<div class="fg-field"><label class="fg-label" for="w-tick">Tick length</label><select class="fg-select" id="w-tick"><option>1 hour (recommended)</option></select><span class="fg-help">Debug servers can use 5 minutes.</span></div>
+<div class="fg-field"><label class="fg-label" for="w-max">Maximum players</label><input class="fg-input" id="w-max" type="number" value="20"><span class="fg-help">Plus one AI civilization per player, plus one.</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{is3}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 700">AI for advisors, news and AI civilizations</h1>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--ink-secondary)">Farglow is fully playable without AI. AI adds advisors that answer questions, written news, and smarter AI civilizations. You can switch later.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px" role="radiogroup" aria-label="AI option">
+<sc-for list="{{tiers}}" as="t" hint-placeholder-count="5">
+<button type="button" role="radio" aria-checked="{{t.checked}}" onClick="{{t.pick}}" style="text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 3px; padding: 10px; border-radius: 4px; font-family: var(--font-sans); color: var(--ink); border: {{t.border}}; background: {{t.bg}}">
+<span style="display: flex; justify-content: space-between; gap: 8px; width: 100%"><span style="font-size: 13px; line-height: 17px; font-weight: 600">{{t.name}}</span><span class="fg-badge {{t.badgeClass}}">{{t.badge}}</span></span>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary)">{{t.desc}}</span>
+<span class="fg-meta">{{t.needs}}</span>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{showOllama}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 4px; background: var(--surface-sunken); border: 1px solid var(--border-subtle)">
+<div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px">
+<div class="fg-field"><label class="fg-label" for="w-ollama">Ollama address</label><input class="fg-input" id="w-ollama" type="text" value="http://mac-studio.tailnet:11434"><span class="fg-help">Keep Ollama on a private network such as Tailscale. Never expose it to the internet.</span></div>
+<div class="fg-field"><label class="fg-label" for="w-model">Model</label><select class="fg-select" id="w-model"><option>qwen3.6-27b</option></select></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<button type="button" class="fg-btn fg-btn--secondary fg-btn--sm" onClick="{{test}}">Test connection</button>
+<sc-if value="{{tested}}" hint-placeholder-val="{{false}}"><span class="fg-badge fg-badge--positive">Connected · 24 tokens/s · structured output OK</span></sc-if>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{is4}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 700">Email</h1>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--ink-secondary)">Email delivers the morning Dispatch, sign-in links and one-tap actions. Mail from home servers often lands in spam, so a relay is recommended.</p>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="padding: 10px; border-radius: 4px; border: 1px solid var(--border)"><span style="font-size: 13px; font-weight: 600">No email</span><p style="margin: 2px 0 0; font-size: 12px; color: var(--ink-secondary)">Dispatch in the game only. Players sign in with a password.</p></div>
+<div style="padding: 10px; border-radius: 4px; border: 2px solid var(--accent); background: var(--accent-soft)"><span style="font-size: 13px; font-weight: 600">Your mail relay</span><p style="margin: 2px 0 0; font-size: 12px; color: var(--ink-secondary)">SMTP details from Postmark, Amazon SES, Resend or similar.</p></div>
+<div style="padding: 10px; border-radius: 4px; border: 1px solid var(--border)"><span style="font-size: 13px; font-weight: 600">Generative Distractions Relay</span><p style="margin: 2px 0 0; font-size: 12px; color: var(--ink-secondary)">Paid add-on. Sending, replies to your advisor and spam handling done for you.</p></div>
+</div>
+<table class="fg-table"><thead><tr><th>DNS check for galaxy.example.com</th><th>Status</th></tr></thead><tbody>
+<tr><td>SPF record</td><td><span class="fg-badge fg-badge--positive">Found</span></td></tr>
+<tr><td>DKIM signing</td><td><span class="fg-badge fg-badge--positive">Valid</span></td></tr>
+<tr><td>DMARC policy</td><td><span class="fg-badge fg-badge--signal">Missing · add p=none to start</span></td></tr>
+</tbody></table>
+</div>
+</sc-if>
+
+<sc-if value="{{is5}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 700">Players and safety</h1>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div class="fg-field"><label class="fg-label" for="w-age">Minimum age</label><select class="fg-select" id="w-age"><option>13 and older</option></select><span class="fg-help">Under-13s cannot join any Farglow server.</span></div>
+<div class="fg-field"><label class="fg-label" for="w-join">Who can join</label><select class="fg-select" id="w-join"><option>People I invite by email</option></select></div>
+<div class="fg-field"><label class="fg-label" for="w-msg">Messaging for players under 18</label><select class="fg-select" id="w-msg"><option>Guild and friends only</option></select></div>
+<div class="fg-field"><label class="fg-label" for="w-mod">Content filter</label><select class="fg-select" id="w-mod"><option>On for names, backstories, messages and AI output</option></select></div>
+</div>
+<p style="margin: 0; padding: 8px 10px; border-radius: 3px; background: var(--signal-soft); border: 1px solid var(--signal); font-size: 12px; line-height: 17px">As host, you are responsible for running this server lawfully, including player data and moderation. Read the hosting terms before inviting players.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is6}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 700">Review and launch</h1>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--ink-secondary)">Launching generates your starting region and places one AI civilization. The first tick runs immediately.</p>
+<label style="display: flex; gap: 8px; align-items: center; font-size: 13px"><input type="checkbox" checked style="width: 14px; height: 14px; margin: 0; accent-color: var(--accent)"><span>Take a nightly backup at 03:00 and keep 14 days</span></label>
+<label style="display: flex; gap: 8px; align-items: center; font-size: 13px"><input type="checkbox" style="width: 14px; height: 14px; margin: 0; accent-color: var(--accent)"><span>Send anonymous health stats to Generative Distractions (no player data)</span></label>
+<button type="button" class="fg-btn fg-btn--primary" style="align-self: flex-start">Launch The Quiet Arm</button>
+</div>
+</sc-if>
+
+<div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border-subtle)">
+<button type="button" class="fg-btn fg-btn--ghost" onClick="{{back}}" disabled="{{atStart}}">Back</button>
+<button type="button" class="fg-btn fg-btn--primary" onClick="{{next}}" disabled="{{atEnd}}">Continue</button>
+</div>
+</section>
+
+<aside class="fg-panel" style="flex: 1 1 280px; max-width: 320px">
+<div class="fg-panel__head"><h2 class="fg-panel__title">Your setup</h2><span class="fg-meta">so far</span></div>
+<table class="fg-table"><tbody>
+<tr><td style="color: var(--ink-secondary)">Host</td><td>host@example.com</td></tr>
+<tr><td style="color: var(--ink-secondary)">Address</td><td>galaxy.example.com</td></tr>
+<tr><td style="color: var(--ink-secondary)">Galaxy</td><td>The Quiet Arm</td></tr>
+<tr><td style="color: var(--ink-secondary)">Seed</td><td style="font-family: var(--font-mono)">0x5F3A91C2</td></tr>
+<tr><td style="color: var(--ink-secondary)">Tick</td><td>1 hour</td></tr>
+<tr><td style="color: var(--ink-secondary)">AI</td><td>{{tierName}}</td></tr>
+<tr><td style="color: var(--ink-secondary)">Email</td><td>Your mail relay</td></tr>
+<tr><td style="color: var(--ink-secondary)">Players</td><td>Invite only · 13+</td></tr>
+</tbody></table>
+<div style="display: flex; flex-direction: column; gap: 4px; padding-top: 6px; border-top: 1px solid var(--border-subtle)">
+<span class="fg-label">This server</span>
+<span class="fg-meta">4 vCPU · 8 GB RAM · Ubuntu 26.04</span>
+<span class="fg-meta">Containers: web, api, tick, worker, db, llm-gateway, mailer</span>
+<span class="fg-meta" style="color: var(--positive)">All 7 healthy</span>
+</div>
+</aside>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { step: 3, tier: 't2', tested: false };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const titles = ['Host account', 'Galaxy', 'AI', 'Email', 'Players and safety', 'Review and launch'];
+const cur = this.state.step;
+const steps = titles.map((t, i) => {
+const n = i + 1, done = n < cur, on = n === cur;
+return {
+title: t, current: on ? 'step' : 'false',
+mark: done ? '✓' : String(n),
+ring: done ? 'var(--positive)' : on ? 'var(--accent)' : 'var(--border-strong)',
+dot: done ? 'var(--positive)' : on ? 'var(--accent)' : 'var(--surface)',
+numColor: done || on ? 'var(--on-accent)' : 'var(--ink-muted)',
+weight: on ? '600' : '400', bg: on ? 'var(--accent-soft)' : 'transparent',
+pick: () => this.setState({ step: n })
+};
+});
+const tierDefs = [
+{ id: 't0', name: 'No AI', desc: 'Scripted advisor, template news, rule-based AI civilizations.', needs: 'Runs on any server', badge: 'Free', badgeClass: 'fg-badge--neutral' },
+{ id: 't1', name: 'Small local model', desc: 'Short advisor answers and simple news.', needs: 'Ollama, 16 GB RAM or more', badge: 'Free', badgeClass: 'fg-badge--neutral' },
+{ id: 't2', name: 'Strong local model', desc: 'Full advisors, written news, thoughtful AI civilizations.', needs: 'Ollama on 32–48 GB (e.g. Mac Studio)', badge: 'Recommended', badgeClass: 'fg-badge--accent' },
+{ id: 't3', name: 'Your API key', desc: 'Use a cloud model you pay for, with a monthly token limit.', needs: 'OpenAI-compatible endpoint', badge: 'Pay per use', badgeClass: 'fg-badge--signal' },
+{ id: 't4', name: 'Generative Distractions Relay', desc: 'We host the AI for you, with moderation included.', needs: 'Subscription', badge: 'Paid', badgeClass: 'fg-badge--signal' }
+];
+const tiers = tierDefs.map((t) => {
+const on = t.id === this.state.tier;
+return { ...t, checked: on ? 'true' : 'false', border: on ? '2px solid var(--accent)' : '1px solid var(--border)', bg: on ? 'var(--accent-soft)' : 'var(--surface)', pick: () => this.setState({ tier: t.id, tested: false }) };
+});
+const tierName = tierDefs.find((t) => t.id === this.state.tier).name;
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+steps, tiers, tierName,
+is1: cur === 1, is2: cur === 2, is3: cur === 3, is4: cur === 4, is5: cur === 5, is6: cur === 6,
+showOllama: this.state.tier === 't1' || this.state.tier === 't2',
+tested: this.state.tested,
+test: () => this.setState({ tested: true }),
+atStart: cur === 1, atEnd: cur === 6,
+back: () => this.setState({ step: Math.max(1, cur - 1) }),
+next: () => this.setState({ step: Math.min(6, cur + 1) })
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — The Meridian Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2;--star-k:#D9822B;--star-m:#C2410C;--star-hot:#2563EB}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18;--star-k:#F2A65A;--star-m:#F08A5D;--star-hot:#9EC1FF}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">The Ashenreach Collective · Reach tier</span>
+</div>
+<nav class="fg-tabs" aria-label="Game views">
+<a class="fg-tab" href="Galaxy.dc.html">Galaxy</a>
+<a class="fg-tab" href="Governor.dc.html">Governor</a>
+<a class="fg-tab" href="Research.dc.html">Research</a>
+<a class="fg-tab" href="Dispatch.dc.html" aria-current="page">Dispatch</a>
+<a class="fg-tab" href="Diplomacy.dc.html">Diplomacy <span class="fg-tab__count">1</span></a>
+</nav>
+<div class="fg-status">
+<span>tick <b>1,284</b></span>
+<span>next <b style="color: var(--accent)">42 min</b></span>
+<span>AC <b>318</b>/tick</span>
+<span>pop <b>41.2</b></span>
+</div>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 12px">
+
+<section class="fg-panel">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker">The Meridian Dispatch · morning edition</span>
+<h1 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700; letter-spacing: -0.01em">Good morning. Water at Talmar, and an offer from Ys.</h1>
+</div>
+<span class="fg-meta">ticks 1,261–1,284 · 23 events reached you</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--border-subtle)">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 2px; padding: 8px 12px 0 0">
+<span class="fg-label" style="color: var(--ink-muted)">{{s.label}}</span>
+<span style="font-family: var(--font-mono); font-size: 16px; line-height: 20px; font-weight: 500">{{s.value}}</span>
+<span style="font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: {{s.deltaColor}}">{{s.delta}} since last edition</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start">
+<div style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+
+<section class="fg-panel" style="border-color: var(--signal)">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Decisions waiting</h2>
+<span class="fg-badge fg-badge--signal">3 need you</span>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-subtle)">
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker fg-kicker--signal">Diplomacy · expires T1,296</span>
+<span style="font-weight: 600">The Concord of Ys proposes a Trade Pact</span>
+<span style="font-size: 12px; color: var(--ink-secondary)">They offer 6 energy per tick for 4 minerals per tick, for 240 ticks.</span>
+</div>
+<div style="display: flex; gap: 8px"><a class="fg-btn fg-btn--primary fg-btn--sm" href="Diplomacy.dc.html">Review offer</a></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-subtle)">
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker fg-kicker--accent">Research · choose one</span>
+<span style="font-weight: 600">Tier 5 doctrine: Fold Lensing, Relay Bloom or Quiet Drives</span>
+<span style="font-size: 12px; color: var(--ink-secondary)">Each locks out the other two. Your advisor leans toward Relay Bloom for faster orders.</span>
+</div>
+<div style="display: flex; gap: 8px"><a class="fg-btn fg-btn--secondary fg-btn--sm" href="Research.dc.html">Compare</a></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 6px 0 0">
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span class="fg-kicker fg-kicker--accent">Governor · advisor</span>
+<span style="font-weight: 600">Shift 10% of action credits from Military to Expansion</span>
+<span style="font-size: 12px; color: var(--ink-secondary)">Would let you claim Talmar IV about 20 ticks sooner.</span>
+</div>
+<div style="display: flex; gap: 8px"><a class="fg-btn fg-btn--secondary fg-btn--sm" href="Governor.dc.html">Review</a></div>
+</div>
+</div>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head" style="flex-wrap: wrap">
+<h2 class="fg-panel__title">Everything that reached you</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 6px" role="group" aria-label="Filter by category">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+<button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="min-height: 24px; padding: 0 8px; border-radius: 3px; cursor: pointer; font-family: var(--font-sans); font-size: 12px; font-weight: 500; border: 1px solid {{c.border}}; background: {{c.bg}}; color: {{c.color}}">{{c.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="overflow-x: auto">
+<table class="fg-table">
+<thead><tr><th class="num">Tick</th><th>Category</th><th>Headline</th><th>Where</th><th class="num">News age</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+<tr>
+<td class="num">{{r.tick}}</td>
+<td><span class="fg-kicker {{r.kicker}}">{{r.cat}}</span></td>
+<td>{{r.head}}<span class="sub">{{r.sub}}</span></td>
+<td>{{r.where}}</td>
+<td class="num">{{r.age}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p class="fg-help" style="margin: 0">News age is how many ticks the report took to reach you at light-limited comms. Distant events arrive late.</p>
+</section>
+</div>
+
+<aside style="flex: 1 1 340px; max-width: 400px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Orion Spur bulletin</h2>
+<span class="fg-meta">regional · from 14 events</span>
+</div>
+<h3 style="margin: 0; font-size: 14px; line-height: 19px; font-weight: 600">A quiet arm grows busier</h3>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--ink-secondary)">Traders from Ys are working the lanes again. The Concord has opened talks with three neighbors in a week, and its new outpost sits within a long day's fold of Talmar. Further out, the Sable Ninefold has pulled back from Corvid Reach after 180 ticks of occupation; the systems there have returned to the people who built them. Survey crews across the Spur report the same thing: more water, more rock, and more company than anyone expected.</p>
+<p class="fg-help" style="margin: 0">Written by the Meridian Dispatch AI from events visible in this region. Facts and numbers come from the game engine.</p>
+</section>
+
+<section class="fg-panel">
+<div class="fg-panel__head">
+<h2 class="fg-panel__title">Your story so far</h2>
+<span class="fg-meta">1,284 ticks · 53 days</span>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+<sc-for list="{{story}}" as="m" hint-placeholder-count="6">
+<li style="display: grid; grid-template-columns: 72px 14px minmax(0, 1fr); gap: 10px; align-items: start; padding: 3px 0">
+<span class="fg-meta" style="text-align: right">T{{m.tick}}</span>
+<span style="width: 10px; height: 10px; margin-top: 4px; border-radius: 50%; background: {{m.dot}}"></span>
+<span style="font-size: 12px; line-height: 16px">{{m.text}}</span>
+</li>
+</sc-for>
+</ol>
+</section>
+</aside>
+</div>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { cat: 'All' };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const kick = { Discovery: 'fg-kicker--accent', Research: 'fg-kicker--accent', Economy: 'fg-kicker--positive', Diplomacy: 'fg-kicker--signal', Military: '' };
+const all = [
+{ tick: '1,284', cat: 'Discovery', head: 'Talmar survey finds liquid water on its fourth world', sub: 'Oceans under a thin nitrogen sky', where: 'Talmar', age: '0' },
+{ tick: '1,283', cat: 'Economy', head: 'Inner belt mining rises to 4.4 minerals per tick', sub: 'New extraction rigs online', where: 'Hearth', age: '0' },
+{ tick: '1,281', cat: 'Military', head: 'Oriel picket breaks off patrol at 58% readiness', sub: 'Returning to Hearth for refit', where: 'Oriel', age: '1' },
+{ tick: '1,280', cat: 'Research', head: 'Orbital survey array completed', sub: 'Survey range +2 ly', where: 'Hearth', age: '0' },
+{ tick: '1,278', cat: 'Diplomacy', head: 'The Concord of Ys opens trade talks with three neighbors', sub: 'Includes an offer to you', where: 'Ys', age: '6' },
+{ tick: '1,276', cat: 'Diplomacy', head: 'The Lantern Accord joins the Spur Compact guild', sub: 'Guild now has 7 members', where: 'Orion Spur', age: '9' },
+{ tick: '1,274', cat: 'Military', head: 'Unidentified fleet signature passes 14 ly from Oriel', sub: 'Heading away from your space', where: 'Near Oriel', age: '4' },
+{ tick: '1,270', cat: 'Economy', head: 'Hearth II reaches 90% of habitat capacity', sub: 'Growth will slow without new worlds', where: 'Hearth', age: '0' },
+{ tick: '1,268', cat: 'Discovery', head: 'Wren’s Lamp confirmed as a binary of two M dwarfs', sub: 'Two belts, no habitable worlds', where: 'Wren’s Lamp', age: '0' },
+{ tick: '1,262', cat: 'Diplomacy', head: 'The Sable Ninefold withdraws from Corvid Reach', sub: 'Systems return to their original builders', where: 'Corvid Reach', age: '14' }
+];
+const cats = ['All', 'Discovery', 'Diplomacy', 'Military', 'Economy', 'Research'];
+const chips = cats.map((c) => {
+const on = this.state.cat === c;
+return {
+label: c,
+pressed: on ? 'true' : 'false',
+border: on ? 'var(--accent)' : 'var(--border-strong)',
+bg: on ? 'var(--accent-soft)' : 'var(--surface)',
+color: on ? 'var(--accent)' : 'var(--ink-secondary)',
+pick: () => this.setState({ cat: c })
+};
+});
+const rows = all
+.filter((r) => this.state.cat === 'All' || r.cat === this.state.cat)
+.map((r) => ({ ...r, kicker: kick[r.cat] }));
+const stats = [
+{ label: 'Action credits / tick', value: '318', delta: '+12', deltaColor: 'var(--positive)' },
+{ label: 'Population', value: '41.2', delta: '+0.4', deltaColor: 'var(--positive)' },
+{ label: 'Research / tick', value: '83', delta: '+5', deltaColor: 'var(--positive)' },
+{ label: 'Fleet tonnage', value: '3,460 t', delta: '−40 t wear', deltaColor: 'var(--signal)' },
+{ label: 'Reputation', value: '+34', delta: '+2', deltaColor: 'var(--positive)' },
+{ label: 'Systems held', value: '3', delta: '0', deltaColor: 'var(--ink-muted)' }
+];
+const story = [
+{ tick: '0', text: 'First light: the Ashenreach Collective founded on Hearth II', dot: 'var(--accent)' },
+{ tick: '212', text: 'Threshold reached: first fold transit, and the galaxy can see you', dot: 'var(--accent)' },
+{ tick: '640', text: 'First contact with the Concord of Ys', dot: 'var(--signal)' },
+{ tick: '815', text: 'Outpost founded at Oriel', dot: 'var(--accent)' },
+{ tick: '1,102', text: 'Reach tier: multi-system fold travel and comms relays', dot: 'var(--accent)' },
+{ tick: '1,284', text: 'Water found at Talmar IV', dot: 'var(--positive)' }
+];
+return { themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light', chips, rows, stats, story };
+}
+}
+</script>
+</body>
+</html>

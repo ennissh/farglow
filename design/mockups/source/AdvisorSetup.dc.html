@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farglow — Meet your advisor</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/farglow/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--accent)}a:hover{color:var(--accent-hover)}
+.fg-root{--font-sans:"Inter Tight","Inter",system-ui,sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;--space-12:48px;--radius-sm:3px;--radius-md:4px;--radius-lg:6px;--header-h:48px;--control-h:32px;--control-h-sm:24px;--row-h:28px;--sidebar-w:380px;--focus:var(--accent)}
+.fg-light{--bg:#F3F4F1;--surface:#FFFFFF;--surface-sunken:#FBFBFA;--surface-raised:#EEF0EE;--border:#D5D9DE;--border-subtle:#E6E9EC;--border-strong:#8A929C;--ink:#141A22;--ink-secondary:#3A434E;--ink-muted:#56606C;--accent:#1D5BB8;--accent-hover:#174B98;--on-accent:#FFFFFF;--accent-soft:#E3ECF9;--signal:#B8460E;--on-signal:#FFFFFF;--signal-soft:#FBEADF;--positive:#1E7A4C;--positive-soft:#E2F3EA;--danger:#B42318;--danger-soft:#FBE4E2}
+.fg-dark{--bg:#0F1318;--surface:#161B22;--surface-sunken:#11161C;--surface-raised:#1E242D;--border:#2C333D;--border-subtle:#222831;--border-strong:#5A6472;--ink:#E6EAEF;--ink-secondary:#B9C1CB;--ink-muted:#8C96A3;--accent:#6EA2F0;--accent-hover:#8DB6F4;--on-accent:#0F1318;--accent-soft:#1C2B45;--signal:#F0915A;--on-signal:#0F1318;--signal-soft:#3A2418;--positive:#5CC48F;--positive-soft:#15301F;--danger:#F27D74;--danger-soft:#3A1A18}
+</style>
+</helmet>
+<div class="fg-app fg-root {{themeClass}}" style="min-height: 1000px; box-sizing: border-box; display: flex; flex-direction: column; background: var(--bg); color: var(--ink)">
+
+<header style="min-height: 48px; box-sizing: border-box; padding: 6px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; background: var(--surface); border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: baseline; gap: 12px">
+<span style="font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -0.02em">farglow</span>
+<span class="fg-meta">Found a civilization · The Ashenreach Collective</span>
+</div>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 14px" class="fg-meta">
+<li style="color: var(--positive)">1 Account</li>
+<li style="color: var(--positive)">2 Civilization</li>
+<li style="color: var(--positive)">3 Attributes</li>
+<li style="color: var(--accent); font-weight: 500">4 Advisor</li>
+<li>5 First light</li>
+</ol>
+</header>
+
+<main style="flex-grow: 1; box-sizing: border-box; padding: 24px 32px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; max-width: 1280px; width: 100%; margin: 0 auto">
+
+<section class="fg-panel" style="flex: 999 1 520px; min-width: 0; padding: 20px; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: -0.015em">Meet your advisor</h1>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: var(--ink-secondary)">Your advisor walks you through your first days, writes your morning Dispatch, answers questions and can act for you when you say so. Make them yourself, or let your server's AI write one from your civilization's story.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<button type="button" class="fg-btn fg-btn--secondary" onClick="{{generate}}">Generate for me</button>
+<span class="fg-help">Writes a name, title, traits and backstory that fit the Ashenreach Collective. Press again for another.</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div class="fg-field">
+<label class="fg-label" for="ad-name">Name</label>
+<input class="fg-input" id="ad-name" type="text" value="{{name}}" onChange="{{setName}}">
+</div>
+<div class="fg-field">
+<label class="fg-label" for="ad-title">Title</label>
+<input class="fg-input" id="ad-title" type="text" value="{{title}}" onChange="{{setTitle}}">
+</div>
+</div>
+
+<div class="fg-field">
+<span class="fg-label">Traits · pick up to 3 ({{traitCount}} chosen)</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px" role="group" aria-label="Advisor traits">
+<sc-for list="{{traits}}" as="t" hint-placeholder-count="8">
+<button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.toggle}}" style="min-height: 28px; padding: 0 10px; border-radius: 3px; cursor: pointer; font-family: var(--font-sans); font-size: 12px; font-weight: 500; border: 1px solid {{t.border}}; background: {{t.bg}}; color: {{t.color}}">{{t.label}}</button>
+</sc-for>
+</div>
+<span class="fg-help">Traits shape how your advisor talks and what they notice first. They never change the game's rules or numbers.</span>
+</div>
+
+<div class="fg-field">
+<label class="fg-label" for="ad-story">Backstory</label>
+<textarea class="fg-textarea" id="ad-story" rows="4" onChange="{{setStory}}" value="{{story}}"></textarea>
+<span class="fg-help">Optional. Two or three sentences is plenty. Checked by the same content filter as your civilization's backstory.</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; padding-top: 4px; border-top: 1px solid var(--border-subtle)">
+<a class="fg-btn fg-btn--ghost" href="Main.dc.html">Back</a>
+<div style="display: flex; gap: 8px">
+<button type="button" class="fg-btn fg-btn--secondary">Skip, use a default advisor</button>
+<a class="fg-btn fg-btn--primary" href="FirstPlay.dc.html">Begin first light</a>
+</div>
+</div>
+</section>
+
+<aside style="flex: 1 1 380px; max-width: 460px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<section class="fg-panel" style="padding: 16px; gap: 12px">
+<span class="fg-kicker">Preview</span>
+<div style="display: flex; gap: 12px; align-items: center">
+<span aria-hidden="true" style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-soft); border: 1.5px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 16px; font-weight: 500">{{initials}}</span>
+<div style="display: flex; flex-direction: column; gap: 1px; min-width: 0">
+<span style="font-size: 16px; line-height: 21px; font-weight: 700">{{name}}</span>
+<span style="font-size: 12px; line-height: 16px; color: var(--ink-secondary)">{{title}} · The Ashenreach Collective</span>
+<span class="fg-meta">{{traitLine}}</span>
+</div>
+</div>
+<div style="padding: 10px 12px; border-radius: 4px; background: var(--surface-sunken); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 4px">
+<span class="fg-kicker fg-kicker--accent">How they'll greet you</span>
+<p style="margin: 0; font-size: 13px; line-height: 19px">{{greeting}}</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span class="fg-kicker">Backstory</span>
+<p style="margin: 0; font-size: 12px; line-height: 17px; color: var(--ink-secondary)">{{story}}</p>
+</div>
+</section>
+
+<section class="fg-panel" style="padding: 14px; gap: 6px">
+<h2 class="fg-panel__title" style="font-size: 13px; line-height: 18px">What your advisor will do</h2>
+<ul style="margin: 0; padding-left: 16px; font-size: 12px; line-height: 17px; color: var(--ink-secondary); display: flex; flex-direction: column; gap: 3px">
+<li>Walk you through your first session, step by step</li>
+<li>Write your morning Dispatch and answer questions in the game or by email reply</li>
+<li>Suggest moves, and carry them out only after you confirm</li>
+<li>Only knows what your civilization knows. No peeking at other players.</li>
+</ul>
+<span class="fg-help">You can rename or rewrite your advisor anytime in Settings.</span>
+</section>
+</aside>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.presets = [
+{ name: 'Tamsin Vey', title: 'Chief of Staff', traits: ['Warm', 'Cautious', 'Scholarly'], story: 'Raised in the archive vaults beneath Hearth II, Tamsin learned the Collective’s history before she learned to swim. She trusts records over rumors and people over plans.' },
+{ name: 'Oren Hask', title: 'First Minister', traits: ['Blunt', 'Ambitious', 'Plain-spoken'], story: 'A former harbor engineer who rebuilt the sea walls after the long winter. Oren measures every plan in tons, ticks and how many people it keeps dry.' },
+{ name: 'Ide Calloway', title: 'Keeper of the Long Count', traits: ['Formal', 'Witty', 'Scholarly'], story: 'Ide has kept the Collective’s calendar for thirty years and has opinions about every entry. Deeply loyal, quietly amused by almost everything.' }
+];
+const p = this.presets[0];
+this.state = { i: 0, name: p.name, title: p.title, traits: p.traits.slice(), story: p.story };
+}
+renderVals() {
+const theme = this.props.theme ?? 'light';
+const ALL = ['Warm', 'Cautious', 'Scholarly', 'Blunt', 'Ambitious', 'Plain-spoken', 'Formal', 'Witty'];
+const line = {
+Warm: 'Good morning, and welcome home.',
+Formal: 'Good morning. The council is assembled and awaits your direction.',
+Blunt: 'Morning. Short version first.',
+Witty: 'Morning. The galaxy did not end overnight, which I count as a win.',
+Cautious: 'Before anything else: no threats within twelve light-years.',
+Scholarly: 'Our telescopes caught something remarkable at Talmar: liquid water.',
+Ambitious: 'Talmar is unclaimed. I would like it to be ours by next week.',
+'Plain-spoken': 'Here is what happened, and here is what I would do.'
+};
+const sel = this.state.traits;
+const greet = (sel.length ? sel.map((t) => line[t]).join(' ') : 'Good morning.') + ' I’m ' + this.state.name + ', your ' + this.state.title.toLowerCase() + '.';
+const traits = ALL.map((t) => {
+const on = sel.includes(t);
+return {
+label: t, pressed: on ? 'true' : 'false',
+border: on ? 'var(--accent)' : 'var(--border-strong)',
+bg: on ? 'var(--accent-soft)' : 'var(--surface)',
+color: on ? 'var(--accent)' : 'var(--ink-secondary)',
+toggle: () => {
+if (on) this.setState({ traits: sel.filter((x) => x !== t) });
+else if (sel.length < 3) this.setState({ traits: [...sel, t] });
+}
+};
+});
+const initials = this.state.name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || '?';
+return {
+themeClass: theme === 'dark' ? 'fg-dark' : 'fg-light',
+name: this.state.name, title: this.state.title, story: this.state.story,
+traits, traitCount: String(sel.length), traitLine: sel.join(' · ') || 'no traits chosen',
+greeting: greet, initials,
+setName: (e) => this.setState({ name: e.target.value }),
+setTitle: (e) => this.setState({ title: e.target.value }),
+setStory: (e) => this.setState({ story: e.target.value }),
+generate: () => {
+const i = (this.state.i + 1) % this.presets.length;
+const p = this.presets[i];
+this.setState({ i, name: p.name, title: p.title, traits: p.traits.slice(), story: p.story });
+}
+};
+}
+}
+</script>
+</body>
+</html>
