@@ -67,7 +67,7 @@ def _queue_emails(conn, settings: Settings, state: dict, tick: int) -> None:
                             "ORDER BY id", (u["id"],)).fetchall()
         lines = []
         for r in rows:
-            rendered = dispatch.render({"kind": r["kind"], **r["data"]}, state, rules)
+            rendered = dispatch.render({"kind": r["kind"], **r["data"]}, state, rules, civ)
             if rendered:
                 lines.append(f"T{r['tick']:,}  {rendered[0]}" + (f"\n        {rendered[1]}" if rendered[1] else ""))
         if not lines:

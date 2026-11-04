@@ -1,11 +1,15 @@
-<section class="fg-panel">
-  <div class="fg-panel__head"><h2 class="fg-panel__title">Charters</h2><span class="fg-meta">can't fail · {{ n(rules.tutorial_reward) }} minerals each</span></div>
-  <ul class="fg-list">
+<section class="fg-box">
+  <div class="fg-box__head"><h2 class="fg-box__title">Charters</h2><span class="fg-box__meta">{{ n(rules.tutorial_reward) }} M each</span></div>
+  <div class="fg-box__body">
   {% for cid, c in civ.charters.items() %}
-    <li class="fg-charter{% if c.status == 'completed' %} fg-charter--done{% endif %}">
-      <span class="fg-badge {{ 'fg-badge--positive' if c.status == 'completed' else 'fg-badge--accent' }}">{{ 'done' if c.status == 'completed' else 'active' }}</span>
-      {{ {'first_tech': 'Complete your first tech', 'first_survey': 'Survey a new system', 'first_building': 'Finish your first building', 'first_outpost': 'Claim your first new system'}.get(cid, cid) }}
-    </li>
+    <div class="fg-mini"><span class="fg-badge {{ 'fg-badge--positive' if c.status == 'completed' else 'fg-badge--accent' }}">{{ 'done' if c.status == 'completed' else 'open' }}</span>
+      <span{% if c.status == 'completed' %} class="fg-muted"{% endif %}>{{ {'first_tech': 'First tech', 'first_survey': 'Survey a new system', 'first_building': 'First building finished', 'first_outpost': 'Claim a new system'}.get(cid, cid) }}</span></div>
   {% endfor %}
-  </ul>
+  </div>
 </section>
+{% if pending %}
+<section class="fg-box">
+  <div class="fg-box__head"><h2 class="fg-box__title">Orders</h2><span class="fg-box__meta">at tick {{ "{:,}".format(eng.tick + 1) }}</span></div>
+  <div class="fg-box__body">{% for o in pending %}<div class="fg-mini mono">{{ o.kind.replace('_', ' ') }}{% if o.system %} · {{ o.system }}{% endif %}{% if o.building %} · {{ o.building.replace('_', ' ') }}{% endif %}</div>{% endfor %}</div>
+</section>
+{% endif %}

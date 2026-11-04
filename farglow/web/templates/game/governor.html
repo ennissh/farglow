@@ -1,43 +1,53 @@
 {% extends "game/_base.html" %}
-{% from "_macros.html" import csrf, bar with context %}
+{% from "_macros.html" import csrf, bar, act with context %}
 {% block title %}Governor · Farglow{% endblock %}
 {% block main %}
 {% set last = civ.last %}
-<section class="fg-panel">
-  <div class="fg-panel__head"><h1 class="fg-panel__title">Action credit allocation</h1>
-    <span class="fg-meta">{{ n(last.ac_net or 0) }} AC per tick{% if last.admin %} after {{ n(last.admin, 1) }} admin{% endif %} · banked: expansion {{ n(civ.ledger.expansion) }} · economic {{ n(civ.ledger.economic) }}</span></div>
-  <form method="post" action="{{ url_for('game.act', kind='allocation') }}" id="alloc-form">{{ csrf() }}
-    <input type="hidden" name="back" value="{{ url_for('game.governor') }}">
-    <div class="fg-alloc">
-      {% for k in keys %}
-      <div class="fg-alloc__col">
-        <div class="fg-meter__row"><span class="fg-alloc__name">{{ k|capitalize }}</span><span class="fg-meter__value" data-alloc-label="{{ k }}">{{ civ.allocation[k] }}%</span></div>
-        {{ bar(civ.allocation[k]) }}
-        <span class="fg-meta">{{ n(last.alloc[k] if last.alloc else 0) }} AC · {{ {'expansion': 'surveys, outposts, colonies', 'research': 'research points', 'social': 'stability', 'economic': 'buildings, development', 'military': 'hulls (fleets later)'}[k] }}</span>
-        <input class="fg-input fg-input--num" type="number" name="{{ k }}" min="0" max="100" step="5" value="{{ civ.allocation[k] }}" data-alloc aria-label="{{ k }} share">
-      </div>{% endfor %}
-    </div>
-    <p class="fg-meta">Total: <b id="alloc-sum">100</b>% (must be 100, steps of 5)</p>
-    <button class="fg-btn fg-btn--primary" type="submit">Set allocation</button>
-  </form>
-</section>
-<section class="fg-panel">
-  <div class="fg-panel__head"><h2 class="fg-panel__title">Your civilization this tick</h2><span class="fg-meta">tick {{ "{:,}".format(last.tick or 0) }}</span></div>
-  <table class="fg-table">
-    <thead><tr><th>Output</th><th class="num">In</th><th class="num">Out</th><th class="num">Stock</th></tr></thead>
-    <tbody>
-      <tr><td>Minerals</td><td class="num">{{ n(last.m_in or 0, 1) }}</td><td class="num">{{ n(last.m_out or 0, 1) }}</td><td class="num">{{ n(civ.minerals) }} <span class="fg-meta">/ {{ n(last.storage or 0) }}</span></td></tr>
-      <tr><td>Energy</td><td class="num">{{ n(last.e_in or 0, 1) }}</td><td class="num">{{ n(last.e_out or 0, 1) }}</td><td class="num">{{ n(civ.energy) }}</td></tr>
-      <tr><td>Research</td><td class="num">{{ n(last.rp or 0, 1) }}</td><td class="num">–</td><td class="num">–</td></tr>
-      <tr><td>Stability</td><td class="num" colspan="2">target {{ n(last.stability_target or 0) }}</td><td class="num">{{ n(civ.stability) }}</td></tr>
-      <tr><td>Population</td><td class="num" colspan="2">8 AC each</td><td class="num">{{ n(last['pop'] or 0, 1) }}</td></tr>
-      <tr><td>Fleet</td><td class="num" colspan="2">home guard</td><td class="num">{{ "{:,}".format((civ.fleet_tons // 1000)) }} t</td></tr>
-    </tbody>
-  </table>
-</section>
-<section class="fg-panel">
-  <div class="fg-panel__head"><h2 class="fg-panel__title">Attributes</h2><span class="fg-meta">fixed at founding</span></div>
-  <p class="fg-status">{% for a, v in civ.attributes.items() %}<span>{{ a }} <b>{{ '%+d'|format(v) }}</b></span>{% endfor %}</p>
-</section>
+<div class="fg-cols fg-cols--main-side">
+  <div class="fg-col">
+    <section class="fg-box">
+      <div class="fg-box__head"><h1 class="fg-box__title">Action credit allocation</h1>
+        <span class="fg-box__meta">{{ n(last.ac_net or 0) }} AC/tick{% if last.admin %} after {{ n(last.admin, 1) }} admin{% endif %} · banked: expansion {{ n(civ.ledger.expansion) }} · economic {{ n(civ.ledger.economic) }}</span></div>
+      <form method="post" action="{{ url_for('game.act', kind='allocation') }}" id="alloc-form">{{ csrf() }}
+        <input type="hidden" name="back" value="{{ url_for('game.governor') }}">
+        <table class="fg-t fg-alloc">
+          <thead><tr><th>Share</th><th>Spent on</th><th class="num">AC/tick</th><th></th><th class="num">%</th></tr></thead>
+          <tbody>
+          {% for k in keys %}
+            <tr><td><b>{{ k|capitalize }}</b></td>
+              <td class="fg-muted">{{ {'expansion': 'surveys, outposts, colonies (banks)', 'research': 'research points, at once', 'social': 'stability', 'economic': 'buildings, development (banks)', 'military': 'hulls (fleets in Phase 2)'}[k] }}</td>
+              <td class="num">{{ n(last.alloc[k] if last.alloc else 0, 1) }}</td>
+              <td>{{ bar(civ.allocation[k]) }}</td>
+              <td class="num"><input class="fg-input fg-input--num" type="number" name="{{ k }}" min="0" max="100" step="5" value="{{ civ.allocation[k] }}" data-alloc aria-label="{{ k }} share"></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <div class="fg-box__body fg-row"><button class="fg-btn fg-btn--primary fg-btn--sm" type="submit">Set allocation</button>
+          <span class="fg-help">Total <b id="alloc-sum" class="mono">100</b>% · must be 100, steps of 5 · applies at the next tick</span></div>
+      </form>
+    </section>
+    <section class="fg-box">
+      <div class="fg-box__head"><h2 class="fg-box__title">Economy this tick</h2><span class="fg-box__meta">tick {{ "{:,}".format(last.tick or 0) }} · {{ last.systems or 1 }} system{{ '' if (last.systems or 1) == 1 else 's' }}</span></div>
+      <table class="fg-t">
+        <thead><tr><th>Output</th><th class="num">In</th><th class="num">Out</th><th class="num">Net</th><th class="num">Stock</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>Minerals</td><td class="num">{{ n(last.m_in or 0, 1) }}</td><td class="num">{{ n(last.m_out or 0, 1) }}</td><td class="num">{{ n((last.m_in or 0) - (last.m_out or 0), 1) }}</td><td class="num">{{ n(civ.minerals) }}<span class="fg-muted">/{{ n(last.storage or 0) }}</span></td><td class="fg-muted">over the cap is lost</td></tr>
+          <tr><td>Energy</td><td class="num">{{ n(last.e_in or 0, 1) }}</td><td class="num">{{ n(last.e_out or 0, 1) }}</td><td class="num">{{ n((last.e_in or 0) - (last.e_out or 0), 1) }}</td><td class="num">{{ n(civ.energy) }}<span class="fg-muted">/{{ n(rules.energy_storage) }}</span></td><td class="fg-muted">empty: −10 % minerals, research</td></tr>
+          <tr><td>Research</td><td class="num">{{ n(last.rp or 0, 1) }}</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="fg-muted">RP per tick</td></tr>
+          <tr><td>Stability</td><td class="num" colspan="3">target {{ n(last.stability_target or 0) }}</td><td class="num">{{ n(civ.stability) }}</td><td class="fg-muted">moves 1/tick toward target</td></tr>
+          <tr><td>Population</td><td class="num" colspan="3">8 AC each</td><td class="num">{{ n(last['pop'] or 0, 1) }}</td><td class="fg-muted">grows toward capacity</td></tr>
+          <tr><td>Fleet</td><td class="num" colspan="3">home guard</td><td class="num">{{ "{:,}".format(civ.fleet_tons // 1000) }} t</td><td class="fg-muted">upkeep 0.5 %/tick</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <div class="fg-col">
+    <section class="fg-box">
+      <div class="fg-box__head"><h2 class="fg-box__title">Attributes</h2><span class="fg-box__meta">fixed at founding · ±5 % a point</span></div>
+      <table class="fg-t"><tbody>{% for a in rules.attributes %}<tr><td>{{ a|capitalize }}</td><td class="num">{{ '%+d'|format(civ.attributes[a]) }}</td></tr>{% endfor %}</tbody></table>
+    </section>
+    {% include "game/_advisor.html" %}
+  </div>
+</div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}

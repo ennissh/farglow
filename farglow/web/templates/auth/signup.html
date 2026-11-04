@@ -2,12 +2,12 @@
 {% from "_macros.html" import csrf with context %}
 {% block title %}Create an account · Farglow{% endblock %}
 {% block content %}
-<section class="fg-panel fg-narrow">
-  <div class="fg-panel__head"><h1 class="fg-panel__title">Create an account</h1><a class="fg-meta" href="{{ url_for('auth.signin') }}">Sign in instead</a></div>
+<section class="fg-box fg-narrow">
+  <div class="fg-box__head"><h1 class="fg-box__title">Create an account</h1><a class="fg-box__meta" href="{{ url_for('auth.signin') }}">Sign in instead</a></div>
   {% if refused %}
-    <p class="body">Sorry, you can't create a Farglow account yet. Thanks for your interest.</p>
+    <p >Sorry, you can't create a Farglow account yet. Thanks for your interest.</p>
   {% elif locked %}
-    <p class="body">Account creation isn't available from this browser right now. Please try again tomorrow.</p>
+    <p >Account creation isn't available from this browser right now. Please try again tomorrow.</p>
   {% else %}
   {% for e in errors or [] %}<p class="fg-help fg-help--error">{{ e }}</p>{% endfor %}
   <form method="post" action="{{ url_for('auth.signup') }}" class="fg-form">

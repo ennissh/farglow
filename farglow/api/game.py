@@ -110,7 +110,7 @@ def play():
         if sid not in game.galaxy.by_id(state["galaxy_seed"], state["cell"]):
             sid = civ["home"]
         return _page("game/galaxy.html", conn, state, civ, rules, tab="galaxy", system=view.system_detail(state, civ, rules, sid),
-                     tips=advisor.suggestions(state, civ, rules))
+                     tips=advisor.suggestions(state, civ, rules), known=view.known_systems(state, civ, rules))
 
 
 @bp.get("/play/system/<sid>")
@@ -198,7 +198,7 @@ def dispatch_page():
                             (g.user["id"],)).fetchall()
         items = []
         for r in rows:
-            rendered = dispatch.render({"kind": r["kind"], **r["data"]}, state, rules) if state else None
+            rendered = dispatch.render({"kind": r["kind"], **r["data"]}, state, rules, civ) if state else None
             if rendered:
                 items.append({"tick": r["tick"], "kind": r["kind"], "headline": rendered[0], "detail": rendered[1]})
         if civ is None:

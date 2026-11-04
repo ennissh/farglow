@@ -23,6 +23,7 @@ The **stack test** (`./test.sh --stack`) bridges the two layers. It builds the i
 | Occasion | Command | Pass criteria |
 |---|---|---|
 | Every commit or push | `./test.sh` | All checks green |
+| Any change to templates, CSS or JS | `./test.sh --ui` | UI suite PASS (no FAIL) |
 | Without Docker (laptop, train) | `./test.sh --quick` | Green; DB tests skipped |
 | Change to containers, scripts, compose, backup/restore | `./test.sh --stack` | Round trip identical |
 | Release | `./build.sh --push` (runs `./test.sh`) + `./test.sh --stack` | Both green; see RELEASE.md |
@@ -93,6 +94,25 @@ Planned suites, mapped to the README's test table:
 | scale | concurrent players; 500 NPC civilizations; p95 tick < 30 s on 8 vCPU / 16 GB (test host only, release only) | 3 |
 | determinism | cell generation identical on amd64 and arm64; rollback in both modes | 3 |
 | security | OWASP ZAP baseline (passive) on any host; active scan on test hosts only; signed-link replay and expiry; authorization between civilizations; no fog-of-war leaks | 2–4 |
+
+## 4b. UI suite: the headless browser (`./test.sh --ui`)
+
+`tests/ui/ui-test.sh` runs in an isolated container built from the official Playwright image, pinned by digest (`tests/ui/Dockerfile`). It builds the images, installs a throwaway stack (project `farglow-ui`, port 18090, development mode, no SMTP), and removes it afterwards. `--keep` leaves the stack running; `--url URL` runs against an existing server instead.
+
+1. **Play-through.** It plays as a player would: sign up, found, advance the clock, confirm an advisor suggestion, set the allocation, queue research, advance ticks, send a survey, click a star on the map, ask the advisor. Every step must work. A failed step is a FAIL, with a screenshot.
+2. **Every screen, at 1366×768 and 1920×1080, in light and dark:**
+
+| Level | Check |
+|---|---|
+| FAIL | console errors, CSP violations, failed requests (HTTP ≥ 400) |
+| FAIL | horizontal scrolling |
+| FAIL | a covered control: a visible button or link whose centre lies under another element (the header overlap bug of 4 Nov) |
+| FAIL | over the **density budget**: content taller than `tests/ui/budgets.json` allows at that size (most screens: one laptop screen) |
+| WARN | text under 11 px, click targets under 24 px (the design system's floors), clipped text |
+
+**Report:** `test-reports/ui/<UTC time>/report.html` (every finding, with a screenshot of every screen) and `summary.json` (`farglow-ui-summary/1`). The suite exits 1 on any FAIL.
+
+To change a budget, edit `budgets.json` in the same commit as the layout change, and say why.
 
 ## 5. Security baseline
 

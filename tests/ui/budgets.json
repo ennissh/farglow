@@ -1,0 +1,12 @@
+{
+  "_comment": "Density budgets: the most a page may scroll to, in CSS px, per viewport (or 'default'). Farglow is played in about five minutes a day: each screen's working view should fit a laptop screen. A page over budget FAILs the UI suite.",
+  "landing":         {"default": 900},
+  "sign-up":         {"default": 768},
+  "galaxy":          {"1366x768": 768, "1920x1080": 1080},
+  "system":          {"1366x768": 768, "1920x1080": 1080},
+  "governor":        {"1366x768": 768, "1920x1080": 1080},
+  "research":        {"1366x768": 900, "1920x1080": 1080},
+  "research-detail": {"1366x768": 900, "1920x1080": 1080},
+  "account":         {"default": 768},
+  "admin":           {"1366x768": 1100, "1920x1080": 1080}
+}

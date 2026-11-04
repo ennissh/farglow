@@ -2,38 +2,43 @@
 {% from "_macros.html" import csrf with context %}
 {% block title %}Found your civilization · Farglow{% endblock %}
 {% block content %}
-<form method="post" action="{{ url_for('game.found') }}" class="fg-found" id="found-form">
+<form method="post" action="{{ url_for('game.found') }}" class="fg-found__grid" id="found-form">
   {{ csrf() }}
-  <section class="fg-panel">
-    <p class="fg-kicker fg-kicker--accent">First light · step 1 of 8</p>
-    <h1 class="heading-xl">Meet your civilization</h1>
-    <p class="body">A young people, newly able to cross between stars. Name them, choose their colours and decide what they are good at.</p>
-    <div class="fg-row">
-      <div class="fg-field"><label class="fg-label" for="name">Civilization name</label><input class="fg-input" id="name" name="name" maxlength="32" required value="{{ form.get('name', '') }}" placeholder="The Ashenreach Collective"></div>
-      <div class="fg-field"><label class="fg-label" for="home_name">Home system</label><input class="fg-input" id="home_name" name="home_name" maxlength="32" value="{{ form.get('home_name', '') }}" placeholder="Hearth"></div>
-      <div class="fg-field"><label class="fg-label" for="advisor_name">Your advisor</label><input class="fg-input" id="advisor_name" name="advisor_name" maxlength="32" value="{{ form.get('advisor_name', '') }}" placeholder="Tamsin Vey"></div>
-    </div>
-  </section>
-  <section class="fg-panel">
-    <div class="fg-panel__head"><h2 class="fg-panel__title">Civilization set</h2><span class="fg-meta">emblem, colours, banner, ship livery</span></div>
-    <div class="fg-sets" id="civ-sets" data-selected="{{ form.get('set', '0') }}">
-      {% for i in range(32) %}<label class="fg-set"><input type="radio" name="set" value="{{ i }}"{% if (form.get('set', '0')|int) == i %} checked{% endif %}><span class="fg-set__art" data-set="{{ i }}"></span><span class="fg-set__name fg-meta" data-set-name="{{ i }}">Set {{ i + 1 }}</span></label>{% endfor %}
-    </div>
-  </section>
-  <section class="fg-panel">
-    <div class="fg-panel__head"><h2 class="fg-panel__title">Attributes</h2><span class="fg-meta">−3 to +3 · must sum to 0 · each point ±5 %</span></div>
-    <table class="fg-table fg-attrs">
-      <tbody>
-      {% for a, desc in [('curiosity', 'research and survey range'), ('industry', 'minerals and energy'), ('growth', 'population growth'), ('cohesion', 'stability (±4 a point)'), ('martial', 'combat strength (later)'), ('openness', 'trade and reputation (later)')] %}
-        <tr><th scope="row">{{ a|capitalize }}<br><span class="fg-meta">{{ desc }}</span></th>
-          <td class="num"><input class="fg-input fg-input--num" type="number" name="attr_{{ a }}" min="-3" max="3" step="1" value="{{ form.get('attr_' ~ a, start[a]) }}" data-attr></td></tr>
+  <div class="fg-col">
+    <section class="fg-box">
+      <div class="fg-box__head"><h1 class="fg-box__title">Meet your civilization</h1><span class="fg-box__meta">First light · step 1 of 8</span></div>
+      <div class="fg-box__body">
+        <p class="fg-muted">A young people, newly able to cross between stars. Name them, choose their colours and what they are good at.</p>
+        <div class="fg-split">
+          <div class="fg-field"><label class="fg-label" for="name">Civilization name</label><input class="fg-input" id="name" name="name" maxlength="32" required value="{{ form.get('name', '') }}" placeholder="The Ashenreach Collective"></div>
+          <div class="fg-field"><label class="fg-label" for="home_name">Home system</label><input class="fg-input" id="home_name" name="home_name" maxlength="32" value="{{ form.get('home_name', '') }}" placeholder="Hearth"></div>
+        </div>
+      </div>
+    </section>
+    <section class="fg-box">
+      <div class="fg-box__head"><h2 class="fg-box__title">Civilization set</h2><span class="fg-box__meta">emblem, colours, banner, livery</span></div>
+      <div class="fg-box__body fg-sets" id="civ-sets">
+        {% for i in range(32) %}<label class="fg-set"><input type="radio" name="set" value="{{ i }}"{% if (form.get('set', '0')|int) == i %} checked{% endif %}><span class="fg-set__art" data-set="{{ i }}"></span><span data-set-name="{{ i }}">Set {{ i + 1 }}</span></label>{% endfor %}
+      </div>
+    </section>
+  </div>
+  <div class="fg-col">
+    <section class="fg-box">
+      <div class="fg-box__head"><h2 class="fg-box__title">Attributes</h2><span class="fg-box__meta">−3…+3 · sum 0 · ±5 % a point</span></div>
+      <table class="fg-t"><tbody>
+      {% for a, desc in [('curiosity', 'research, survey range'), ('industry', 'minerals, energy'), ('growth', 'population growth'), ('cohesion', 'stability (±4 a point)'), ('martial', 'combat (later)'), ('openness', 'trade, reputation (later)')] %}
+        <tr><td>{{ a|capitalize }}<span class="sub">{{ desc }}</span></td>
+          <td class="num"><input class="fg-input fg-input--num" type="number" name="attr_{{ a }}" min="-3" max="3" step="1" value="{{ form.get('attr_' ~ a, start[a]) }}" data-attr aria-label="{{ a }}"></td></tr>
       {% endfor %}
-      </tbody>
-    </table>
-    <p class="fg-meta">Sum: <b id="attr-sum">0</b> (must be 0). The defaults are a curious, peaceful people.</p>
-    <button class="fg-btn fg-btn--primary" type="submit">Found the civilization</button>
-    <p class="fg-help">Your civilization arrives at the next tick{% if debug %} (this is a development server: use "Advance the clock" to skip the wait){% endif %}.</p>
-  </section>
+        <tr><td>Sum <span class="sub">must be 0</span></td><td class="num"><b id="attr-sum" class="mono">0</b></td></tr>
+      </tbody></table>
+      <div class="fg-box__body">
+        <div class="fg-field"><label class="fg-label" for="advisor_name">Your advisor</label><input class="fg-input" id="advisor_name" name="advisor_name" maxlength="32" value="{{ form.get('advisor_name', '') }}" placeholder="Tamsin Vey"></div>
+        <button class="fg-btn fg-btn--primary" type="submit">Found the civilization</button>
+        <p class="fg-help">It arrives at the next tick{% if debug %} (development server: "Advance the clock" skips the wait){% endif %}.</p>
+      </div>
+    </section>
+  </div>
 </form>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='art/farglow-art.js') }}"></script><script src="{{ url_for('static', filename='js/found.js') }}"></script>{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static', filename='js/found.js') }}"></script>{% endblock %}

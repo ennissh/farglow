@@ -272,3 +272,15 @@ def test_advisor_t2_answers_through_the_gateway_and_falls_back(rules):
     assert "Test Reach" in seen["prompt"] and "Surveying" in seen["prompt"]      # Codex + fog-limited summary
     down = advisor.answer("how do surveys work?", s, civ, rules, "http://127.0.0.1:1", "T2")
     assert down["tier"] == "T0" and down["fallback"] and "survey" in down["text"].lower()
+
+
+def test_fog_of_war_hides_names_of_unsurveyed_systems(rules):
+    s, c1 = new_game(rules)
+    s = st.advance(s, [found(user=2, name="Second Light", home_name="Secret Harbour")], rules)
+    c1, c2 = s["civs"]["c1"], s["civs"]["c2"]
+    assert c2["home"] not in c1["surveyed"]
+    m = view.map_data(s, c1, rules)
+    leaked = [x for x in m["systems"] if x["name"] == "Secret Harbour"]
+    assert not leaked, "another civilization's home name is visible before it is surveyed"
+    assert view.system_detail(s, c1, rules, c2["home"])["name"] != "Secret Harbour"
+    assert view.system_detail(s, c2, rules, c2["home"])["name"] == "Secret Harbour"

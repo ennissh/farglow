@@ -136,8 +136,12 @@ src_default="$(current FARGLOW_IMAGE_SOURCE "")"
 # Offer GHCR only if the version is actually published there (a saved "ghcr" answer is
 # re-checked too; only an explicit --source ghcr skips the check).
 if [[ "$SOURCE_ARG" != ghcr && ( -z "$src_default" || "$src_default" == ghcr ) ]]; then
-    want_tag="${TAG_ARG:-$(current FARGLOW_IMAGE_TAG "$VERSION")}"
-    [[ "$want_tag" == local ]] && want_tag="$VERSION"
+    want_tag="${TAG_ARG:-$(current FARGLOW_IMAGE_TAG "")}"
+    [[ "$want_tag" == local ]] && want_tag=""
+    if [[ -z "$want_tag" ]]; then        # the release if it is out, else the newest build
+        want_tag="$VERSION"
+        published "$(current FARGLOW_REGISTRY ghcr.io/ennissh)" "$VERSION" || want_tag=latest
+    fi
     if published "$(current FARGLOW_REGISTRY ghcr.io/ennissh)" "$want_tag"; then
         src_default=ghcr
     else
@@ -151,9 +155,13 @@ if [[ "$FARGLOW_IMAGE_SOURCE" == local ]]; then
     FARGLOW_IMAGE_TAG="${TAG_ARG:-local}"
 else
     ask FARGLOW_REGISTRY "Registry" "$FARGLOW_REGISTRY"
-    tag_default="$(current FARGLOW_IMAGE_TAG "$VERSION")"
-    [[ "$tag_default" == local ]] && tag_default="$VERSION"
-    ask FARGLOW_IMAGE_TAG "Version to run" "${TAG_ARG:-$tag_default}"
+    tag_default="$(current FARGLOW_IMAGE_TAG "")"
+    [[ "$tag_default" == local ]] && tag_default=""
+    if [[ -z "$tag_default" ]]; then     # the release if it is out, else the newest build
+        tag_default="$VERSION"
+        published "$FARGLOW_REGISTRY" "$VERSION" || tag_default=latest
+    fi
+    ask FARGLOW_IMAGE_TAG "Version to run (X.Y.Z release, X.Y.Z-N build, or latest)" "${TAG_ARG:-$tag_default}"
 fi
 
 echo

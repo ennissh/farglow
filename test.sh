@@ -8,6 +8,8 @@
 #   ./test.sh --stack    also run the stack test: build images, install an isolated copy
 #                        (project farglow-test, ports 18080/18443), tick, backup, wipe,
 #                        restore, compare the state hash, uninstall. Takes a few minutes.
+#   ./test.sh --ui       also run the headless-browser UI suite (tests/ui/ui-test.sh): an isolated
+#                        stack, a play-through, layout and density checks on every screen
 #   ./test.sh -k EXPR    pass -k EXPR to pytest
 #
 # Checks, in order: shellcheck · Dockerfile contract · dependency pins · design tokens
@@ -20,11 +22,12 @@ set -uo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/scripts/lib/common.sh"
 usage() { print_usage "$0"; }
 
-QUICK=0 STACK=0 PYTEST_ARGS=()
+QUICK=0 STACK=0 UI=0 PYTEST_ARGS=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --quick) QUICK=1 ;;
         --stack) STACK=1 ;;
+        --ui) UI=1 ;;
         -k) [[ $# -ge 2 ]] || die "-k needs an expression"; PYTEST_ARGS+=(-k "$2"); shift ;;
         -h|--help) usage; exit 0 ;;
         *) die "unknown option: $1 (see --help)" ;;
@@ -90,6 +93,9 @@ step "pytest" "$PY" -m pytest -q "${PYTEST_ARGS[@]}" --junitxml=test-reports/jun
 
 if [[ $STACK == 1 ]]; then
     step "stack test" tests/stack/stack-test.sh
+fi
+if [[ $UI == 1 ]]; then
+    step "UI suite (headless browser)" tests/ui/ui-test.sh
 fi
 
 echo

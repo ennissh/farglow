@@ -2,24 +2,24 @@
 {% from "_macros.html" import csrf with context %}
 {% block content %}
 <div class="fg-landing">
-  <section class="fg-hero">
-    <p class="fg-kicker fg-kicker--accent">Server · {{ settings.domain }}</p>
-    <h1 class="heading-xl">Every star counts</h1>
-    <p class="body">Farglow is a grounded sci-fi 4X played in about five minutes a day. Guide a young civilization
-      out among real-scale stars. The galaxy moves on an hourly clock whether you're watching or not, and
-      each morning the Dispatch tells you what happened.</p>
-    <p class="body fg-meta">This server is running <b>First Light</b>, the first playable proof of concept: one civilization,
-      the economy, research, surveys, outposts, colonies, buildings, the advisor and the Dispatch.</p>
-  </section>
-  <section class="fg-panel fg-signin">
-    <div class="fg-panel__head"><h2 class="fg-panel__title">Sign in</h2><a class="fg-meta" href="{{ url_for('auth.signup') }}">New here? Create an account</a></div>
-    <form method="post" action="{{ url_for('auth.signin') }}" class="fg-form">
+  <div class="fg-col">
+    <section class="fg-hero">
+      <p class="fg-kicker fg-kicker--accent">Server · {{ settings.domain }}</p>
+      <h1 class="heading-lg">Every star counts</h1>
+      <p>Farglow is a grounded sci-fi 4X played in about five minutes a day. Guide a young civilization out among real-scale stars. The galaxy moves on an hourly clock whether you're watching or not, and each morning the Dispatch tells you what happened.</p>
+      <p class="fg-muted">This server runs <b>First Light</b>, the first playable proof of concept: one civilization, the economy, research, surveys, outposts, colonies, buildings, the advisor and the Dispatch.</p>
+    </section>
+    {% include "partials/status.html" %}
+  </div>
+  <section class="fg-box">
+    <div class="fg-box__head"><h2 class="fg-box__title">Sign in</h2><a class="fg-box__meta" href="{{ url_for('auth.signup') }}">New? Create an account</a></div>
+    <form method="post" action="{{ url_for('auth.signin') }}" class="fg-form fg-box__body">
       {{ csrf() }}
       <div class="fg-field"><label class="fg-label" for="email">Email</label><input class="fg-input" id="email" name="email" type="email" autocomplete="email" required></div>
       <div class="fg-field"><label class="fg-label" for="password">Password</label><input class="fg-input" id="password" name="password" type="password" autocomplete="current-password" required></div>
       <button class="fg-btn fg-btn--primary" type="submit">Sign in</button>
+      <a class="fg-linkbtn" href="{{ url_for('auth.signup') }}">Create an account</a>
     </form>
   </section>
 </div>
-{% include "partials/status.html" %}
 {% endblock %}

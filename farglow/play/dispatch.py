@@ -7,12 +7,12 @@ from .view import system_name
 SKIP = {"allocation_set"}
 
 
-def render(ev: dict, state: dict, rules: Rules) -> tuple[str, str] | None:
-    """(headline, detail) for one event, or None if it isn't news."""
+def render(ev: dict, state: dict, rules: Rules, civ: dict | None = None) -> tuple[str, str] | None:
+    """(headline, detail) for one event, or None if it isn't news. Names follow `civ`'s fog of war."""
     k = ev["kind"]
     if k in SKIP:
         return None
-    sysname = system_name(state, ev["system"]) if ev.get("system") and ev["system"] in _all(state) else ""
+    sysname = system_name(state, ev["system"], civ) if ev.get("system") and ev["system"] in _all(state) else ""
     tech = rules.techs.get(ev.get("tech", ""), {}).get("name", ev.get("tech", ""))
     building = (ev.get("building") or "").replace("_", " ")
     if k == "founded":

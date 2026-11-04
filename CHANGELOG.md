@@ -14,6 +14,12 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
 ## [Unreleased]
 
 ### Added
+- **UI test engine: the headless-browser suite** (`tests/ui/`, `./test.sh --ui`). It runs in a Playwright 1.64.1 container pinned by digest, against an isolated stack, and plays the game end to end. It then checks every screen at 1366×768 and 1920×1080 in light and dark for:
+  - console, CSP and HTTP errors; horizontal scroll; covered controls;
+  - per-screen density budgets (`tests/ui/budgets.json`);
+  - the design system's text and target floors.
+
+  It writes `report.html` with screenshots, plus `summary.json`.
 - **First playable demo: PoC 1 "First Light" vertical slice.**
   - **Accounts.** Sign-up asks the month and year of birth; under-13s are refused, nothing is kept, and the browser is locked out for 24 hours. Email verification uses a signed single-use link (the GET shows a confirm page; only the POST verifies). Then sign-in, sign-out, settings (the Dispatch email on or off) and account deletion: the civilization retires at the next tick. The first account with `FARGLOW_ADMIN_EMAIL` becomes the host admin. Without SMTP, accounts are ready at once.
   - **Engine schema 2** (`farglow/engine/game.py`, `rules.py`, `galaxy.py`, `store.py`). A seeded galaxy cell of about 100 stars, never stored. Founding a civilization (name, one of 32 civ sets, six attributes summing to 0). The `tools/sim.py` economy in fixed-point integers: population → action credits → allocation; minerals, energy, stability, storage caps and energy shortage. The 32-node tech tree with drawbacks, doctrines, the knowledge tax and the half-done first tech. Survey missions, outposts and colonies that travel at fold speed, buildings with a 12-tick build time, body development, system naming by the discoverer, tutorial Charters, and fog of war.
@@ -25,6 +31,12 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
   - Tests: 25 new ones, 78 in total. They cover parity with `sim.py` (the first tech lands on the same tick), order validation, missions, buildings, doctrines, fog of war, the advisor (T0, T2 and fallback), the 0.0.x upgrade path on a real database, and a functional run from sign-up through verification, founding, ticks, play, the Dispatch email, admin and deletion.
 
 ### Changed
+- **Compact redesign of every screen.** A two-row header (navigation, then a dense resource strip of tick, AC, RP, population, minerals against storage, energy, stability and the bank). The walkthrough is one line. Galaxy is a 420 px map, a system table with build and develop pop-overs, a known-systems table, and the advisor as a compact list with Ask folded away. Research is a dense table by tier, Governor is allocation and economy tables, and the Dispatch is one-line rows. 12 px text throughout, and every game screen fits a 1366×768 laptop.
+- **`./build.sh` now pushes by default, with automatic build numbers (the rapax-cloud scheme).** `VERSION` is the release line `X.Y.Z`. Each push is the next build `X.Y.Z-N`, where N is read from the tags already on GHCR (`scripts/ghcr-tags.py`, `scripts/versions.py`). A pushed number is always new and higher, `VERSION` behind the registry is refused, and an existing number is reused only with `--version … --replace-version`.
+  - `--release` pushes `X.Y.Z` once and writes `releases/vX.Y.Z.manifest`.
+  - `--no-latest` holds `:latest`, `--dry-run` shows the next number, and `--local` is unchanged.
+  - The fast checks (clean tree, registry login, number, arm64 builder) run before `./test.sh`, so a missing login fails in seconds.
+- `install.sh` (GHCR) now runs the release if it's published, else `latest`. `--tag X.Y.Z-N` pins a build.
 - **New galaxies start at engine schema 2**, so `tests/determinism/test_golden.py` has new v2 golden values; this change is intentional. Galaxies from 0.0.x keep their schema-1 history (the `GOLDEN_V1` hashes are unchanged) and upgrade through one `engine.upgrade` order. **Upgrade note:** there is nothing to do; the tick service queues it.
 - `config/balance.poc.yaml` gains `expansion.survey_ac`, `survey_minerals`, `max_reach_ly` and `buildings.build_ticks`. `config/objectives.poc.yaml` gains `charters.tutorial.reward_minerals`. All are marked proposed.
 - The api, tick and worker images now carry `config/` and PyYAML 6.0.3.
@@ -73,6 +85,8 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
   Every file was checked by SHA-256 against the uploaded pack.
 
 ### Fixed
+- **Fog of war**: the map, system panel, known-systems list, Dispatch and advisor no longer show names other civilizations gave to systems you haven't surveyed. The UI suite's screenshots found this; it now has a regression test.
+- Python images: pip's "running as root" warning no longer floods the build output.
 - `install.sh` no longer dead-ends when the chosen version isn't on GHCR (nothing has been pushed yet, or the packages are private).
   - The image-source default is "local" unless the version resolves on GHCR. A saved "ghcr" answer is checked again; an explicit `--source ghcr` is not.
   - When a pull fails, the interactive installer offers to build on this machine and records `FARGLOW_IMAGE_SOURCE='local'` in `.env`.

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% from "_macros.html" import csrf with context %}
 {% block content %}
-<section class="fg-panel fg-narrow">
-  <div class="fg-panel__head"><h1 class="fg-panel__title">Confirm your email</h1></div>
+<section class="fg-box fg-narrow">
+  <div class="fg-box__head"><h1 class="fg-box__title">Confirm your email</h1></div>
   {% if error %}
     <p class="fg-help fg-help--error">This link can't be used: {{ error }}.</p>
-    <p class="body"><a href="{{ url_for('auth.signin') }}">Sign in</a> to send a new one.</p>
+    <p ><a href="{{ url_for('auth.signin') }}">Sign in</a> to send a new one.</p>
   {% else %}
-    <p class="body">One click to confirm this is your email address.</p>
+    <p >One click to confirm this is your email address.</p>
     <form method="post" action="{{ url_for('auth.verify') }}">{{ csrf() }}<input type="hidden" name="t" value="{{ token }}">
       <button class="fg-btn fg-btn--primary" type="submit">Confirm my email</button></form>
   {% endif %}
