@@ -133,13 +133,16 @@ echo
 info "Images"
 src_default="$(current FARGLOW_IMAGE_SOURCE "")"
 [[ -n "$SOURCE_ARG" ]] && src_default="$SOURCE_ARG"
-if [[ -z "$src_default" ]]; then
-    # First install: offer GHCR only if this version is actually published there.
-    if published "$(current FARGLOW_REGISTRY ghcr.io/ennissh)" "${TAG_ARG:-$VERSION}"; then
+# Offer GHCR only if the version is actually published there (a saved "ghcr" answer is
+# re-checked too; only an explicit --source ghcr skips the check).
+if [[ "$SOURCE_ARG" != ghcr && ( -z "$src_default" || "$src_default" == ghcr ) ]]; then
+    want_tag="${TAG_ARG:-$(current FARGLOW_IMAGE_TAG "$VERSION")}"
+    [[ "$want_tag" == local ]] && want_tag="$VERSION"
+    if published "$(current FARGLOW_REGISTRY ghcr.io/ennissh)" "$want_tag"; then
         src_default=ghcr
     else
         src_default=local
-        echo "  Farglow ${TAG_ARG:-$VERSION} is not published on GHCR (or GHCR is not reachable): building here is the default."
+        echo "  Farglow $want_tag is not on GHCR yet (never pushed, private, or GHCR unreachable): building here is the default."
     fi
 fi
 choose FARGLOW_IMAGE_SOURCE "Image source" "$src_default" ghcr local
