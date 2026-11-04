@@ -1,0 +1,14 @@
+# Server-local state: never committed
+.env
+.env.*
+!.env.example
+tls/
+backups/
+*.tar.gz
+# Python
+__pycache__/
+*.pyc
+.venv*/
+.pytest_cache/
+# Test output
+test-reports/

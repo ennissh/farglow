@@ -1,0 +1,8 @@
+# gitleaks configuration. A finding BLOCKS ./test.sh and therefore ./build.sh --push.
+# Fix findings by moving the value into .env (install.sh writes it, mode 600).
+# Allowlists are only for reviewed false positives and must be NARROW: one rule plus the
+# exact benign text, or one file. Never a directory.
+title = "farglow"
+
+[extend]
+useDefault = true

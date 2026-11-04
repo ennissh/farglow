@@ -1,0 +1,169 @@
+# Farglow: the whole stack. install.sh writes .env (mode 600) next to this file.
+#
+#   docker compose up -d        start (images from GHCR or a local ./build.sh --local)
+#   docker compose ps           status and health
+#   docker compose logs -f api  one service's JSON logs
+#
+# Each service gets only the variables it needs: secrets are mapped explicitly below,
+# never through a shared env_file. Image tags: FARGLOW_REGISTRY / FARGLOW_IMAGE_TAG.
+name: farglow
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+x-hardening: &hardening
+  restart: unless-stopped
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+  logging: *logging
+
+x-python: &python
+  <<: *hardening
+  read_only: true
+  tmpfs: ["/tmp:size=64m"]
+
+x-db-env: &db-env
+  POSTGRES_HOST: db
+  POSTGRES_DB: ${POSTGRES_DB:-farglow}
+  POSTGRES_USER: ${POSTGRES_USER:-farglow}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set - run ./install.sh}
+
+x-common-env: &common-env
+  FARGLOW_DEBUG: ${FARGLOW_DEBUG:-false}
+  FARGLOW_LOG_LEVEL: ${FARGLOW_LOG_LEVEL:-}
+  FARGLOW_DOMAIN: ${FARGLOW_DOMAIN:-localhost}
+  FARGLOW_PUBLIC_URL: ${FARGLOW_PUBLIC_URL:-http://localhost}
+
+x-after-migrate: &after-migrate
+  migrate:
+    condition: service_completed_successfully
+
+services:
+  db:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-db:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *hardening
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-farglow}
+      POSTGRES_USER: ${POSTGRES_USER:-farglow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not set - run ./install.sh}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    shm_size: 256m
+    networks: [core]
+
+  migrate:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-migrate:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *python
+    restart: "no"
+    environment:
+      <<: [*db-env, *common-env]
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [core]
+
+  api:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-api:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *python
+    environment:
+      <<: [*db-env, *common-env]
+      FARGLOW_SECRET_KEY: ${FARGLOW_SECRET_KEY:?run ./install.sh}
+      FARGLOW_LINK_SIGNING_KEY: ${FARGLOW_LINK_SIGNING_KEY:?run ./install.sh}
+      FARGLOW_ADMIN_EMAIL: ${FARGLOW_ADMIN_EMAIL:-}
+      FARGLOW_WEB_WORKERS: ${FARGLOW_WEB_WORKERS:-2}
+      FARGLOW_LLM_GATEWAY_URL: http://llm-gateway:8100
+    depends_on: *after-migrate
+    networks: [edge, core]
+
+  tick:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-tick:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *python
+    environment:
+      <<: [*db-env, *common-env]
+      FARGLOW_GALAXY_SEED: ${FARGLOW_GALAXY_SEED:?run ./install.sh}
+      FARGLOW_TICK_SECONDS: ${FARGLOW_TICK_SECONDS:-}
+      FARGLOW_RESTORE_POINTS_KEEP: ${FARGLOW_RESTORE_POINTS_KEEP:-72}
+    depends_on: *after-migrate
+    stop_grace_period: 30s
+    networks: [core]
+
+  worker:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-worker:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *python
+    environment:
+      <<: [*db-env, *common-env]
+      FARGLOW_LINK_SIGNING_KEY: ${FARGLOW_LINK_SIGNING_KEY:?run ./install.sh}
+      FARGLOW_LLM_GATEWAY_URL: http://llm-gateway:8100
+    depends_on: *after-migrate
+    networks: [core]
+
+  mailer:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-mailer:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *python
+    environment:
+      <<: [*db-env, *common-env]
+      FARGLOW_ADMIN_EMAIL: ${FARGLOW_ADMIN_EMAIL:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURITY: ${SMTP_SECURITY:-starttls}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+    # The host's DNS servers (install.sh detects them), so LAN and Tailscale names resolve.
+    dns: ["${FARGLOW_DNS_1:-1.1.1.1}", "${FARGLOW_DNS_2:-9.9.9.9}"]
+    depends_on: *after-migrate
+    networks: [core]
+
+  llm-gateway:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-llm-gateway:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *python
+    environment:
+      <<: *common-env
+      FARGLOW_AI_TIER: ${FARGLOW_AI_TIER:-T0}
+      FARGLOW_LLM_ENDPOINT: ${FARGLOW_LLM_ENDPOINT:-}
+      FARGLOW_LLM_MODEL: ${FARGLOW_LLM_MODEL:-}
+      FARGLOW_LLM_API_KEY: ${FARGLOW_LLM_API_KEY:-}
+      FARGLOW_LLM_TIMEOUT: ${FARGLOW_LLM_TIMEOUT:-30}
+    # Ollama on another machine (LAN or Tailscale): use the host's DNS servers. An Ollama on
+    # the Docker host itself is reachable as http://host.docker.internal:11434.
+    dns: ["${FARGLOW_DNS_1:-1.1.1.1}", "${FARGLOW_DNS_2:-9.9.9.9}"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    networks: [core]
+
+  backup:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-backup:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *hardening
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-farglow}
+      PGUSER: ${POSTGRES_USER:-farglow}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?run ./install.sh}
+      FARGLOW_BACKUP_HOUR: ${FARGLOW_BACKUP_HOUR:-03}
+      FARGLOW_BACKUP_KEEP: ${FARGLOW_BACKUP_KEEP:-7}
+    volumes:
+      - backups:/backups
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [core]
+
+  nginx:
+    image: ${FARGLOW_REGISTRY:-ghcr.io/ennissh}/farglow-nginx:${FARGLOW_IMAGE_TAG:-latest}
+    <<: *hardening
+    environment:
+      FARGLOW_DOMAIN: ${FARGLOW_DOMAIN:-localhost}
+    ports:
+      - "${FARGLOW_BIND:-0.0.0.0}:${FARGLOW_HTTP_PORT:-80}:8080"
+      - "${FARGLOW_BIND:-0.0.0.0}:${FARGLOW_HTTPS_PORT:-443}:8443"
+    volumes:
+      - ${FARGLOW_TLS_DIR:-./tls}:/etc/farglow/tls:ro
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [edge]
+
+networks:
+  edge: {}
+  core: {}
+
+volumes:
+  db-data: {}
+  backups: {}

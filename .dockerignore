@@ -1,0 +1,8 @@
+# Build context is the repository root; send only what images COPY.
+**
+!VERSION
+!farglow/**
+!migrations/**
+!containers/**
+**/__pycache__
+**/*.pyc
