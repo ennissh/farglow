@@ -14,10 +14,10 @@ Farglow is self-hosted on the **Minecraft model**. Anyone can run a server for t
 
 | | |
 |---|---|
-| **Version** | `0.0.0`, pre-alpha. **Design complete, no game code yet.** |
+| **Version** | `0.0.0`, pre-alpha. **Phase 0 platform in progress:** the empty stack installs, ticks, backs up and restores. No game features yet. |
 | **Next release** | `v0.1.0` "First Light" (proof of concept 1): one civilization, the economy, research, colonies, the advisor walkthrough and the Dispatch email |
 | **Roadmap** | [PLAN.md](PLAN.md): blank repo → PoC 1 → PoC 2 → PoC 3 → beta → `v1.0.0` |
-| **Design pack** | `farglow-design-pack.zip`: brand, design system, art library, 19 screen mockups, specs, configs and tools |
+| **Design pack** | Unpacked into `docs/design/`, `config/`, `tools/` and `farglow/web/static/` (index: [docs/design/README.md](docs/design/README.md)) |
 
 ---
 
@@ -127,14 +127,14 @@ tests/                            unit/ functional/ scale/ security/
 tools/                            sim.py (economy simulator), tech-tree PDF builder, art build scripts
 docs/                             advisor spec, decision log, design-pack index
 compose.yaml  .env.example  VERSION
-install.sh  build.sh  test.sh  backup.sh  restore.sh
+install.sh  uninstall.sh  build.sh  test.sh  backup.sh  restore.sh
 ```
 
 ---
 
 ## Running a server
 
-> These scripts are specified but not written yet. They arrive in Phase 0 of [PLAN.md](PLAN.md).
+> Phase 0 versions of these scripts work today (see [CHANGELOG.md](CHANGELOG.md)). Every script has `--help`.
 
 ```bash
 ./install.sh              # interactive: domain, admin email, GHCR pull or local build,
@@ -144,6 +144,18 @@ install.sh  build.sh  test.sh  backup.sh  restore.sh
 ./backup.sh               # one file: farglow-backup-<host>-T<tick>-<date>.tar.gz
 ./backup.sh --with-secrets   # also include .env, encrypted with a passphrase
 ./restore.sh <file>       # verify, take a safety backup, restore, migrate, restart PAUSED
+./uninstall.sh            # stop and remove containers (data and .env kept); --purge deletes data
+./test.sh                 # local checks + tests; --stack runs the install/backup/restore round trip
+```
+
+Day-to-day operator commands run inside a container:
+
+```bash
+docker compose ps                                          # health of every service
+docker compose exec tick python -m farglow engine status   # tick, hash, paused?
+docker compose exec tick python -m farglow engine pause --reason "maintenance"
+docker compose exec tick python -m farglow engine resume
+docker compose exec tick python -m farglow engine verify   # replay from the seed, compare hashes
 ```
 
 - **Requirements:** Docker with Compose v2 on Linux (tested target: Ubuntu 26.04 LTS), a domain name, and SMTP credentials. An AI backend is optional (tier T0 needs none).
@@ -186,7 +198,7 @@ install.sh  build.sh  test.sh  backup.sh  restore.sh
 ---
 
 ## Contributing
-Not open to outside contributions yet. When it is, a Contributor License Agreement (CLA) will be required: it lets Citus Technologies offer commercial licenses and convert versions to Apache 2.0 on schedule. See `CONTRIBUTING.md` (to be written).
+Not open to outside contributions yet. When it is, a Contributor License Agreement (CLA) will be required: it lets Citus Technologies offer commercial licenses and convert versions to Apache 2.0 on schedule. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 **Business Source License 1.1** with an Additional Use Grant: free to self-host and run for others as long as it isn't a paid hosting service. Each version converts to **Apache 2.0** four years after release. Farglow is *source-available*, not OSI open source. The names and logos are trademarks and are not licensed. See [LICENSE.md](LICENSE.md). *(Draft: needs legal review before the repository goes public.)*

@@ -1,6 +1,18 @@
 # Farglow design pack
 
-Everything designed for Farglow up to 3 Nov 2026: brand, design system, art library, screen mockups, specs, game configs and the tools that produced them. Use it to seed the repository: `config/`, `tools/` and `docs/` map straight onto the repo layout in `README.md`.
+Everything designed for Farglow up to 3 Nov 2026: brand, design system, art library, screen mockups, specs, game configs and the tools that produced them. It has been unpacked into the repository (4 Nov 2026). Where each part now lives:
+
+| Pack folder | Repository path |
+|---|---|
+| `brand/`, `mockups/`, `explorations/` | `docs/design/brand/`, `docs/design/mockups/`, `docs/design/explorations/` |
+| `system/` README, Iconography, component READMEs and previews | `docs/design/system/` |
+| `system/tokens.json`, `components/bundle.css`, `assets/` | `farglow/web/static/ds/` (`tokens.css` is generated from `tokens.json`) |
+| `system/lib/farglow-art.js` = `tools/art/farglow-art.js` | `farglow/web/static/art/farglow-art.js` (`tools/art/farglow-art.js` is a shim) |
+| `config/*.poc.yaml` | `config/` |
+| `tools/` | `tools/` |
+| `specs/` | **missing from the upload**: see PLAN.md open items |
+
+The table and paths below are the pack's original description.
 
 | Folder | What's inside |
 |---|---|

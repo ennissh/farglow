@@ -36,6 +36,8 @@ This plan takes Farglow from an empty repository to its first public release. Th
 
 ## Phase 0 · Foundations → `v0.0.x` (M)
 
+> **Status (4 Nov 2026):** items 1–4 and 6 are built, as is the outbound part of 7 (SMTP, signed single-use links, the `install.sh` test send). `./test.sh --stack` passes the backup → wipe → restore hash check. Items 5 (accounts) and 7's link pages, plus a clean-VPS install, remain. See `CHANGELOG.md`.
+
 **Goal:** a working, empty stack. Nothing fun yet, but everything after it builds on solid ground.
 
 **Scope**
@@ -268,5 +270,13 @@ Each item gets its own design pass first.
 | Calibrate the other 6 Triumphs | Phase 2 |
 | Moderation thresholds tuned on real data; age-assurance needs for the UK | Phase 2 / Phase 4 |
 | Naming rules: confirm the proposed defaults (72-tick window, 2–24 characters, no real people) | Phase 3 |
+| Design-pack specs missing from the upload: advisor spec, the 3 Nov decision log, tech-tree PDF (`docs/specs/` was to hold them) | Phase 0 (now) |
+| Secrets storage: keep `.env`, Docker secrets files, or an encrypted vault (decision D-0003) | Before beta (Phase 4) |
+| Tick catch-up after downtime: one tick then re-align (proposed D-0006), or replay every missed tick | Phase 1 |
+| TLS automation (Let's Encrypt): certbot sidecar vs documented external proxy (D-0015) | Before any public server |
+| Layer-2 `farglow-test` container + suite registry (TESTING.md §4) | Phase 1 start |
+| Dependency and static scans in `test.sh` (pip-audit, Bandit) and Trivy in `build.sh --push` | Phase 0 exit |
+| Verify `install.sh` on a clean Ubuntu 26.04 VPS, with GHCR images (needs a first `build.sh --push`) and with a local build | Phase 0 exit |
+| GHCR package visibility while the repo is private (hosts need `docker login`, or images public) | First push |
 | Exotics timing | After 1.0 |
 | Transcendence length and lineage rules | After 1.0 |
