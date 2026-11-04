@@ -1,0 +1,33 @@
+# Rendered by the nginx entrypoint (envsubst on FARGLOW_* variables only).
+server_tokens off;
+client_max_body_size 2m;
+
+upstream farglow_api {
+    server api:8000;
+    keepalive 16;
+}
+
+server {
+    listen 8080 default_server;
+    server_name ${FARGLOW_DOMAIN};
+
+    location = /nginx-health { access_log off; default_type text/plain; return 200 "ok\n"; }
+
+    location /static/ {
+        alias /usr/share/nginx/farglow/static/;
+        expires 7d;
+        add_header Cache-Control "public" always;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    location / {
+        proxy_pass http://farglow_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_read_timeout 60s;
+    }
+}
