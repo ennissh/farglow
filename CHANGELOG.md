@@ -25,6 +25,11 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
   - Tests: 25 new ones, 78 in total. They cover parity with `sim.py` (the first tech lands on the same tick), order validation, missions, buildings, doctrines, fog of war, the advisor (T0, T2 and fallback), the 0.0.x upgrade path on a real database, and a functional run from sign-up through verification, founding, ticks, play, the Dispatch email, admin and deletion.
 
 ### Changed
+- **`./build.sh` now pushes by default, with automatic build numbers (the rapax-cloud scheme).** `VERSION` is the release line `X.Y.Z`. Each push is the next build `X.Y.Z-N`, where N is read from the tags already on GHCR (`scripts/ghcr-tags.py`, `scripts/versions.py`). A pushed number is always new and higher, `VERSION` behind the registry is refused, and an existing number is reused only with `--version … --replace-version`.
+  - `--release` pushes `X.Y.Z` once and writes `releases/vX.Y.Z.manifest`.
+  - `--no-latest` holds `:latest`, `--dry-run` shows the next number, and `--local` is unchanged.
+  - The fast checks (clean tree, registry login, number, arm64 builder) run before `./test.sh`, so a missing login fails in seconds.
+- `install.sh` (GHCR) now runs the release if it's published, else `latest`. `--tag X.Y.Z-N` pins a build.
 - **New galaxies start at engine schema 2**, so `tests/determinism/test_golden.py` has new v2 golden values; this change is intentional. Galaxies from 0.0.x keep their schema-1 history (the `GOLDEN_V1` hashes are unchanged) and upgrade through one `engine.upgrade` order. **Upgrade note:** there is nothing to do; the tick service queues it.
 - `config/balance.poc.yaml` gains `expansion.survey_ac`, `survey_minerals`, `max_reach_ly` and `buildings.build_ticks`. `config/objectives.poc.yaml` gains `charters.tutorial.reward_minerals`. All are marked proposed.
 - The api, tick and worker images now carry `config/` and PyYAML 6.0.3.

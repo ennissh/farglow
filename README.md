@@ -111,7 +111,7 @@ Transcendence and lineage (Starfield-style New Game+), Honors and Titles, season
 | T4 | Generative Distractions Relay | Paid |
 
 ### Technology
-Python 3.12+ · Flask · Gunicorn · Jinja2 + htmx · vanilla JS star map · PostgreSQL 16 · Docker Compose · Ubuntu 26.04 LTS. Images are built for amd64 and arm64, and published to GHCR or kept local. There is no GitHub Actions CI: `test.sh` gates `build.sh --push`.
+Python 3.12+ · Flask · Gunicorn · Jinja2 + htmx · vanilla JS star map · PostgreSQL 16 · Docker Compose · Ubuntu 26.04 LTS. Images are built for amd64 and arm64, and published to GHCR or kept local. There is no GitHub Actions CI: `test.sh` gates every push by `build.sh`.
 
 ---
 
@@ -140,7 +140,8 @@ install.sh  uninstall.sh  build.sh  test.sh  backup.sh  restore.sh
 ./install.sh              # interactive: domain, admin email, GHCR pull or local build,
                           # AI tier + Ollama URL or API key, SMTP settings (sends a test email)
 ./build.sh --local        # build every containers/<service>/Dockerfile into local Docker
-./build.sh --push         # run test.sh, then build multi-arch and push to ghcr.io/<owner>/farglow-<service>
+./build.sh                # run test.sh, then push the next build X.Y.Z-N (number picked from GHCR) for amd64+arm64
+./build.sh --release      # push the release X.Y.Z from VERSION (once)
 ./backup.sh               # one file: farglow-backup-<host>-T<tick>-<date>.tar.gz
 ./backup.sh --with-secrets   # also include .env, encrypted with a passphrase
 ./restore.sh <file>       # verify, take a safety backup, restore, migrate, restart PAUSED
@@ -177,7 +178,7 @@ docker compose exec tick python -m farglow engine verify   # replay from the see
 | **Scale** | concurrent players, 500 NPC civilizations, tick time under budget |
 | **Security** | OWASP ZAP, OWASP Top 10 review, static code scanning, signed-link replay and expiry |
 
-`./test.sh` runs everything that applies locally; `build.sh --push` refuses to push if it fails.
+`./test.sh` runs everything that applies locally; `build.sh` refuses to push if it fails.
 
 ---
 
