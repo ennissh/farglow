@@ -18,9 +18,16 @@
 #   --service NAME     only this service (repeatable, or comma separated)
 #   --registry REG     image prefix (default: ghcr.io/${GHCR_OWNER:-ennissh})
 #   --platforms LIST   push platforms (default: linux/amd64,linux/arm64)
-#   --no-cache         build without the layer cache
+#   --rebuild          build every selected image even if its inputs are unchanged
+#   --no-cache         build without the layer cache (implies --rebuild)
 #   --dry-run          show the version this push would use, then stop (no tests, no build)
 #   -h, --help         this help
+#
+# Unchanged images are not rebuilt. Each image's inputs (its Dockerfile + every file its COPY
+# lines read: scripts/inputs.py) are hashed. --local keeps a loaded image with the same hash;
+# a push looks for the content tag farglow-<svc>:inputs-<hash> on GHCR and, when it is there,
+# only adds the new version tags to that image (server side: no build, no upload). A reused
+# image still reports the build that made it (FARGLOW_BUILD inside the image).
 #
 # There is no CI. A push refuses unless the git tree is clean and ./test.sh passes. A release
 # writes releases/vX.Y.Z.manifest (digests): commit it and tag vX.Y.Z (RELEASE.md).
@@ -37,7 +44,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/scripts/lib/common.sh"
 
 usage() { print_usage "$0"; }
 
-MODE=build NO_CACHE="" LATEST=1 REPLACE=0 WANT="" DRY=0
+MODE=build NO_CACHE="" LATEST=1 REPLACE=0 WANT="" DRY=0 REBUILD=0
 VERSION="$(farglow_version)"
 REGISTRY="${FARGLOW_REGISTRY:-ghcr.io/${GHCR_OWNER:-ennissh}}"
 PLATFORMS="${FARGLOW_BUILD_PLATFORMS:-linux/amd64,linux/arm64}"
@@ -54,7 +61,8 @@ while [[ $# -gt 0 ]]; do
         --dry-run) DRY=1 ;;
         --registry) [[ $# -ge 2 ]] || die "--registry needs a value"; REGISTRY="${2%/}"; shift ;;
         --platforms) [[ $# -ge 2 ]] || die "--platforms needs a list"; PLATFORMS="$2"; shift ;;
-        --no-cache) NO_CACHE="--no-cache" ;;
+        --no-cache) NO_CACHE="--no-cache"; REBUILD=1 ;;
+        --rebuild) REBUILD=1 ;;
         --no-latest) LATEST=0 ;;
         -h|--help) usage; exit 0 ;;
         *) die "unknown option: $1 (see --help)" ;;
@@ -74,11 +82,14 @@ docker buildx version >/dev/null 2>&1 || die "docker buildx is required (docker-
 
 REV="$(farglow_git_rev)"
 FULL_REV="$(git -C "$FARGLOW_ROOT" rev-parse HEAD 2>/dev/null || echo nogit)"
-CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+# the commit's time, not "now": the same commit gives the same metadata
+CREATED="$(git -C "$FARGLOW_ROOT" log -1 --format=%cI 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)"
+require_cmd python3
+inputs() { python3 "$FARGLOW_ROOT/scripts/inputs.py" "$1" --salt "$2"; }
 BUILD_ARGS=()
-build_args() {   # build_args VERSION-LABEL : the args baked into every image
+build_args() {   # build_args VERSION-LABEL [INPUTS-HASH] : the args baked into every image
     BUILD_ARGS=(--build-arg "FARGLOW_BUILD=${1}+${REV}" --build-arg "FARGLOW_REVISION=${FULL_REV}"
-                --build-arg "FARGLOW_CREATED=${CREATED}")
+                --build-arg "FARGLOW_CREATED=${CREATED}" --build-arg "FARGLOW_INPUTS=${2:-unknown}")
     if [[ -n "${FARGLOW_BUILD_CA_FILE:-}" ]]; then
         BUILD_ARGS+=(--secret "id=build_ca,src=$FARGLOW_BUILD_CA_FILE")
     fi
@@ -89,8 +100,17 @@ if [[ -n "${FARGLOW_BUILD_CA_FILE:-}" ]]; then
 fi
 
 build_local() {
-    local svc="$1" img="$REGISTRY/farglow-$1"
-    info "building $svc (local, $(uname -m))"
+    local svc="$1" img="$REGISTRY/farglow-$1" h have
+    h="$(inputs "$svc" "local:$(uname -m)")"
+    have="$(docker image inspect "$img:local" --format '{{ index .Config.Labels "org.farglow.inputs" }}' 2>/dev/null || true)"
+    if [[ $REBUILD == 0 && "$have" == "$h" ]]; then
+        docker tag "$img:local" "$img:${VERSION}-${REV}"
+        ok "$svc unchanged (inputs $h): kept"
+        UNCHANGED+=("$svc")
+        return 0
+    fi
+    build_args "$VERSION" "$h"
+    info "building $svc (local, $(uname -m), inputs $h)"
     # shellcheck disable=SC2086
     docker buildx build $NO_CACHE --load \
         -f "$FARGLOW_ROOT/containers/$svc/Dockerfile" \
@@ -115,9 +135,11 @@ ensure_builder() {
     BUILDER="$b"
 }
 
-build_push() {
+build_push() {     # build_push SERVICE INPUTS-HASH
     local svc="$1" img="$REGISTRY/farglow-$1" tags=() t
     for t in "${PUSH_TAGS[@]}"; do tags+=(-t "$img:$t"); done
+    tags+=(-t "$img:inputs-$2")                     # the content tag: later pushes reuse it
+    build_args "$TAG" "$2"
     info "building and pushing $svc ($PLATFORMS) as ${PUSH_TAGS[*]}"
     # shellcheck disable=SC2086
     docker buildx build --builder "$BUILDER" $NO_CACHE --push \
@@ -127,10 +149,10 @@ build_push() {
         "$FARGLOW_ROOT"
 }
 
+UNCHANGED=()
 if [[ $MODE == local ]]; then
-    build_args "$VERSION"
     for s in "${SELECTED[@]}"; do build_local "$s"; done
-    ok "built ${#SELECTED[@]} image(s) as $REGISTRY/farglow-<service>:local"
+    ok "$(( ${#SELECTED[@]} - ${#UNCHANGED[@]} )) built, ${#UNCHANGED[@]} unchanged, as $REGISTRY/farglow-<service>:local"
     echo "   Run them with FARGLOW_IMAGE_TAG=local (install.sh sets this for local builds)."
     exit 0
 fi
@@ -171,14 +193,33 @@ fi
 PUSH_TAGS=("$TAG")
 [[ $LATEST == 1 ]] && PUSH_TAGS+=(latest)
 ok "this push is ${C_GRN}${TAG}${C_RST}$( [[ $LATEST == 1 ]] && echo ' (and :latest)')"
+# the plan: which images need building, and which are already on GHCR with the same inputs
+declare -A PLAN PLAN_HASH
+for s in "${SELECTED[@]}"; do
+    PLAN_HASH[$s]="$(inputs "$s" "$PLATFORMS")"
+    if [[ -n "${FARGLOW_TEST_TAGS+x}" ]]; then svc_tags="$FARGLOW_TEST_TAGS"
+    else svc_tags="$(python3 "$FARGLOW_ROOT/scripts/ghcr-tags.py" "$REGISTRY" "farglow-$s" 2>/dev/null || true)"; fi
+    if [[ $REBUILD == 0 ]] && grep -qx "inputs-${PLAN_HASH[$s]}" <<< "$svc_tags"; then PLAN[$s]=reuse; else PLAN[$s]=build; fi
+    printf '   %-12s %-6s inputs %s\n' "$s" "${PLAN[$s]}" "${PLAN_HASH[$s]}"
+done
 [[ $DRY == 1 ]] && { echo "   --dry-run: stopping before the tests and the build"; exit 0; }
 
-ensure_builder
+for s in "${SELECTED[@]}"; do [[ "${PLAN[$s]}" == build ]] && { ensure_builder; break; }; done
 info "running ./test.sh (nothing is pushed unless it passes)"
 "$FARGLOW_ROOT/test.sh" || die "test.sh failed: nothing was pushed"
 
-build_args "$TAG"
-for s in "${SELECTED[@]}"; do build_push "$s"; done
+for s in "${SELECTED[@]}"; do
+    h="${PLAN_HASH[$s]}"
+    if [[ "${PLAN[$s]}" == reuse ]]; then
+        info "$s unchanged (inputs $h): tagging the existing image as ${PUSH_TAGS[*]}"
+        targs=()
+        for t in "${PUSH_TAGS[@]}"; do targs+=(-t "$REGISTRY/farglow-$s:$t"); done
+        docker buildx imagetools create "${targs[@]}" "$REGISTRY/farglow-$s:inputs-$h" >/dev/null \
+            || die "could not tag farglow-$s:inputs-$h (re-run with --rebuild to build it instead)"
+    else
+        build_push "$s" "$h"
+    fi
+done
 
 digests() {
     local s d

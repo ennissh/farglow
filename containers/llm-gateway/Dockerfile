@@ -4,22 +4,9 @@
 # context = repository root.
 FROM python:3.13-slim@sha256:ae14d4ce8771606477a81446e7ef429edd6762305fc50c84507c1041fa8285d1
 
-ARG FARGLOW_BUILD=0.0.0+local
-ARG FARGLOW_REVISION=unknown
-ARG FARGLOW_CREATED=unknown
-LABEL org.opencontainers.image.title="farglow-llm-gateway" \
-      org.opencontainers.image.description="One door to every AI tier (T0-T4) with fallback to T0" \
-      org.opencontainers.image.version="${FARGLOW_BUILD}" \
-      org.opencontainers.image.revision="${FARGLOW_REVISION}" \
-      org.opencontainers.image.created="${FARGLOW_CREATED}" \
-      org.opencontainers.image.source="https://github.com/ennissh/farglow" \
-      org.opencontainers.image.vendor="Citus Technologies, LLC" \
-      org.opencontainers.image.licenses="BUSL-1.1"
-
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH=/app \
-    FARGLOW_BUILD=${FARGLOW_BUILD}
+    PYTHONPATH=/app
 
 COPY containers/llm-gateway/requirements.txt /tmp/requirements.txt
 # Optional extra CA for a TLS-intercepting proxy (build.sh: FARGLOW_BUILD_CA_FILE). It is a
@@ -44,3 +31,20 @@ EXPOSE 8100
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD ["python", "/usr/local/bin/healthcheck.py"]
 CMD ["gunicorn", "--config", "python:farglow.llm.gunicorn_conf", "farglow.llm.gateway:wsgi()"]
+
+# Build metadata LAST: it changes on every build, so every layer above stays cached
+# (build.sh also skips an image whose inputs are unchanged: scripts/inputs.py).
+ARG FARGLOW_BUILD=0.0.0+local
+ARG FARGLOW_REVISION=unknown
+ARG FARGLOW_CREATED=unknown
+ARG FARGLOW_INPUTS=unknown
+LABEL org.opencontainers.image.title="farglow-llm-gateway" \
+      org.opencontainers.image.description="One door to every AI tier (T0-T4) with fallback to T0" \
+      org.opencontainers.image.version="${FARGLOW_BUILD}" \
+      org.opencontainers.image.revision="${FARGLOW_REVISION}" \
+      org.opencontainers.image.created="${FARGLOW_CREATED}" \
+      org.opencontainers.image.source="https://github.com/ennissh/farglow" \
+      org.opencontainers.image.vendor="Citus Technologies, LLC" \
+      org.opencontainers.image.licenses="BUSL-1.1" \
+      org.farglow.inputs="${FARGLOW_INPUTS}"
+ENV FARGLOW_BUILD=${FARGLOW_BUILD}

@@ -85,6 +85,11 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
   Every file was checked by SHA-256 against the uploaded pack.
 
 ### Fixed
+- **Builds no longer rebuild everything every time.** The build stamp (time, revision, version) used to sit above `pip install`, and the time was "now", so every build voided the layer cache. It is now stamped last in each Dockerfile, using the commit's own time.
+  - Each image also gets a content hash of its Dockerfile plus every file it COPYs (`scripts/inputs.py`).
+  - `./build.sh --local` keeps an image whose hash is unchanged, so an unchanged run takes about 2 s.
+  - A push reuses the image already on GHCR under the content tag `farglow-<svc>:inputs-<hash>` and only adds the new version tags (server side, no build or upload).
+  - `--rebuild` forces a build; `--dry-run` shows the build/reuse plan.
 - **Fog of war**: the map, system panel, known-systems list, Dispatch and advisor no longer show names other civilizations gave to systems you haven't surveyed. The UI suite's screenshots found this; it now has a regression test.
 - Python images: pip's "running as root" warning no longer floods the build output.
 - `install.sh` no longer dead-ends when the chosen version isn't on GHCR (nothing has been pushed yet, or the packages are private).
