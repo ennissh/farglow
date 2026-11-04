@@ -91,3 +91,13 @@ def test_links_are_single_use_and_revocable(pg_settings):
         assert links.revoke_after_tick(conn, 5) == 1
         with pytest.raises(links.LinkError):
             links.consume(conn, key, t2, "dispatch.decide")
+
+
+def test_status_shows_latest_heartbeat_per_service(pg_settings):
+    from farglow.api.app import engine_status
+    with db.connect(pg_settings, autocommit=True) as conn:
+        conn.execute("INSERT INTO service_heartbeats (service, instance, version, seen_at) VALUES "
+                     "('tick', 'old-container', '0.0.0+a', now() - interval '1 hour'), "
+                     "('tick', 'new-container', '0.0.0+b', now())")
+    services = engine_status(pg_settings)["services"]
+    assert [(s["service"], s["version"]) for s in services] == [("tick", "0.0.0+b")]

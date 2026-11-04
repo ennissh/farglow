@@ -38,9 +38,12 @@ def engine_status(settings: config.Settings) -> dict:
                 now = datetime.now(timezone.utc)
                 eng["next_tick_in_s"] = max(0, int((eng["next_tick_at"] - now).total_seconds()))
                 out["engine"] = eng
+            # Latest heartbeat per service: a recreated container has a new hostname (instance),
+            # so older rows of the same service are history, not extra replicas.
             out["services"] = conn.execute(
-                "SELECT service, instance, version, seen_at, "
-                "extract(epoch FROM now() - seen_at)::int AS age_s FROM service_heartbeats ORDER BY service"
+                "SELECT DISTINCT ON (service) service, instance, version, seen_at, "
+                "extract(epoch FROM now() - seen_at)::int AS age_s FROM service_heartbeats "
+                "ORDER BY service, seen_at DESC"
             ).fetchall()
     except psycopg.Error as exc:
         log.warning("status query failed", extra={"error": str(exc).splitlines()[0] if str(exc) else repr(exc)})

@@ -48,6 +48,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
 - **Design system in the app.**
   - `tools/design/build_tokens_css.py` generates `static/ds/tokens.css` from `tokens.json`.
   - Self-hosted Inter Tight and IBM Plex Mono (OFL 1.1) and htmx 2.0.4 (0BSD).
+- **Server status page screenshots** (`docs/design/poc-status-{light,dark}.png`).
 - **Documents:** `CLAUDE.md`, `TESTING.md`, `RELEASE.md`, `UPGRADE.md`, `CONTRIBUTING.md`, `THIRD_PARTY_NOTICES.md`, `.env.example`, `VERSION`, `.gitignore`, `.dockerignore`, `.gitleaks.toml`, `docs/reference/rapax-patterns.md`, and the decision log `docs/specs/decisions-2026-11-04.md`.
 - **Design pack unpacked into the repository layout.** Game configs to `config/*.poc.yaml`;
   `tools/sim.py`, `tools/techtree/` and `tools/art/`; mockups, explorations, brand and the
@@ -55,6 +56,9 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
   `farglow/web/static/ds/`; the art library to `farglow/web/static/art/farglow-art.js`
   (one copy; `tools/art/farglow-art.js` is a shim so the build scripts still load it).
   Every file was checked by SHA-256 against the uploaded pack.
+
+### Fixed
+- The status page listed a service twice after its container was recreated (heartbeats are keyed by hostname); it now shows the latest heartbeat per service.
 
 ## [0.0.0] - 2026-11-04
 
