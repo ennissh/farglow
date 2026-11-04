@@ -11,6 +11,9 @@
 #   --tag TAG             image tag to run (default: VERSION for ghcr, "local" for local)
 #   --no-start            write .env only; do not pull, build or start anything
 #   --skip-mail-test      do not send the SMTP test email
+#   --settings MODE       when .env already exists: saved (use it as is, no questions),
+#                         review (ask each setting, saved values as defaults) or fresh (ask
+#                         each setting with the built-in defaults). Asked when not given.
 #   -h, --help            this help
 #
 # What it asks: domain and ports, the admin email, the image source, the AI tier (T0 needs
@@ -18,8 +21,8 @@
 # and SMTP (blank host = mail off) with a test send. It writes .env (mode 600) and
 # generates the database password, app secret, link-signing key and galaxy seed.
 #
-# Re-running is safe: existing answers become the defaults and secrets are never
-# regenerated (the database already uses them).
+# Re-running is safe: secrets are never regenerated while a database exists (it uses them).
+# To start a new galaxy, run ./uninstall.sh --purge first.
 ###############################################################################
 set -euo pipefail
 # shellcheck source=scripts/lib/common.sh
@@ -27,7 +30,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/scripts/lib/common.sh"
 
 usage() { print_usage "$0"; }
 
-INTERACTIVE=1 START=1 MAIL_TEST=1 SOURCE_ARG="" TAG_ARG=""
+INTERACTIVE=1 START=1 MAIL_TEST=1 SOURCE_ARG="" TAG_ARG="" SETTINGS=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --non-interactive) INTERACTIVE=0 ;;
@@ -35,12 +38,16 @@ while [[ $# -gt 0 ]]; do
         --tag) [[ $# -ge 2 ]] || die "--tag needs a value"; TAG_ARG="$2"; shift ;;
         --no-start) START=0 ;;
         --skip-mail-test) MAIL_TEST=0 ;;
+        --settings) [[ $# -ge 2 ]] || die "--settings needs saved, review or fresh"; SETTINGS="$2"; shift ;;
         -h|--help) usage; exit 0 ;;
         *) die "unknown option: $1 (see --help)" ;;
     esac
     shift
 done
 [[ $INTERACTIVE == 1 && ! -t 0 ]] && die "no terminal for questions: use --non-interactive with FARGLOW_* variables"
+[[ -z "$SETTINGS" || "$SETTINGS" =~ ^(saved|review|fresh)$ ]] || die "--settings must be saved, review or fresh"
+ASK=$INTERACTIVE      # whether the questions are asked (a terminal is still needed for prompts later)
+SECRET_KEYS=" POSTGRES_PASSWORD FARGLOW_SECRET_KEY FARGLOW_LINK_SIGNING_KEY FARGLOW_GALAXY_SEED "
 
 ENV_FILE="$FARGLOW_ENV"
 VERSION="$(farglow_version)"
@@ -50,14 +57,17 @@ VERSION="$(farglow_version)"
 current() {
     local key="$1" def="${2:-}" v
     v="${!key:-}"
-    [[ -z "$v" ]] && v="$(env_get "$key" "$ENV_FILE")"
+    # fresh: the saved answers are ignored (the generated secrets are not: see below)
+    if [[ -z "$v" && ( "$SETTINGS" != fresh || "$SECRET_KEYS" == *" $key "* ) ]]; then
+        v="$(env_get "$key" "$ENV_FILE")"
+    fi
     printf '%s' "${v:-$def}"
 }
 
 # ask KEY "Question" DEFAULT [secret] : sets KEY. Validation is done by the caller.
 ask() {
     local key="$1" q="$2" def="$3" secret="${4:-}" ans shown
-    if [[ $INTERACTIVE == 0 ]]; then printf -v "$key" '%s' "$def"; return; fi
+    if [[ $ASK == 0 ]]; then printf -v "$key" '%s' "$def"; return; fi
     shown="$def"
     [[ -n "$secret" && -n "$def" ]] && shown="(keep current)"
     if [[ -n "$secret" ]]; then
@@ -74,7 +84,7 @@ choose() {  # choose KEY "Question" DEFAULT option...
     while :; do
         ask "$key" "$q ($*)" "$def"
         [[ "$opts" == *" ${!key} "* ]] && return
-        [[ $INTERACTIVE == 0 ]] && die "$key='${!key}' must be one of: $*"
+        [[ $ASK == 0 ]] && die "$key='${!key}' must be one of: $* (run ./install.sh --settings review to fix it)"
         warn "please answer one of: $*"
     done
 }
@@ -90,7 +100,33 @@ require_docker
 avail_kb="$(df -Pk "$FARGLOW_ROOT" | awk 'NR==2 {print $4}')"
 (( avail_kb > 5 * 1024 * 1024 )) || warn "less than 5 GB free on $(df -P "$FARGLOW_ROOT" | awk 'NR==2 {print $6}')"
 if [[ -f "$ENV_FILE" ]]; then
-    info "existing .env found: its values are the defaults, and its secrets are kept"
+    g() { env_get "$1" "$ENV_FILE"; }
+    echo
+    info "Saved settings found in ${ENV_FILE/#$FARGLOW_ROOT\//}"
+    echo "  server   $(g FARGLOW_PUBLIC_URL) · admin $(g FARGLOW_ADMIN_EMAIL)"
+    echo "  images   $(g FARGLOW_IMAGE_SOURCE)$( [[ "$(g FARGLOW_IMAGE_SOURCE)" == ghcr ]] && echo " $(g FARGLOW_REGISTRY):$(g FARGLOW_IMAGE_TAG)")"
+    echo "  AI       $(g FARGLOW_AI_TIER)$( [[ -n "$(g FARGLOW_LLM_ENDPOINT)" ]] && echo " · $(g FARGLOW_LLM_MODEL) at $(g FARGLOW_LLM_ENDPOINT)")"
+    echo "  mail     $( [[ -n "$(g SMTP_HOST)" ]] && echo "$(g SMTP_HOST):$(g SMTP_PORT) $(g SMTP_SECURITY) as $(g SMTP_USER)" || echo off)"
+    echo "  dev mode $(g FARGLOW_DEBUG)"
+    if [[ -z "$SETTINGS" ]]; then
+        if [[ $INTERACTIVE == 0 ]]; then
+            SETTINGS=saved
+        else
+            echo "  1) Use these settings as they are (no questions)"
+            echo "  2) Go through each setting (these values as the defaults)"
+            echo "  3) Start from scratch (each setting with the built-in defaults)"
+            while :; do
+                read -r -p "  Choose 1, 2 or 3 [1]: " pick
+                case "${pick:-1}" in 1) SETTINGS=saved; break ;; 2) SETTINGS=review; break ;; 3) SETTINGS=fresh; break ;;
+                    *) warn "please answer 1, 2 or 3" ;; esac
+            done
+        fi
+    fi
+    [[ "$SETTINGS" == saved ]] && ASK=0
+    if [[ "$SETTINGS" == fresh ]] && docker volume inspect "${FARGLOW_PROJECT}_db-data" >/dev/null 2>&1; then
+        warn "starting the settings from scratch, but your galaxy and its secrets are kept (the database uses them).
+       For a new galaxy as well: ./uninstall.sh --purge, then ./install.sh"
+    fi
 fi
 
 # ---------------------------------------------------------------------------- questions
@@ -99,14 +135,14 @@ info "Server"
 while :; do
     ask FARGLOW_DOMAIN "Domain name players use (or localhost / an IP for a LAN server)" "$(current FARGLOW_DOMAIN localhost)"
     valid_host "$FARGLOW_DOMAIN" && break
-    [[ $INTERACTIVE == 0 ]] && die "FARGLOW_DOMAIN '$FARGLOW_DOMAIN' is not a valid host name"
+    [[ $ASK == 0 ]] && die "FARGLOW_DOMAIN '$FARGLOW_DOMAIN' is not a valid host name"
     warn "that is not a valid host name"
 done
 while :; do
     ask FARGLOW_HTTP_PORT "HTTP port" "$(current FARGLOW_HTTP_PORT 80)"
     ask FARGLOW_HTTPS_PORT "HTTPS port" "$(current FARGLOW_HTTPS_PORT 443)"
     valid_port "$FARGLOW_HTTP_PORT" && valid_port "$FARGLOW_HTTPS_PORT" && break
-    [[ $INTERACTIVE == 0 ]] && die "ports must be 1-65535"
+    [[ $ASK == 0 ]] && die "ports must be 1-65535"
     warn "ports must be 1-65535"
 done
 FARGLOW_TLS_DIR="$(current FARGLOW_TLS_DIR ./tls)"
@@ -125,7 +161,7 @@ FARGLOW_PUBLIC_URL="${scheme}://${FARGLOW_DOMAIN}"
 while :; do
     ask FARGLOW_ADMIN_EMAIL "Host admin email (gets the test email; becomes the first admin)" "$(current FARGLOW_ADMIN_EMAIL "")"
     valid_email "$FARGLOW_ADMIN_EMAIL" && break
-    [[ $INTERACTIVE == 0 ]] && die "FARGLOW_ADMIN_EMAIL is required and must be an email address"
+    [[ $ASK == 0 ]] && die "FARGLOW_ADMIN_EMAIL is required and must be an email address"
     warn "please give a valid email address"
 done
 
@@ -134,8 +170,9 @@ info "Images"
 src_default="$(current FARGLOW_IMAGE_SOURCE "")"
 [[ -n "$SOURCE_ARG" ]] && src_default="$SOURCE_ARG"
 # Offer GHCR only if the version is actually published there (a saved "ghcr" answer is
-# re-checked too; only an explicit --source ghcr skips the check).
-if [[ "$SOURCE_ARG" != ghcr && ( -z "$src_default" || "$src_default" == ghcr ) ]]; then
+# re-checked when reviewing; "use as is" and an explicit --source ghcr skip the check, and a
+# failed pull still offers a local build).
+if [[ "$SOURCE_ARG" != ghcr && "$SETTINGS" != saved && ( -z "$src_default" || "$src_default" == ghcr ) ]]; then
     want_tag="${TAG_ARG:-$(current FARGLOW_IMAGE_TAG "")}"
     [[ "$want_tag" == local ]] && want_tag=""
     if [[ -z "$want_tag" ]]; then        # the release if it is out, else the newest build
@@ -205,12 +242,15 @@ if [[ -n "$SMTP_HOST" ]]; then
 fi
 
 FARGLOW_DEBUG="$(current FARGLOW_DEBUG false)"
-if [[ $INTERACTIVE == 1 ]]; then
+if [[ $ASK == 1 ]]; then
     dbg_def=n; [[ "$FARGLOW_DEBUG" == true ]] && dbg_def=y
     if confirm "  Development mode (ticks every 5 minutes instead of hourly)?" "$dbg_def"; then FARGLOW_DEBUG=true; else FARGLOW_DEBUG=false; fi
 fi
 
 # ---------------------------------------------------------------------------- secrets + DNS
+if [[ "$SETTINGS" == fresh ]] && ! docker volume inspect "${FARGLOW_PROJECT}_db-data" >/dev/null 2>&1; then
+    SECRET_KEYS=" "                # no database yet: a fresh start gets new secrets and a new seed
+fi
 POSTGRES_PASSWORD="$(current POSTGRES_PASSWORD "")"
 if [[ -z "$POSTGRES_PASSWORD" ]] && docker volume inspect "${FARGLOW_PROJECT}_db-data" >/dev/null 2>&1; then
     die "the database volume ${FARGLOW_PROJECT}_db-data exists but .env has no POSTGRES_PASSWORD.
