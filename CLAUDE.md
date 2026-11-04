@@ -28,13 +28,18 @@ containers/<service>/   Dockerfile + healthcheck + requirements.txt, one per ser
 farglow/                Python package (one codebase, every Python image copies it)
   config.py log.py db.py      settings from env, JSON logging, psycopg helpers
   migrate.py queue.py links.py schema migrations, PG job queue, signed single-use links
-  engine/state.py             PURE deterministic step function + state hash
+  engine/state.py             canonical JSON, state hash, advance() dispatch (schema 1 kept for replay)
+  engine/game.py              PURE game rules for schema 2: validate(order) and step(state, orders)
+  engine/rules.py galaxy.py   config YAML -> integers; the procedural cell (generated, never stored)
+  engine/store.py             current state + queue_order/submit (the ONLY way to change the galaxy)
   engine/clock.py             tick service (python -m farglow.engine.clock)
+  play/                       fog-of-war views, Dispatch text, the advisor (suggestions + Codex Q&A)
+  api/auth.py api/game.py     accounts (age gate, verify link, sessions, CSRF) and the game pages
   api/ web/                   Flask app, Jinja templates, static (design system, art, fonts)
   worker/ mail/ llm/          job consumers, SMTP mailer, LLM gateway
   cli.py                      operator CLI: python -m farglow engine|queue|mail|migrate
 migrations/NNNN_name.sql      forward-only, never edited once shipped (checksummed)
-config/*.poc.yaml             game data: every number is data, never code
+config/*.poc.yaml             game data (+ codex.poc.yaml): every number is data, never code
 tests/unit|db|determinism|stack   see TESTING.md
 tools/                  sim.py, techtree/, art/, design/build_tokens_css.py
 scripts/                check-*.py|sh, new-service.sh, lib/common.sh (shared bash)
@@ -50,14 +55,17 @@ install.sh uninstall.sh build.sh test.sh backup.sh restore.sh   (each has --help
 - **Non-root final `USER`:** `farglow` (uid 1000) for Python, `postgres` for db and backup, 101 for nginx.
 - A `HEALTHCHECK` on every image. Python images check in Python: `urllib` against `/healthz`, or the age of the `/tmp/farglow-heartbeat` file. **Never install curl or wget.**
   - Exceptions, because these images have no Python: db (`pg_isready`), backup (bash heartbeat), nginx (busybox `wget` from the Alpine base).
-- Build context = repo root. COPY only from `containers/<svc>/`, `farglow/`, `migrations/`, `VERSION`. `.dockerignore` allow-lists exactly these.
+- Build context = repo root. COPY only from `containers/<svc>/`, `farglow/`, `migrations/`, `config/`, `VERSION`. `.dockerignore` allow-lists exactly these.
 - **One process per container.** If a service ever needs two, use supervisord installed from **pip** (never apt), with pid and socket in `/tmp`.
 - Compose hardening on every service: `no-new-privileges`, `cap_drop: ALL` (not db), `read_only` + tmpfs `/tmp` for Python services, json-file log rotation.
 - **Environment variables:** each service gets only the variables it needs, mapped explicitly in `compose.yaml`. No shared `env_file`. Secrets may also come as `<NAME>_FILE`.
 - **New service:** `scripts/new-service.sh NAME "Title"`. Then wire it into `compose.yaml` and `FARGLOW_SERVICES` in `scripts/lib/common.sh`.
 
 ## Engine rules
-- `engine/state.py` stays **pure**: no I/O, clock, env or global RNG.
+- **Every change to the galaxy is an order** (`store.submit`): validated by `game.validate` when queued and again
+  when the tick applies it. Pages never write game state; GETs never write anything.
+- `engine/state.py`, `game.py`, `rules.py`, `galaxy.py` stay **pure**: no I/O, clock, env or global RNG
+  (rules are read from `config/` once; their hash is stored in the state).
   - State is JSON with **integers only**; floats raise `DeterminismError`.
   - Randomness only via `rng(seed, *keys)`.
 - Each tick writes a `ticks` row (the hash chain) and a `restore_points` row (the newest 72 are kept). `engine verify` replays from genesis and must match.

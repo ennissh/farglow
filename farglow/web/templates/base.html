@@ -1,4 +1,4 @@
-<!doctype html>
+{% from "_macros.html" import flashes with context %}<!doctype html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
@@ -10,19 +10,30 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='ds/tokens.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='ds/components/bundle.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false}'>
   <script defer src="{{ url_for('static', filename='vendor/htmx/htmx-2.0.4.min.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block head %}{% endblock %}
 </head>
-<body class="fg-app">
+<body class="fg-app" hx-headers='{"X-CSRF-Token": "{{ csrf_token() }}"}'>
   <header class="fg-header">
     <a class="fg-header__brand" href="/">
       <img class="fg-header__mark fg-only-light" src="{{ url_for('static', filename='ds/assets/Logo/farglow-mark-light.svg') }}" alt="" width="24" height="24">
       <img class="fg-header__mark fg-only-dark" src="{{ url_for('static', filename='ds/assets/Logo/farglow-mark-dark.svg') }}" alt="" width="24" height="24">
       <span class="wordmark">farglow</span>
     </a>
-    <span class="fg-meta">{{ s.version if s is defined else '' }}</span>
-    <button class="fg-btn fg-btn--ghost fg-btn--sm" type="button" data-theme-toggle>Theme</button>
+    {% block header %}<span class="fg-meta">{{ version }}</span>{% endblock %}
+    <span class="fg-header__right">
+      {% block header_right %}{% endblock %}
+      {% if user %}
+        {% if user.is_admin %}<a class="fg-btn fg-btn--ghost fg-btn--sm" href="{{ url_for('game.admin') }}">Host admin</a>{% endif %}
+        <a class="fg-btn fg-btn--ghost fg-btn--sm" href="{{ url_for('auth.account') }}">{{ user.display_name }}</a>
+      {% endif %}
+      <button class="fg-btn fg-btn--ghost fg-btn--sm" type="button" data-theme-toggle>Theme</button>
+    </span>
   </header>
-  <main class="fg-main">{% block content %}{% endblock %}</main>
+  <main class="fg-main">{{ flashes() }}{% block content %}{% endblock %}</main>
   <footer class="fg-footer fg-meta">Every star counts. A Generative Distractions game · © 2026 Citus Technologies, LLC</footer>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

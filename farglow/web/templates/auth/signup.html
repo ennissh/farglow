@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block title %}Create an account · Farglow{% endblock %}
+{% block content %}
+<section class="fg-panel fg-narrow">
+  <div class="fg-panel__head"><h1 class="fg-panel__title">Create an account</h1><a class="fg-meta" href="{{ url_for('auth.signin') }}">Sign in instead</a></div>
+  {% if refused %}
+    <p class="body">Sorry, you can't create a Farglow account yet. Thanks for your interest.</p>
+  {% elif locked %}
+    <p class="body">Account creation isn't available from this browser right now. Please try again tomorrow.</p>
+  {% else %}
+  {% for e in errors or [] %}<p class="fg-help fg-help--error">{{ e }}</p>{% endfor %}
+  <form method="post" action="{{ url_for('auth.signup') }}" class="fg-form">
+    {{ csrf() }}
+    <div class="fg-field"><label class="fg-label" for="email">Email</label><input class="fg-input" id="email" name="email" type="email" autocomplete="email" value="{{ form.get('email', '') }}" required></div>
+    <div class="fg-field"><label class="fg-label" for="display_name">Display name</label><input class="fg-input" id="display_name" name="display_name" maxlength="32" value="{{ form.get('display_name', '') }}" required><span class="fg-help">Other players see this. 2-32 characters.</span></div>
+    <div class="fg-field"><label class="fg-label" for="password">Password</label><input class="fg-input" id="password" name="password" type="password" autocomplete="new-password" minlength="10" required><span class="fg-help">At least 10 characters.</span></div>
+    <div class="fg-row">
+      <div class="fg-field"><label class="fg-label" for="birth_month">Birth month</label>
+        <select class="fg-select" id="birth_month" name="birth_month" required><option value=""></option>
+        {% for m in ['January','February','March','April','May','June','July','August','September','October','November','December'] %}<option value="{{ loop.index }}"{% if form.get('birth_month') == loop.index|string %} selected{% endif %}>{{ m }}</option>{% endfor %}</select></div>
+      <div class="fg-field"><label class="fg-label" for="birth_year">Birth year</label><input class="fg-input" id="birth_year" name="birth_year" inputmode="numeric" maxlength="4" value="{{ form.get('birth_year', '') }}" required></div>
+    </div>
+    <span class="fg-help">We keep only the month and year.</span>
+    <button class="fg-btn fg-btn--primary" type="submit">Create account</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

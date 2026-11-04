@@ -1,0 +1,2 @@
+<span class="fg-status"><span>tick <b>{{ "{:,}".format(eng.tick) }}</b></span>
+{% if eng.paused %}<span class="fg-badge fg-badge--signal">paused</span>{% else %}<span>next <b class="fg-accent">{% if next_in >= 120 %}{{ next_in // 60 }} min{% else %}{{ next_in }} s{% endif %}</b></span>{% endif %}</span>

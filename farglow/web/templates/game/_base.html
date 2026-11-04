@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, bar, act with context %}
+{% block header %}
+  {% if civ %}<span class="fg-meta fg-header__civ">{{ civ.name }} · {{ hdr.tier }} tier</span>{% endif %}
+  <nav class="fg-tabs fg-header__tabs" aria-label="Game views">
+    <a class="fg-tab" href="{{ url_for('game.play') }}"{% if tab == 'galaxy' %} aria-current="page"{% endif %}>Galaxy</a>
+    <a class="fg-tab" href="{{ url_for('game.governor') }}"{% if tab == 'governor' %} aria-current="page"{% endif %}>Governor</a>
+    <a class="fg-tab" href="{{ url_for('game.research') }}"{% if tab == 'research' %} aria-current="page"{% endif %}>Research</a>
+    <a class="fg-tab" href="{{ url_for('game.dispatch_page') }}"{% if tab == 'dispatch' %} aria-current="page"{% endif %}>Dispatch{% if unread %} <span class="fg-tab__count">{{ unread }}</span>{% endif %}</a>
+  </nav>
+{% endblock %}
+{% block header_right %}
+  <span hx-get="{{ url_for('game.clock_partial', tick=eng.tick) }}" hx-trigger="every 5s" hx-swap="innerHTML">{% include "game/_clock.html" %}</span>
+  {% if civ %}<span class="fg-status"><span>AC <b>{{ hdr.ac }}</b>/tick</span><span>RP <b>{{ hdr.rp }}</b></span><span>pop <b>{{ hdr.population }}</b></span></span>{% endif %}
+  {% if debug or user.is_admin %}
+  <form method="post" action="{{ url_for('game.advance_clock') }}" class="fg-inline">{{ csrf() }}
+    <input type="hidden" name="back" value="{{ request.full_path.rstrip('?') }}">
+    <button class="fg-btn fg-btn--secondary fg-btn--sm" type="submit" title="Run the next tick now (development servers and the host admin)">Advance the clock</button></form>
+  {% endif %}
+{% endblock %}
+{% block content %}
+<div class="fg-game">
+  <aside class="fg-game__left">
+    {% if not walkthrough.hidden and walkthrough.current %}
+    <section class="fg-panel">
+      <div class="fg-panel__head"><h2 class="fg-panel__title">First light</h2><span class="fg-meta">{{ walkthrough.count }} of {{ walkthrough.steps|length }}</span></div>
+      {{ bar(walkthrough.count * 100 // walkthrough.steps|length) }}
+      <ol class="fg-steps">
+        {% for s in walkthrough.steps %}
+        <li class="fg-step{% if s.done %} fg-step--done{% elif s.id == walkthrough.current %} fg-step--current{% endif %}">
+          <span class="fg-step__dot">{% if s.done %}✓{% else %}{{ loop.index }}{% endif %}</span>
+          <span><span class="fg-step__title">{{ s.title }}</span>{% if s.id == walkthrough.current %}<span class="fg-meta fg-step__hint">{{ s.hint }}</span>{% endif %}</span>
+        </li>{% endfor %}
+      </ol>
+      <form method="post" action="{{ url_for('game.skip_walkthrough') }}">{{ csrf() }}<input type="hidden" name="back" value="{{ request.path }}"><button class="fg-btn fg-btn--ghost fg-btn--sm" type="submit">Skip the walkthrough</button></form>
+    </section>
+    {% endif %}
+    {% if civ %}{% include "game/_charters.html" %}{% endif %}
+    {% if pending %}
+    <section class="fg-panel">
+      <div class="fg-panel__head"><h2 class="fg-panel__title">Orders</h2><span class="fg-meta">at tick {{ "{:,}".format(eng.tick + 1) }}</span></div>
+      <ul class="fg-list">{% for o in pending %}<li class="fg-meta">{{ o.kind.replace('_', ' ') }}{% if o.system %} · {{ o.system }}{% endif %}{% if o.building %} · {{ o.building.replace('_', ' ') }}{% endif %}</li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+  </aside>
+  <div class="fg-game__main">{% block main %}{% endblock %}</div>
+  <aside class="fg-game__right">{% block right %}{% include "game/_advisor.html" %}{% endblock %}</aside>
+</div>
+{% endblock %}

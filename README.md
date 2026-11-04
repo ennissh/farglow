@@ -14,7 +14,7 @@ Farglow is self-hosted on the **Minecraft model**. Anyone can run a server for t
 
 | | |
 |---|---|
-| **Version** | `0.0.0`, pre-alpha. **Phase 0 platform in progress:** the empty stack installs, ticks, backs up and restores. No game features yet. |
+| **Version** | `0.0.0`, pre-alpha. **First playable demo:** sign up, found a civilization, run its economy and research, survey, settle and build, with the advisor and the Dispatch. It's a PoC 1 vertical slice on the Phase 0 platform. |
 | **Next release** | `v0.1.0` "First Light" (proof of concept 1): one civilization, the economy, research, colonies, the advisor walkthrough and the Dispatch email |
 | **Roadmap** | [PLAN.md](PLAN.md): blank repo → PoC 1 → PoC 2 → PoC 3 → beta → `v1.0.0` |
 | **Design pack** | Unpacked into `docs/design/`, `config/`, `tools/` and `farglow/web/static/` (index: [docs/design/README.md](docs/design/README.md)) |
@@ -147,6 +147,8 @@ install.sh  uninstall.sh  build.sh  test.sh  backup.sh  restore.sh
 ./uninstall.sh            # stop and remove containers (data and .env kept); --purge deletes data
 ./test.sh                 # local checks + tests; --stack runs the install/backup/restore round trip
 ```
+
+**Playing the demo:** open the server's address, create an account (the host admin email becomes the host admin), and found a civilization. On a development server (`FARGLOW_DEBUG=true`), ticks run every 5 minutes, tech costs are a tenth of normal, and every player has an **Advance the clock** button. On a normal server only the host admin has it, under *Host admin*.
 
 Day-to-day operator commands run inside a container:
 

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block content %}
+<section class="fg-panel fg-narrow">
+  <div class="fg-panel__head"><h1 class="fg-panel__title">Check your email</h1></div>
+  <p class="body">We sent a confirmation link to <b>{{ user.email }}</b>. Open it to start playing. It works once and expires in 48 hours.</p>
+  <form method="post" action="{{ url_for('auth.verify_resend') }}">{{ csrf() }}<button class="fg-btn fg-btn--secondary" type="submit">Send it again</button></form>
+  <form method="post" action="{{ url_for('auth.signout') }}">{{ csrf() }}<button class="fg-btn fg-btn--ghost fg-btn--sm" type="submit">Sign out</button></form>
+</section>
+{% endblock %}

@@ -3,6 +3,7 @@
 !VERSION
 !farglow/**
 !migrations/**
+!config/**
 !containers/**
 **/__pycache__
 **/*.pyc

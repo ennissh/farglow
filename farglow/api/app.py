@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import psycopg
-from flask import Flask, jsonify, render_template
+from flask import Flask, g, jsonify, redirect, render_template, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .. import __version__, config, db, migrate
@@ -58,7 +58,30 @@ def create_app(settings: config.Settings | None = None) -> Flask:
                       SESSION_COOKIE_SAMESITE="Lax",
                       SESSION_COOKIE_SECURE=settings.public_url.startswith("https://"))
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)  # nginx sets X-Forwarded-*
+    app.config["FARGLOW_SETTINGS"] = settings
+    app.config["PERMANENT_SESSION_LIFETIME"] = 30 * 24 * 3600
     head = migrate.head_version()
+
+    from . import auth, game
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(game.bp)
+
+    @app.before_request
+    def _user():
+        g.user = None
+        if not app.config.get("FARGLOW_NO_DB"):
+            try:
+                auth.load_user()
+            except psycopg.Error:
+                g.user = None
+        auth.check_csrf()
+
+    app.jinja_env.globals.update(csrf_token=auth.csrf_token)
+
+    @app.context_processor
+    def _globals():
+        return {"csrf_token": auth.csrf_token, "user": g.get("user"), "debug_server": settings.debug,
+                "version": __version__}
 
     @app.after_request
     def security_headers(resp):
@@ -68,6 +91,11 @@ def create_app(settings: config.Settings | None = None) -> Flask:
         resp.headers.setdefault("X-Frame-Options", "DENY")
         resp.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         return resp
+
+    @app.template_filter("sentence")
+    def sentence(text):
+        text = str(text or "")
+        return text[:1].upper() + text[1:]
 
     @app.template_filter("thousands")
     def thousands(n):
@@ -95,11 +123,22 @@ def create_app(settings: config.Settings | None = None) -> Flask:
 
     @app.get("/")
     def index():
+        if g.get("user"):
+            return redirect(url_for("game.play"))
         return render_template("index.html", s=engine_status(settings), settings=settings)
 
     @app.get("/partials/status")
     def status_partial():
         return render_template("partials/status.html", s=engine_status(settings))
+
+    @app.errorhandler(400)
+    def bad_request(e):
+        msg = getattr(e, "description", "") or "That request didn't make sense."
+        return render_template("error.html", code=400, message=msg), 400
+
+    @app.errorhandler(403)
+    def forbidden(_):
+        return render_template("error.html", code=403, message="That page is for the host admin."), 403
 
     @app.errorhandler(404)
     def not_found(_):
