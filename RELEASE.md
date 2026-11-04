@@ -26,6 +26,8 @@ Releases are **manual**. There is no CI: the person releasing runs `build.sh`, a
 
 Rules every push follows: `X.Y.Z-N` sorts after `X.Y.Z` (builds are the fixes after a release). An existing number is never reused unless you pass `--version X.Y.Z-N --replace-version`. A `VERSION` behind the registry is refused, so bump it or pull. Every push needs a clean git tree and a passing `./test.sh`, and is built for `linux/amd64` and `linux/arm64` with SBOM and provenance attestations. Images inside carry `FARGLOW_BUILD=X.Y.Z-N+<git12>`.
 
+**Unchanged images are not rebuilt.** Each image's inputs (its Dockerfile + every file its COPY lines read) are hashed by `scripts/inputs.py`. `--local` keeps an image whose hash hasn't changed. A push looks for `farglow-<svc>:inputs-<hash>` on GHCR and, if it is there, just adds the new tags to that image (server side). So a push after a CSS change builds only the images that contain the static files. `--rebuild` forces a full build. A reused image still reports the build that made it (`FARGLOW_BUILD`).
+
 Servers: `./install.sh` (GHCR) runs the release if it's published, else `latest`. To pin a build: `./install.sh --tag X.Y.Z-N`.
 
 ## Steps for a release

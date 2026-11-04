@@ -4,18 +4,6 @@
 # 127.0.0.1 (part of the Alpine base; nothing is installed). Exception noted in CLAUDE.md.
 FROM nginxinc/nginx-unprivileged:1.29-alpine@sha256:0c79d56aee561a1d81c63f00eee5fb5fe29279560cdc55e91425133104c7fbe6
 
-ARG FARGLOW_BUILD=0.0.0+local
-ARG FARGLOW_REVISION=unknown
-ARG FARGLOW_CREATED=unknown
-LABEL org.opencontainers.image.title="farglow-nginx" \
-      org.opencontainers.image.description="TLS, static files and reverse proxy for Farglow" \
-      org.opencontainers.image.version="${FARGLOW_BUILD}" \
-      org.opencontainers.image.revision="${FARGLOW_REVISION}" \
-      org.opencontainers.image.created="${FARGLOW_CREATED}" \
-      org.opencontainers.image.source="https://github.com/ennissh/farglow" \
-      org.opencontainers.image.vendor="Citus Technologies, LLC" \
-      org.opencontainers.image.licenses="BUSL-1.1"
-
 # The entrypoint renders /tmp/farglow-templates/*.template into conf.d (envsubst, FARGLOW_* only).
 ENV NGINX_ENVSUBST_TEMPLATE_DIR=/tmp/farglow-templates \
     NGINX_ENVSUBST_FILTER=FARGLOW_ \
@@ -33,3 +21,19 @@ USER 101
 EXPOSE 8080 8443
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD ["/usr/local/bin/farglow-healthcheck"]
+
+# Build metadata LAST: it changes on every build, so every layer above stays cached
+# (build.sh also skips an image whose inputs are unchanged: scripts/inputs.py).
+ARG FARGLOW_BUILD=0.0.0+local
+ARG FARGLOW_REVISION=unknown
+ARG FARGLOW_CREATED=unknown
+ARG FARGLOW_INPUTS=unknown
+LABEL org.opencontainers.image.title="farglow-nginx" \
+      org.opencontainers.image.description="TLS, static files and reverse proxy for Farglow" \
+      org.opencontainers.image.version="${FARGLOW_BUILD}" \
+      org.opencontainers.image.revision="${FARGLOW_REVISION}" \
+      org.opencontainers.image.created="${FARGLOW_CREATED}" \
+      org.opencontainers.image.source="https://github.com/ennissh/farglow" \
+      org.opencontainers.image.vendor="Citus Technologies, LLC" \
+      org.opencontainers.image.licenses="BUSL-1.1" \
+      org.farglow.inputs="${FARGLOW_INPUTS}"
