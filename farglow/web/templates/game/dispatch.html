@@ -1,17 +1,20 @@
 {% extends "game/_base.html" %}
+{% from "_macros.html" import csrf, bar, act with context %}
 {% block title %}Dispatch · Farglow{% endblock %}
 {% block main %}
-<section class="fg-panel" hx-post="{{ url_for('game.walkthrough_seen', step='dispatch') }}" hx-vals='{"newest": "{{ newest }}"}' hx-trigger="load" hx-swap="none">
-  <div class="fg-panel__head"><h1 class="fg-panel__title">The Meridian Dispatch</h1><span class="fg-meta">{{ civ.name }} · tick {{ "{:,}".format(eng.tick) }}</span></div>
-  {% set ns = namespace(t=None) %}
-  {% for it in items %}
-    {% if it.tick != ns.t %}{% set ns.t = it.tick %}<p class="fg-kicker">Tick {{ "{:,}".format(it.tick) }}</p>{% endif %}
-    <article class="fg-news fg-news--{{ it.kind }}">
-      <p class="fg-news__head">{{ it.headline }}</p>
-      {% if it.detail %}<p class="body fg-meta">{{ it.detail }}</p>{% endif %}
-    </article>
-  {% else %}
-    <p class="body">No news yet. The first stories arrive with the next tick.</p>
-  {% endfor %}
+<section class="fg-box" hx-post="{{ url_for('game.walkthrough_seen', step='dispatch') }}" hx-vals='{"newest": "{{ newest }}"}' hx-trigger="load" hx-swap="none">
+  <div class="fg-box__head"><h1 class="fg-box__title">The Meridian Dispatch</h1><span class="fg-box__meta">{{ civ.name }} · tick {{ "{:,}".format(eng.tick) }} · {{ items|length }} stories</span></div>
+  <div class="fg-box__body fg-box__body--flush">
+  <table class="fg-t fg-news">
+    <tbody>
+    {% for it in items %}
+      <tr class="{{ 'good' if it.kind in ('tech_done', 'charter_done', 'building_done', 'colony_founded', 'system_claimed', 'survey_done') else ('bad' if it.kind in ('order_rejected', 'minerals_capped', 'energy_short', 'claim_failed') else '') }}">
+        <td class="tick">T{{ "{:,}".format(it.tick) }}</td><td><span class="head">{{ it.headline }}</span>{% if it.detail %} <span class="detail">· {{ it.detail }}</span>{% endif %}</td></tr>
+    {% else %}
+      <tr><td>No news yet. The first stories arrive with the next tick.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
 </section>
 {% endblock %}

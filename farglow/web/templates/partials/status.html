@@ -1,40 +1,21 @@
-<div class="fg-grid" hx-get="/partials/status" hx-trigger="every 15s" hx-swap="outerHTML">
-  <section class="fg-panel">
-    <div class="fg-panel__head">
-      <h2 class="fg-panel__title">Galactic clock</h2>
-      <span class="fg-meta">database {{ s.database }}</span>
-    </div>
+<div class="fg-cols fg-cols--two" hx-get="/partials/status" hx-trigger="every 15s" hx-swap="outerHTML">
+  <section class="fg-box">
+    <div class="fg-box__head"><h2 class="fg-box__title">Galactic clock</h2><span class="fg-box__meta">database {{ s.database }}</span></div>
     {% if s.engine %}
-    <table class="fg-table">
-      <tbody>
-        <tr><th scope="row">Tick</th><td class="num">{{ s.engine.tick | thousands }}</td></tr>
-        <tr><th scope="row">State</th><td>
-          {% if s.engine.paused %}<span class="fg-badge fg-badge--signal">Paused</span> <span class="fg-meta">{{ s.engine.pause_reason }}</span>
-          {% else %}<span class="fg-badge fg-badge--positive">Running</span>{% endif %}</td></tr>
-        <tr><th scope="row">Next tick</th><td class="num">{% if not s.engine.paused %}in {{ s.engine.next_tick_in_s // 60 }} min {{ s.engine.next_tick_in_s % 60 }} s{% else %}on resume{% endif %}</td></tr>
-        <tr><th scope="row">Tick length</th><td class="num">{% if s.engine.tick_seconds >= 60 %}{{ s.engine.tick_seconds // 60 }} min{% else %}{{ s.engine.tick_seconds }} s{% endif %}</td></tr>
-        <tr><th scope="row">State hash</th><td class="num mono" title="{{ s.engine.state_hash }}">{{ s.engine.state_hash[:16] }}…</td></tr>
-      </tbody>
-    </table>
-    {% else %}
-    <p class="body">The tick engine has not started yet.</p>
-    {% endif %}
+    <table class="fg-t"><tbody>
+      <tr><td>Tick</td><td class="num">{{ s.engine.tick | thousands }}</td></tr>
+      <tr><td>State</td><td class="num">{% if s.engine.paused %}<span class="fg-badge fg-badge--signal">paused</span>{% else %}<span class="fg-badge fg-badge--positive">running</span>{% endif %}</td></tr>
+      <tr><td>Next tick</td><td class="num">{% if not s.engine.paused %}in {{ s.engine.next_tick_in_s // 60 }}m {{ s.engine.next_tick_in_s % 60 }}s{% else %}on resume{% endif %}</td></tr>
+      <tr><td>Tick length</td><td class="num">{% if s.engine.tick_seconds >= 60 %}{{ s.engine.tick_seconds // 60 }} min{% else %}{{ s.engine.tick_seconds }} s{% endif %}</td></tr>
+      <tr><td>State hash</td><td class="num" title="{{ s.engine.state_hash }}">{{ s.engine.state_hash[:12] }}…</td></tr>
+    </tbody></table>
+    {% else %}<div class="fg-box__body">The tick engine has not started yet.</div>{% endif %}
   </section>
-  <section class="fg-panel">
-    <div class="fg-panel__head">
-      <h2 class="fg-panel__title">Services</h2>
-      <span class="fg-meta">heartbeats</span>
-    </div>
-    <table class="fg-table">
-      <thead><tr><th>Service</th><th>Version</th><th class="num">Last seen</th></tr></thead>
-      <tbody>
-      {% for svc in s.services %}
-        <tr><td>{{ svc.service }}</td><td class="mono">{{ svc.version }}</td>
-          <td class="num">{% if svc.age_s < 90 %}<span class="fg-badge fg-badge--positive">{{ svc.age_s }} s ago</span>{% else %}<span class="fg-badge fg-badge--danger">{{ svc.age_s }} s ago</span>{% endif %}</td></tr>
-      {% else %}
-        <tr><td colspan="3" class="fg-meta">No heartbeats yet.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
+  <section class="fg-box">
+    <div class="fg-box__head"><h2 class="fg-box__title">Services</h2><span class="fg-box__meta">heartbeats</span></div>
+    <table class="fg-t"><tbody>
+    {% for svc in s.services %}<tr><td>{{ svc.service }}</td><td class="mono fg-muted">{{ svc.version }}</td><td class="num">{% if svc.age_s < 90 %}<span class="fg-positive">{{ svc.age_s }}s</span>{% else %}<span class="fg-danger">{{ svc.age_s }}s</span>{% endif %}</td></tr>
+    {% else %}<tr><td class="fg-muted">No heartbeats yet.</td></tr>{% endfor %}
+    </tbody></table>
   </section>
 </div>

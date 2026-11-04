@@ -76,6 +76,7 @@ install.sh uninstall.sh build.sh test.sh backup.sh restore.sh   (each has --help
 ## Web rules
 - **A `GET` never changes anything.** Email actions use signed single-use links (`links.py`): `GET` shows a confirm page; the `POST` consumes the token.
 - **CSP is `'self'` only:** no inline scripts or styles, no CDNs. htmx and the fonts are vendored under `static/`.
+- **Compact density**: 12 px text, tables first, one-line rows, everything on one laptop screen (`tests/ui/budgets.json`). Floors: text 11 px, targets 24 px.
 - **Design system:**
   - `static/ds/tokens.css` is generated from `tokens.json` (`python3 tools/design/build_tokens_css.py`); never edit it by hand.
   - Components are the `fg-` classes in `ds/components/bundle.css`.
@@ -95,7 +96,7 @@ install.sh uninstall.sh build.sh test.sh backup.sh restore.sh   (each has --help
 - **Logs:** one JSON object per line on stdout (`farglow/log.py`). Pass context as `extra={...}`. Never log secrets (keys that look secret are redacted as a backstop).
 
 ## Testing (detail in TESTING.md)
-- `./test.sh` before every push; `./test.sh --quick` without Docker; `./test.sh --stack` for the full install, backup, wipe and restore round trip.
+- `./test.sh` before every push; `./test.sh --quick` without Docker; `./test.sh --stack` for the full install, backup, wipe and restore round trip; `./test.sh --ui` (headless browser: play-through, layout, density budgets) after any template, CSS or JS change.
 - Behind a TLS-intercepting proxy, set `FARGLOW_BUILD_CA_FILE=/path/ca.pem` for `build.sh` and `test.sh`.
 
 ## Changelog, versions, git

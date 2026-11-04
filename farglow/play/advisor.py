@@ -83,7 +83,7 @@ def suggestions(state: dict, civ: dict, rules: Rules) -> list[dict]:
         cands.sort()
         if cands and ok({"kind": "survey", "system": cands[0][1]}):
             d, sid = cands[0]
-            out.append({"title": f"Survey {system_name(state, sid)}",
+            out.append({"title": f"Survey {system_name(state, sid, civ)}",
                         "text": f"The nearest unknown star, {n(d, 1)} ly out. A survey wing costs "
                                 f"{n(rules.survey_ac)} expansion AC and arrives in {game.travel_ticks(civ, d)} ticks.",
                         "order": {"kind": "survey", "system": sid}, "confirm": "Send it"})
@@ -109,13 +109,13 @@ def suggestions(state: dict, civ: dict, rules: Rules) -> list[dict]:
             order = {"kind": "claim", "system": sid, **({"body": hab[0]} if hab else {})}
             ac, m = game.claim_cost(civ, rules, bool(hab))
             if ok(order):
-                out.append({"title": f"{'Colonize' if hab else 'Claim'} {system_name(state, sid)}",
+                out.append({"title": f"{'Colonize' if hab else 'Claim'} {system_name(state, sid, civ)}",
                             "text": f"{'It has a world your people can live on. ' if hab else ''}"
                                     f"{n(ac)} AC and {n(m)} minerals, {n(d, 1)} ly away.",
                             "order": order, "confirm": "Send the ship"})
             else:
                 have = civ["ledger"]["expansion"]
-                out.append({"title": f"Save up for {system_name(state, sid)}",
+                out.append({"title": f"Save up for {system_name(state, sid, civ)}",
                             "text": f"Claiming it takes {n(ac)} expansion AC (you have {n(have)}) and {n(m)} "
                                     "minerals. More expansion share in the Governor gets you there sooner.",
                             "order": None})
@@ -129,7 +129,7 @@ def suggestions(state: dict, civ: dict, rules: Rules) -> list[dict]:
             for bi, kind in enumerate(kinds):
                 if kind in prefer and ok({"kind": "build", "system": home, "body": bi, "building": bid}):
                     m, ac = game.building_cost(civ, rules, bid)
-                    out.append({"title": f"Build a {bid.replace('_', ' ')} on {system_name(state, home)} {['I','II','III','IV','V'][bi]}",
+                    out.append({"title": f"Build a {bid.replace('_', ' ')} on {system_name(state, home, civ)} {['I','II','III','IV','V'][bi]}",
                                 "text": f"{rules.buildings[bid]['effect']}. {n(m)} minerals and {n(ac)} economic AC; "
                                         f"ready in {rules.build_ticks} ticks.",
                                 "order": {"kind": "build", "system": home, "body": bi, "building": bid},
@@ -166,7 +166,7 @@ def summary(state: dict, civ: dict, rules: Rules) -> str:
         f"Allocation: " + ", ".join(f"{k} {v}%" for k, v in civ["allocation"].items()) + ".",
         f"Researching: {rules.techs[r['current']]['name'] if r['current'] else 'nothing'}; known techs: "
         + (", ".join(rules.techs[t]["name"] for t in r["done"]) or "none yet") + ".",
-        f"Systems owned: " + ", ".join(system_name(state, s) for s in game.owned_systems(state, civ["id"])) + ".",
+        f"Systems owned: " + ", ".join(system_name(state, s, civ) for s in game.owned_systems(state, civ["id"])) + ".",
         f"Systems surveyed: {len(civ['surveyed'])}.",
     ]
     return "\n".join(lines)

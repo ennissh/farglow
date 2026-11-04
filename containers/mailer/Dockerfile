@@ -26,7 +26,7 @@ COPY containers/mailer/requirements.txt /tmp/requirements.txt
 # BuildKit secret, so it never lands in a layer.
 RUN --mount=type=secret,id=build_ca,required=false \
     if [ -s /run/secrets/build_ca ]; then export PIP_CERT=/run/secrets/build_ca; fi \
-    && pip install --no-cache-dir --only-binary=:all: -r /tmp/requirements.txt \
+    && pip install --no-cache-dir --root-user-action=ignore --only-binary=:all: -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt \
     && python -m pip uninstall -y pip
 

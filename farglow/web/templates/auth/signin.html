@@ -2,8 +2,8 @@
 {% from "_macros.html" import csrf with context %}
 {% block title %}Sign in · Farglow{% endblock %}
 {% block content %}
-<section class="fg-panel fg-narrow">
-  <div class="fg-panel__head"><h1 class="fg-panel__title">Sign in</h1><a class="fg-meta" href="{{ url_for('auth.signup') }}">Create an account</a></div>
+<section class="fg-box fg-narrow">
+  <div class="fg-box__head"><h1 class="fg-box__title">Sign in</h1><a class="fg-box__meta" href="{{ url_for('auth.signup') }}">Create an account</a></div>
   {% if error %}<p class="fg-help fg-help--error">{{ error }}</p>{% endif %}
   <form method="post" action="{{ url_for('auth.signin') }}" class="fg-form">
     {{ csrf() }}<input type="hidden" name="next" value="{{ next }}">

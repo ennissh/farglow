@@ -1,19 +1,41 @@
 {% extends "game/_base.html" %}
+{% from "_macros.html" import csrf, bar, act with context %}
 {% block title %}Galaxy · Farglow{% endblock %}
 {% block main %}
-<section class="fg-panel">
-  <div class="fg-panel__head">
-    <h1 class="fg-panel__title">Sector {{ state.cell }} · Orion Spur</h1>
-    <span class="fg-meta">{{ civ.surveyed|length }} systems surveyed · ships reach {{ n(rules.max_reach) }} ly</span>
+<div class="fg-cols fg-cols--galaxy">
+  <div class="fg-col">
+    <section class="fg-box">
+      <div class="fg-box__head"><h1 class="fg-box__title">Sector {{ state.cell }}</h1><span class="fg-box__meta">{{ civ.surveyed|length }} surveyed · reach {{ n(rules.max_reach) }} ly</span></div>
+      <div class="fg-map" id="star-map" data-src="{{ url_for('game.map_json') }}" data-selected="{{ system.id }}"
+           data-panel="{{ url_for('game.system_panel', sid='SID') }}" role="img" aria-label="Star map of your sector"></div>
+      <p class="fg-legend-line"><span class="fg-legend"></span> yours · <span class="fg-legend fg-legend--other"></span> others · <span class="fg-legend fg-legend--dot"></span> unsurveyed · shaded: survey range · dashed: ships · grid 2 ly</p>
+    </section>
   </div>
-  <div class="fg-panel__plot fg-map" id="star-map" data-src="{{ url_for('game.map_json') }}" data-selected="{{ system.id }}"
-       data-panel="{{ url_for('game.system_panel', sid='SID') }}" role="img" aria-label="Star map of your sector"></div>
-  <p class="fg-meta fg-map__legend"><span class="fg-legend fg-legend--mine"></span> your systems · <span class="fg-legend fg-legend--other"></span> others ·
-    <span class="fg-legend fg-legend--dot"></span> unsurveyed · shaded: survey range · dashed: ships under way · grid 2 ly</p>
-</section>
+  <div class="fg-col">
+    <div id="system-panel"{% if system.home %} hx-post="{{ url_for('game.walkthrough_seen', step='home') }}" hx-trigger="load" hx-swap="none"{% endif %}>{% include "game/_system.html" %}</div>
+    <section class="fg-box">
+      <div class="fg-box__head"><h2 class="fg-box__title">Known systems</h2><span class="fg-box__meta">{{ known|length }} surveyed · nearest first</span></div>
+      <div class="fg-box__body fg-box__body--flush fg-scroll">
+      <table class="fg-t">
+        <thead><tr><th>System</th><th>Star</th><th class="num">ly</th><th class="num">Bodies</th><th class="num">Hab</th><th class="num">M/t</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for k in known %}
+          <tr{% if k.id == system.id %} class="is-selected"{% endif %}>
+            <td><a href="{{ url_for('game.play', system=k.id) }}" hx-get="{{ url_for('game.system_panel', sid=k.id) }}" hx-target="#system-panel">{{ k.name }}</a></td>
+            <td class="mono">{{ k.cls }}</td><td class="num">{{ k.dist_ly }}</td><td class="num">{{ k.bodies }}</td>
+            <td class="num">{{ k.habitable or '–' }}</td><td class="num">{{ k.minerals }}</td>
+            <td>{% if k.home %}<span class="fg-badge fg-badge--accent">home</span>{% elif k.mine %}<span class="fg-badge fg-badge--accent">yours</span>{% elif k.owner %}<span class="fg-badge fg-badge--signal">{{ k.owner }}</span>{% elif k.underway %}<span class="fg-badge fg-badge--neutral">ship en route</span>{% elif not k.in_reach %}<span class="fg-muted">out of reach</span>{% else %}<span class="fg-muted">unclaimed</span>{% endif %}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </section>
+  </div>
+  <div class="fg-col">
+    {% include "game/_advisor.html" %}
+    {% include "game/_charters.html" %}
+  </div>
+</div>
 {% endblock %}
-{% block right %}
-<div id="system-panel"{% if system.home %} hx-post="{{ url_for('game.walkthrough_seen', step='home') }}" hx-trigger="load" hx-swap="none"{% endif %}>{% include "game/_system.html" %}</div>
-{% include "game/_advisor.html" %}
-{% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='art/farglow-art.js') }}"></script><script src="{{ url_for('static', filename='js/map.js') }}"></script>{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static', filename='js/map.js') }}"></script>{% endblock %}

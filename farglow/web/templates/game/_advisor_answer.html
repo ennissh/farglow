@@ -1,3 +1,3 @@
 <div class="fg-chat__q">{{ q }}</div>
-<div class="fg-chat__a"><p class="body">{{ out.text }}</p>
-  <p class="fg-meta">{% if out.sources %}Codex: {{ out.sources|join(', ') }} · {% endif %}{{ out.tier }}{% if out.fallback %} (AI unavailable, answered from the Codex){% endif %}</p></div>
+<div class="fg-chat__a"><p>{{ out.text }}</p>
+  <p class="fg-help">{% if out.sources %}Codex: {{ out.sources|join(', ') }} · {% endif %}{{ out.tier }}{% if out.fallback %} (AI unavailable: answered from the Codex){% endif %}</p></div>

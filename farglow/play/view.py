@@ -22,8 +22,10 @@ def civ_of(state: dict, user_id: int) -> dict | None:
 
 
 def system_name(state: dict, sid: str, civ: dict | None = None) -> str:
+    """The system's name, as far as `civ` knows: a name another civilization gave is only
+    known once you have surveyed the system (fog of war). Without `civ`: the true name."""
     s = state["systems"].get(sid) or {}
-    if s.get("name"):
+    if s.get("name") and (civ is None or sid in civ["surveyed"]):
         return s["name"]
     return galaxy.by_id(state["galaxy_seed"], state["cell"])[sid]["designation"]
 
@@ -38,10 +40,16 @@ def tier_label(civ: dict, rules: Rules) -> str:
 
 def header(state: dict, civ: dict | None, rules: Rules) -> dict:
     if civ is None:
-        return {"tier": "", "ac": "0", "population": "0", "rp": "0"}
+        return {}
     last = civ.get("last") or {}
+    storage = last.get("storage", 0)
     return {"tier": tier_label(civ, rules), "ac": n(last.get("ac_net", 0)), "population": n(last.get("pop", 0), 1),
-            "rp": n(last.get("rp", 0), 1)}
+            "rp": n(last.get("rp", 0), 1), "minerals": n(civ["minerals"]), "storage": n(storage),
+            "minerals_full": bool(storage) and civ["minerals"] * 10 >= storage * 9,
+            "energy": n(civ["energy"]), "energy_max": n(rules.energy_storage), "energy_low": civ["energy"] == 0,
+            "stability": n(civ["stability"]), "stability_low": civ["stability"] < 45 * FP,
+            "exp": n(civ["ledger"]["expansion"]), "eco": n(civ["ledger"]["economic"]),
+            "systems": len(game.owned_systems(state, civ["id"]))}
 
 
 def map_data(state: dict, civ: dict, rules: Rules) -> dict:
@@ -53,8 +61,8 @@ def map_data(state: dict, civ: dict, rules: Rules) -> dict:
         sid = s["id"]
         st = state["systems"].get(sid) or {}
         owner = st.get("owner")
-        item = {"id": sid, "x": s["x"], "y": s["y"], "name": system_name(state, sid), "surveyed": sid in surveyed,
-                "named": bool(st.get("name"))}
+        item = {"id": sid, "x": s["x"], "y": s["y"], "name": system_name(state, sid, civ), "surveyed": sid in surveyed,
+                "named": bool(st.get("name")) and sid in surveyed}
         if sid in surveyed:
             v = game.view(state, sid)
             item.update(star=v["star"], cls=f"{v['star']}{v['subclass']} V", bodies=len(v["bodies"]),
@@ -73,7 +81,7 @@ def system_detail(state: dict, civ: dict, rules: Rules, sid: str) -> dict:
     st = state["systems"].get(sid) or {}
     surveyed = sid in civ["surveyed"]
     dist, _ = game.nearest_owned(state, civ["id"], sid)
-    d = {"id": sid, "name": system_name(state, sid), "designation": base["designation"], "surveyed": surveyed,
+    d = {"id": sid, "name": system_name(state, sid, civ), "designation": base["designation"], "surveyed": surveyed,
          "distance": dist, "distance_ly": n(dist, 1), "ticks": game.travel_ticks(civ, dist) if dist < 10**8 else None,
          "owner": st.get("owner"), "mine": st.get("owner") == civ["id"], "home": sid == civ["home"],
          "missions": [m for m in civ["missions"] if m["target"] == sid], "in_reach": dist <= rules.max_reach}
@@ -172,3 +180,23 @@ def effect_text(e: dict) -> str:
     num = f"{v:g}"
     unit = " %" if e["op"] == "pct" else ""
     return f"{sign}{num}{unit} {e['key'].replace('_', ' ')}"
+
+
+def known_systems(state: dict, civ: dict, rules: Rules) -> list[dict]:
+    """Every system the civilization has surveyed, nearest first (yours on top): the dense list."""
+    rows = []
+    for sid in civ["surveyed"]:
+        st = state["systems"].get(sid) or {}
+        v = game.view(state, sid)
+        dist, _ = game.nearest_owned(state, civ["id"], sid)
+        owner = st.get("owner")
+        hab = sum(1 for i, k in enumerate(v["bodies"]) if game.pop_cap(civ, rules, k, st.get("bodies", {}).get(str(i), {})) > 0)
+        minerals = sum(rules.mineral_yield.get(k, 0) for k in v["bodies"])
+        rows.append({"id": sid, "name": system_name(state, sid, civ), "cls": f"{v['star']}{v['subclass']} V",
+                     "dist": dist, "dist_ly": n(dist, 1) if owner != civ["id"] else "–", "bodies": len(v["bodies"]),
+                     "habitable": hab, "minerals": n(minerals), "mine": owner == civ["id"],
+                     "owner": state["civs"][owner]["name"] if owner and owner != civ["id"] else "",
+                     "home": sid == civ["home"], "in_reach": dist <= rules.max_reach,
+                     "underway": any(m["target"] == sid for m in civ["missions"])})
+    rows.sort(key=lambda r: (not r["mine"], r["dist"], r["id"]))
+    return rows

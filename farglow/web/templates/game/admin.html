@@ -2,10 +2,10 @@
 {% from "_macros.html" import csrf with context %}
 {% block title %}Host admin · Farglow{% endblock %}
 {% block content %}
-<div class="fg-grid">
-<section class="fg-panel">
-  <div class="fg-panel__head"><h1 class="fg-panel__title">Tick engine</h1><span class="fg-meta">seed {{ eng.galaxy_seed }}</span></div>
-  <table class="fg-table"><tbody>
+<div class="fg-cols fg-cols--two">
+<section class="fg-box">
+  <div class="fg-box__head"><h1 class="fg-box__title">Tick engine</h1><span class="fg-box__meta">seed {{ eng.galaxy_seed }}</span></div>
+  <table class="fg-t"><tbody>
     <tr><th scope="row">Tick</th><td class="num">{{ "{:,}".format(eng.tick) }}</td></tr>
     <tr><th scope="row">State</th><td>{% if eng.paused %}<span class="fg-badge fg-badge--signal">Paused</span> {{ eng.pause_reason }}{% else %}<span class="fg-badge fg-badge--positive">Running</span>{% endif %}</td></tr>
     <tr><th scope="row">Tick length</th><td class="num">{{ eng.tick_seconds }} s</td></tr>
@@ -17,24 +17,24 @@
     <form method="post" action="{{ url_for('game.admin_engine', action=a) }}" class="fg-inline">{{ csrf() }}<button class="fg-btn fg-btn--{{ cls }} fg-btn--sm" type="submit">{{ label }}</button></form>{% endfor %}
   </div>
 </section>
-<section class="fg-panel">
-  <div class="fg-panel__head"><h2 class="fg-panel__title">Players</h2><span class="fg-meta">{{ users|length }}</span></div>
-  <table class="fg-table">
+<section class="fg-box">
+  <div class="fg-box__head"><h2 class="fg-box__title">Players</h2><span class="fg-box__meta">{{ users|length }}</span></div>
+  <table class="fg-t">
     <thead><tr><th>Player</th><th>Civilization</th><th class="num">Systems</th><th>Verified</th></tr></thead>
     <tbody>{% for u in users %}{% set c = civs.get(u.id|string) %}
-      <tr><td>{{ u.display_name }}<br><span class="fg-meta">{{ u.email }}{% if u.is_admin %} · admin{% endif %}</span></td>
+      <tr><td>{{ u.display_name }}<br><span class="fg-box__meta">{{ u.email }}{% if u.is_admin %} · admin{% endif %}</span></td>
         <td>{{ c.name if c else '–' }}</td><td class="num">{{ c.last.systems if c and c.last else '–' }}</td>
         <td>{{ 'yes' if u.email_verified_at else 'no' }}</td></tr>{% endfor %}</tbody>
   </table>
 </section>
-<section class="fg-panel">
-  <div class="fg-panel__head"><h2 class="fg-panel__title">Recent ticks</h2></div>
-  <table class="fg-table"><thead><tr><th class="num">Tick</th><th>Hash</th><th class="num">ms</th></tr></thead>
+<section class="fg-box">
+  <div class="fg-box__head"><h2 class="fg-box__title">Recent ticks</h2></div>
+  <table class="fg-t"><thead><tr><th class="num">Tick</th><th>Hash</th><th class="num">ms</th></tr></thead>
     <tbody>{% for t in ticks %}<tr><td class="num">{{ t.tick }}</td><td class="mono">{{ t.state_hash[:12] }}</td><td class="num">{{ t.duration_ms }}</td></tr>{% endfor %}</tbody></table>
 </section>
-<section class="fg-panel">
-  <div class="fg-panel__head"><h2 class="fg-panel__title">Services and jobs</h2></div>
-  <table class="fg-table"><tbody>
+<section class="fg-box">
+  <div class="fg-box__head"><h2 class="fg-box__title">Services and jobs</h2></div>
+  <table class="fg-t"><tbody>
     {% for s in services %}<tr><td>{{ s.service }}</td><td class="mono">{{ s.version }}</td><td class="num">{{ s.age }} s ago</td></tr>{% endfor %}
     {% for j in jobs %}<tr><td>jobs · {{ j.queue }}</td><td>{{ j.status }}</td><td class="num">{{ j.n }}</td></tr>{% endfor %}
   </tbody></table>

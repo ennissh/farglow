@@ -1,65 +1,73 @@
 {% extends "game/_base.html" %}
-{% from "_macros.html" import act, bar with context %}
+{% from "_macros.html" import csrf, bar, act with context %}
 {% block title %}Research · Farglow{% endblock %}
 {% block main %}
-<section class="fg-panel">
-  <div class="fg-panel__head"><h1 class="fg-panel__title">Research</h1>
-    <span class="fg-meta">known {{ rv.known }} · knowledge tax <span class="fg-signal">+{{ rv.tax_pct }}%</span> on every cost · {{ rv.rp }} RP/tick</span></div>
-  <p class="fg-meta fg-legend-row"><span class="fg-chip fg-chip--done">researched</span> <span class="fg-chip fg-chip--current">in progress</span> <span class="fg-chip fg-chip--available">available</span> <span class="fg-chip fg-chip--locked">locked</span> <span class="fg-chip fg-chip--excluded">locked by doctrine</span></p>
-  <div class="fg-tree">
-    <div class="fg-tree__tier"><div class="fg-tree__label"><b>Known</b><span class="fg-meta">tiers 0–3</span></div>
-      <div class="fg-tree__nodes">{% for nm in rv.start_names %}<span class="fg-chip fg-chip--done">{{ nm }}</span>{% endfor %}</div></div>
-    {% for tier in rv.tiers %}
-    <div class="fg-tree__tier{% if not tier.open %} fg-tree__tier--closed{% endif %}">
-      <div class="fg-tree__label"><b>{{ tier.name }}</b><span class="fg-meta">tier {{ tier.order }} · {{ tier.done }}/{{ tier.total }}{% if not tier.open %} · opens after {{ tier.unlock.count }} {{ tier.unlock.completed_in_tier|capitalize }}{% endif %}</span></div>
-      <div class="fg-tree__nodes">
-        {% for nd in tier.nodes if not nd.group %}<a class="fg-chip fg-chip--{{ nd.status }}{% if selected and selected.id == nd.id %} fg-chip--selected{% endif %}" href="{{ url_for('game.research', tech=nd.id) }}">{{ nd.name }}{% if nd.queued %} ·q{% endif %}</a>{% endfor %}
+<div class="fg-cols fg-cols--main-side">
+  <div class="fg-col">
+    <section class="fg-box">
+      <div class="fg-box__head"><h1 class="fg-box__title">Research</h1>
+        <span class="fg-box__meta">known {{ rv.known }} · knowledge tax <span class="fg-signal">+{{ rv.tax_pct }}%</span> on every cost · {{ rv.rp }} RP/tick</span></div>
+      <div class="fg-box__body fg-box__body--flush">
+      <table class="fg-t">
+        <thead><tr><th>Tech</th><th>Field</th><th class="num">Cost</th><th class="num">Ticks</th><th>Gain · drawback</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr class="fg-t__group"><td colspan="6">Known · tiers 0–3</td></tr>
+          <tr><td colspan="6" class="fg-muted">{{ rv.start_names|join(' · ') }}</td></tr>
+          {% for tier in rv.tiers %}
+          <tr class="fg-t__group"><td colspan="6">{{ tier.name }} · tier {{ tier.order }} · {{ tier.done }}/{{ tier.total }}{% if not tier.open %} · opens after {{ tier.unlock.count }} {{ tier.unlock.completed_in_tier|capitalize }} techs{% endif %}</td></tr>
+          {% if tier.open %}
+            {% for nd in (tier.nodes|rejectattr('group')|list) + (tier.nodes|selectattr('group')|list) %}
+            <tr class="{% if nd.group %}fg-t__doctrine{% endif %}{% if selected and selected.id == nd.id %} is-selected{% endif %}">
+              <td><a href="{{ url_for('game.research', tech=nd.id) }}">{{ nd.name }}</a>{% if nd.group %} <span class="fg-badge fg-badge--accent">doctrine</span>{% endif %}</td>
+              <td class="fg-muted">{{ nd.field.replace('_', ' ') }}</td>
+              <td class="num">{{ nd.cost }}</td><td class="num">{{ nd.ticks or '–' }}</td>
+              <td class="fg-muted">{{ nd.description }}</td>
+              <td class="fg-status-{{ nd.status }}">{{ {'done': '✓ done', 'current': 'researching', 'available': 'available', 'locked': 'locked', 'excluded': 'excluded'}[nd.status] }}{% if nd.queued %} · queued{% endif %}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="6" class="fg-muted">{% for nd in tier.nodes %}<a href="{{ url_for('game.research', tech=nd.id) }}">{{ nd.name }}</a>{% if nd.group %}*{% endif %}{% if not loop.last %} · {% endif %}{% endfor %}{% if tier.nodes|selectattr('group')|list %} <span class="fg-help">(* doctrine: choose 1 of 3)</span>{% endif %}</td></tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
       </div>
-      {% set doctrine = tier.nodes|selectattr('group')|list %}
-      {% if doctrine %}<div class="fg-tree__doctrine"><span class="fg-meta">Doctrine · choose 1 of 3</span>
-        {% for nd in doctrine %}<a class="fg-chip fg-chip--{{ nd.status }}{% if selected and selected.id == nd.id %} fg-chip--selected{% endif %}" href="{{ url_for('game.research', tech=nd.id) }}">{{ nd.name }}</a>{% endfor %}</div>{% endif %}
-    </div>
-    {% endfor %}
+    </section>
   </div>
-</section>
-{% endblock %}
-{% block right %}
-{% if selected %}
-<section class="fg-panel">
-  <p class="fg-kicker fg-kicker--accent">{{ selected.tier }} · {{ selected.field.replace('_', ' ') }}{% if selected.group %} · doctrine{% endif %}</p>
-  <div class="fg-panel__head"><h2 class="fg-panel__title">{{ selected.name }}</h2><span class="fg-badge fg-badge--neutral">{{ selected.status }}</span></div>
-  <p class="body">{{ selected.description }}</p>
-  <ul class="fg-effects">
-    {% for e in selected.effects_text %}<li class="fg-positive">+ {{ e }}</li>{% endfor %}
-    {% for e in selected.drawbacks_text %}<li class="fg-danger">− {{ e }}</li>{% endfor %}
-  </ul>
-  {% if selected.group and selected.status in ('available', 'locked') %}
-  <p class="fg-warn"><b>Permanent choice.</b> Researching {{ selected.name }} locks {{ selected.group_names|join(' and ') }} for the rest of this civilization's life.</p>{% endif %}
-  <table class="fg-table"><tbody>
-    <tr><td>Cost</td><td class="num">{{ selected.cost }} RP</td></tr>
-    <tr><td>Time at {{ rv.rp }} RP/tick</td><td class="num">{{ selected.ticks or '–' }} ticks</td></tr>
-    {% if selected.requires_names %}<tr><td>Needs</td><td>{{ selected.requires_names|join(', ') }}</td></tr>{% endif %}
-  </tbody></table>
-  {% if selected.status not in ('done', 'excluded') %}
-  <div class="fg-row">
-    {{ act('queue', 'Research next', {'tech': selected.id, 'op': 'now'}) }}
-    {% if not selected.queued %}{{ act('queue', 'Add to queue', {'tech': selected.id, 'op': 'add'}, cls='fg-btn fg-btn--secondary fg-btn--sm') }}{% endif %}
-  </div>{% endif %}
-  <p class="fg-help">Costs rise {{ rules.knowledge_tax // 10 }}% for every tech you know, so order matters.</p>
-</section>
-{% endif %}
-<section class="fg-panel">
-  <div class="fg-panel__head"><h2 class="fg-panel__title">In progress</h2></div>
-  {% if rv.current %}
-    <div class="fg-meter__row"><span>{{ rv.current.name }}</span><span class="fg-meter__value">{{ rv.current.pct }}% · {{ rv.current.ticks or '–' }} ticks</span></div>
-    {{ bar(rv.current.pct) }}
-    <p class="fg-meta">{{ rv.current.progress }} / {{ rv.current.cost }} RP</p>
-  {% else %}<p class="fg-meta">Nothing yet: your governor picks one at the next tick.</p>{% endif %}
-  <div class="fg-panel__head"><h2 class="fg-panel__title">Queue</h2><span class="fg-meta">{{ rv.queue|length }} techs</span></div>
-  <ol class="fg-list">
-    {% for q in rv.queue %}<li class="fg-queue">{{ q.name }} <span class="fg-row">{% if not loop.first %}{{ act('queue', '↑', {'tech': q.id, 'op': 'up'}, cls='fg-btn fg-btn--ghost fg-btn--sm', title='Move up') }}{% endif %}{{ act('queue', 'Remove', {'tech': q.id, 'op': 'remove'}, cls='fg-btn fg-btn--ghost fg-btn--sm') }}</span></li>
-    {% else %}<li class="fg-meta">Empty. When the queue empties, your governor follows its research focus.</li>{% endfor %}
-  </ol>
-</section>
-{% include "game/_advisor.html" %}
+  <div class="fg-col">
+    <section class="fg-box">
+      <div class="fg-box__head"><h2 class="fg-box__title">In progress</h2></div>
+      <div class="fg-box__body">
+      {% if rv.current %}
+        <div class="fg-row"><b>{{ rv.current.name }}</b><span class="fg-box__meta">{{ rv.current.pct }}% · {{ rv.current.ticks or '–' }} tick{{ '' if rv.current.ticks == 1 else 's' }}</span></div>
+        {{ bar(rv.current.pct) }}
+        <span class="fg-help mono">{{ rv.current.progress }} / {{ rv.current.cost }} RP</span>
+      {% else %}<p class="fg-muted">Nothing yet: your governor picks one at the next tick.</p>{% endif %}
+      <ol class="fg-list">
+        {% for q in rv.queue %}<li class="fg-row">{{ loop.index }}. {{ q.name }} <span class="fg-row">{% if not loop.first %}{{ act('queue', '↑', {'tech': q.id, 'op': 'up'}, cls='fg-btn fg-btn--ghost fg-btn--sm', title='Move up') }}{% endif %}{{ act('queue', 'Remove', {'tech': q.id, 'op': 'remove'}, cls='fg-btn fg-btn--ghost fg-btn--sm') }}</span></li>
+        {% else %}<li class="fg-help">Queue empty: your governor follows its research focus.</li>{% endfor %}
+      </ol>
+      </div>
+    </section>
+    {% if selected %}
+    <section class="fg-box fg-box--you">
+      <div class="fg-box__head"><h2 class="fg-box__title">{{ selected.name }}</h2><span class="fg-box__meta">{{ selected.tier }} · {{ selected.field.replace('_', ' ') }}{% if selected.group %} · doctrine{% endif %}</span></div>
+      <div class="fg-box__body">
+      <p>{{ selected.description }}</p>
+      <ul class="fg-effects">
+        {% for e in selected.effects_text %}<li class="fg-positive">+ {{ e }}</li>{% endfor %}
+        {% for e in selected.drawbacks_text %}<li class="fg-danger">− {{ e }}</li>{% endfor %}
+      </ul>
+      {% if selected.group and selected.status in ('available', 'locked') %}<p class="fg-warn"><b>Permanent choice.</b> It locks {{ selected.group_names|join(' and ') }} for good.</p>{% endif %}
+      <dl class="fg-kv"><dt>Cost</dt><dd>{{ selected.cost }} RP</dd><dt>Time</dt><dd>{{ selected.ticks or '–' }} ticks at {{ rv.rp }} RP</dd>{% if selected.requires_names %}<dt>Needs</dt><dd>{{ selected.requires_names|join(', ') }}</dd>{% endif %}</dl>
+      {% if selected.status not in ('done', 'excluded') %}
+      <div class="fg-row">{{ act('queue', 'Research next', {'tech': selected.id, 'op': 'now'}) }}
+        {% if not selected.queued %}{{ act('queue', 'Add to queue', {'tech': selected.id, 'op': 'add'}, cls='fg-btn fg-btn--secondary fg-btn--sm') }}{% endif %}</div>{% endif %}
+      </div>
+    </section>
+    {% else %}
+    <p class="fg-help">Pick a tech to see its gains, drawbacks and cost. Costs rise {{ rules.knowledge_tax // 10 }}% for every tech you know, so order matters.</p>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}
