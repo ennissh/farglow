@@ -137,7 +137,7 @@ install.sh  uninstall.sh  build.sh  test.sh  backup.sh  restore.sh
 > Phase 0 versions of these scripts work today (see [CHANGELOG.md](CHANGELOG.md)). Every script has `--help`.
 
 ```bash
-./install.sh              # interactive: domain, admin email, GHCR pull or local build,
+./install.sh              # interactive (re-run: use saved settings as is, review each, or start fresh): domain, admin email, GHCR pull or local build,
                           # AI tier + Ollama URL or API key, SMTP settings (sends a test email)
 ./build.sh --local        # build every containers/<service>/Dockerfile into local Docker
 ./build.sh                # run test.sh, then push the next build X.Y.Z-N (number picked from GHCR) for amd64+arm64

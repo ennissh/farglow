@@ -6,7 +6,7 @@ Pre-1.0 releases may change the database between minor versions. **Back up first
 ```bash
 ./backup.sh --with-secrets               # 1. a restorable backup of the current state
 git fetch --tags && git checkout vX.Y.Z  # 2. the new release's scripts and compose.yaml
-./install.sh --tag X.Y.Z                 # 3. re-run: your answers and secrets are kept
+./install.sh --settings saved --tag X.Y.Z   # 3. re-run with your saved answers (or pick 1 when asked)
 ```
 `install.sh` pulls the new images and recreates the containers. The `migrate` service applies any new migrations before `api`, `tick`, `worker` and `mailer` start; it is one-shot, and the others wait for it to succeed. Then every service has to report healthy.
 

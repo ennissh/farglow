@@ -31,6 +31,12 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
   - Tests: 25 new ones, 78 in total. They cover parity with `sim.py` (the first tech lands on the same tick), order validation, missions, buildings, doctrines, fog of war, the advisor (T0, T2 and fallback), the 0.0.x upgrade path on a real database, and a functional run from sign-up through verification, founding, ticks, play, the Dispatch email, admin and deletion.
 
 ### Changed
+- **`install.sh` asks how to use saved settings.** When `.env` exists it shows them (server, admin, images, AI, mail, dev mode) and offers three choices; `--settings saved|review|fresh` skips the question.
+  1. Use them as they are: no questions, and the saved image source is used exactly.
+  2. Go through each setting, with the saved values as defaults.
+  3. Start from scratch with the built-in defaults. The database password, keys and galaxy seed are still kept while a database exists, with a pointer to `./uninstall.sh --purge` for a new galaxy.
+
+  `--non-interactive` uses the saved settings.
 - **Compact redesign of every screen.** A two-row header (navigation, then a dense resource strip of tick, AC, RP, population, minerals against storage, energy, stability and the bank). The walkthrough is one line. Galaxy is a 420 px map, a system table with build and develop pop-overs, a known-systems table, and the advisor as a compact list with Ask folded away. Research is a dense table by tier, Governor is allocation and economy tables, and the Dispatch is one-line rows. 12 px text throughout, and every game screen fits a 1366×768 laptop.
 - **`./build.sh` now pushes by default, with automatic build numbers (the rapax-cloud scheme).** `VERSION` is the release line `X.Y.Z`. Each push is the next build `X.Y.Z-N`, where N is read from the tags already on GHCR (`scripts/ghcr-tags.py`, `scripts/versions.py`). A pushed number is always new and higher, `VERSION` behind the registry is refused, and an existing number is reused only with `--version … --replace-version`.
   - `--release` pushes `X.Y.Z` once and writes `releases/vX.Y.Z.manifest`.
