@@ -1,0 +1,225 @@
+/* Farglow components — plain CSS classes, prefix fg-. Reads tokens only. Compact density. */
+
+.fg-app {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.fg-app :focus-visible,
+.fg-btn:focus-visible,
+.fg-tab:focus-visible,
+.fg-input:focus-visible,
+.fg-select:focus-visible,
+.fg-textarea:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+/* Panel */
+.fg-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.fg-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.fg-panel__title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.fg-panel__plot {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+.fg-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 15px;
+  color: var(--ink-muted);
+}
+.fg-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.fg-kicker--accent { color: var(--accent); }
+.fg-kicker--signal { color: var(--signal); }
+.fg-kicker--positive { color: var(--positive); }
+
+/* Button */
+.fg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--control-h);
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.fg-btn--primary { background: var(--accent); color: var(--on-accent); }
+.fg-btn--primary:hover { background: var(--accent-hover); }
+.fg-btn--secondary { background: var(--surface); color: var(--ink); border-color: var(--border-strong); font-weight: 500; }
+.fg-btn--secondary:hover { background: var(--surface-raised); }
+.fg-btn--ghost { background: transparent; color: var(--accent); }
+.fg-btn--ghost:hover { background: var(--accent-soft); }
+.fg-btn--danger { background: var(--danger); color: var(--on-accent); }
+.fg-btn--sm { min-height: var(--control-h-sm); padding: 0 8px; font-size: 12px; }
+.fg-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+/* NavTabs */
+.fg-tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--surface-raised);
+  border-radius: var(--radius-lg);
+}
+.fg-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  text-decoration: none;
+}
+.fg-tab:hover { color: var(--ink); background: var(--surface); }
+.fg-tab[aria-current="page"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.fg-tab__count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  padding: 0 4px;
+  border-radius: var(--radius-sm);
+  background: var(--signal-soft);
+  color: var(--signal);
+}
+
+/* DataTable */
+.fg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  line-height: 16px;
+}
+.fg-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.fg-table td {
+  padding: 3px 6px;
+  height: var(--row-h);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.fg-table .num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.fg-table .sub {
+  display: block;
+  font-size: 11px;
+  line-height: 13px;
+  color: var(--ink-muted);
+}
+.fg-table tbody tr:hover { background: var(--surface-raised); }
+.fg-table tbody tr[aria-selected="true"] { background: var(--accent-soft); }
+
+/* Badge */
+.fg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  line-height: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.fg-badge--neutral { background: var(--surface-raised); color: var(--ink-secondary); }
+.fg-badge--accent { background: var(--accent-soft); color: var(--accent); }
+.fg-badge--signal { background: var(--signal-soft); color: var(--signal); }
+.fg-badge--positive { background: var(--positive-soft); color: var(--positive); }
+.fg-badge--danger { background: var(--danger-soft); color: var(--danger); }
+
+/* Field */
+.fg-field { display: flex; flex-direction: column; gap: 3px; }
+.fg-label { font-size: 11px; line-height: 15px; font-weight: 500; color: var(--ink-secondary); }
+.fg-help { font-size: 11px; line-height: 15px; color: var(--ink-muted); }
+.fg-help--error { color: var(--danger); }
+.fg-input,
+.fg-select,
+.fg-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--control-h);
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+.fg-textarea { padding: 6px 8px; line-height: 18px; resize: vertical; }
+.fg-input::placeholder,
+.fg-textarea::placeholder { color: var(--ink-muted); }
+.fg-input[aria-invalid="true"] { border-color: var(--danger); background: var(--danger-soft); }
+
+/* Meter */
+.fg-meter { display: flex; flex-direction: column; gap: 2px; }
+.fg-meter__row { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; line-height: 15px; color: var(--ink-secondary); }
+.fg-meter__value { font-family: var(--font-mono); color: var(--ink); }
+.fg-meter__track { height: 4px; border-radius: 2px; background: var(--surface-raised); overflow: hidden; }
+.fg-meter__fill { height: 100%; border-radius: 2px; background: var(--accent); }
+.fg-meter__fill--signal { background: var(--signal); }
+.fg-meter__fill--positive { background: var(--positive); }
+
+/* Status bar (header tick readout) */
+.fg-status {
+  display: flex;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+.fg-status b { color: var(--ink); font-weight: 500; }

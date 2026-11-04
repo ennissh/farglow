@@ -1,0 +1,47 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;700&amp;display=swap">
+<style>
+body { margin: 0; }
+.ground { position: relative; width: 960px; height: 288px; background: var(--bg); overflow: hidden; }
+.name { position: absolute; left: 40px; bottom: 36px; width: 420px; }
+.name h1 { margin: 0; font-family: var(--font-sans); font-size: 96px; line-height: 0.92; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+.name p { margin: 12px 0 0; font-family: var(--font-sans); font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+.art { position: absolute; left: 480px; top: 0; }
+.ink { fill: var(--ink); }
+.accent { fill: var(--accent); }
+.signal { fill: var(--signal); }
+.relief { fill: var(--ink-muted); }
+.plus { stroke: var(--surface); stroke-width: 1.5; }
+.sq { rx: var(--radius-sm); }
+</style>
+</head>
+<body>
+<div class="ground">
+<svg class="art" width="480" height="288" viewBox="0 0 480 288" aria-hidden="true">
+<!--
+blocks: ink 192x288 (space-12 x 4 = 192), accent 288x176, signal 96x112, relief ink-muted 192x112 — flush, radius-sm corners
+arrangement: flush modular grid, one tall ink slab with an accent field and two satellites, bleeding top and bottom
+pattern: plus grid at space-12 (48px) pitch on the accent field — "precise, technical, mono, strict grid" from the README principles
+scales: space-12 pitch, space-2 plus arms, radius-sm
+-->
+<rect class="ink sq" x="0" y="0" width="192" height="288"></rect>
+<rect class="accent sq" x="192" y="0" width="288" height="176"></rect>
+<rect class="signal sq" x="192" y="176" width="96" height="112"></rect>
+<rect class="relief sq" x="288" y="176" width="192" height="112"></rect>
+<g class="plus">
+<path d="M216 28v8M212 32h8M264 28v8M260 32h8M312 28v8M308 32h8M360 28v8M356 32h8M408 28v8M404 32h8M456 28v8M452 32h8"></path>
+<path d="M216 76v8M212 80h8M264 76v8M260 80h8M312 76v8M308 80h8M360 76v8M356 80h8M408 76v8M404 80h8M456 76v8M452 80h8"></path>
+<path d="M216 124v8M212 128h8M264 124v8M260 128h8M312 124v8M308 128h8M360 124v8M356 128h8M408 124v8M404 128h8M456 124v8M452 128h8"></path>
+</g>
+</svg>
+<div class="name">
+<h1>Farglow</h1>
+<p>An instrument panel for a civilization. Every star counts.</p>
+</div>
+</div>
+</body>
+</html>

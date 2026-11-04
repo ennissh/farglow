@@ -1,0 +1,30 @@
+<!-- @dsCard group="Forms" height=300 subtitle="Text input, select, textarea and error state" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+</head>
+<body style="margin:0">
+<div class="fg-app" style="padding: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 640px">
+<div class="fg-field">
+<label class="fg-label" for="civ">Civilization name</label>
+<input class="fg-input" id="civ" type="text" value="The Ashenreach Collective">
+</div>
+<div class="fg-field">
+<label class="fg-label" for="gov">Governor stance</label>
+<select class="fg-select" id="gov"><option>Defend at 2:1 odds or better</option></select>
+</div>
+<div class="fg-field" style="grid-column: span 2">
+<label class="fg-label" for="story">Backstory</label>
+<textarea class="fg-textarea" id="story" rows="3" placeholder="Who are your people, and what do they hope to find out there?"></textarea>
+<p class="fg-help" style="margin: 0">The Meridian Dispatch reads this to suggest your starting attributes.</p>
+</div>
+<div class="fg-field" style="grid-column: span 2">
+<label class="fg-label" for="mail">Email</label>
+<input class="fg-input" id="mail" type="email" value="ashenreach@" aria-invalid="true">
+<p class="fg-help fg-help--error" style="margin: 0">Enter a full email address so the Dispatch can reach you each morning.</p>
+</div>
+</div>
+</body>
+</html>
