@@ -101,3 +101,28 @@ def test_status_shows_latest_heartbeat_per_service(pg_settings):
                      "('tick', 'new-container', '0.0.0+b', now())")
     services = engine_status(pg_settings)["services"]
     assert [(s["service"], s["version"]) for s in services] == [("tick", "0.0.0+b")]
+
+
+def test_a_0_0_x_galaxy_upgrades_in_place_and_still_verifies(pg_settings):
+    """Galaxies started on 0.0.x are schema 1: the tick service queues ONE engine.upgrade order,
+    the next tick converts the state, and every older tick still replays to its stored hash."""
+    from psycopg.types.json import Jsonb
+    with db.connect(pg_settings, autocommit=True) as conn:
+        g = st.genesis_v1(pg_settings.galaxy_seed)
+        h = st.state_hash(g)
+        conn.execute("INSERT INTO engine_state (galaxy_seed, tick, state_hash, tick_seconds, next_tick_at) "
+                     "VALUES (%s, 0, %s, 60, now())", (pg_settings.galaxy_seed, h))
+        conn.execute("INSERT INTO restore_points (tick, state_hash, snapshot) VALUES (0, %s, %s)", (h, Jsonb(g)))
+        conn.execute("INSERT INTO engine_events (tick, kind, detail) VALUES (0, 'genesis', %s)", (Jsonb({"state_hash": h}),))
+        for _ in range(3):
+            _force_due(conn)
+            clock.run_tick(conn, pg_settings)
+        assert clock.queue_upgrade(conn, pg_settings) is True
+        assert clock.queue_upgrade(conn, pg_settings) is False          # only once
+        _force_due(conn)
+        clock.run_tick(conn, pg_settings)
+        from farglow.engine import store
+        state = store.current_state(conn)
+        assert state["schema"] == 2 and state["tick"] == 4
+        ok, msg = clock.verify_chain(conn)
+        assert ok, msg

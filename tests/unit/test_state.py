@@ -34,11 +34,11 @@ def test_canonical_is_key_order_independent():
     assert st.canonical({"b": 1, "a": 2}) == st.canonical({"a": 2, "b": 1})
 
 
-def test_unknown_orders_are_rejected_not_applied():
-    s1 = st.advance(st.genesis(1), [{"kind": "build", "what": "death-ray"}])
+def test_v1_unknown_orders_are_rejected_not_applied():
+    s1 = st.advance(st.genesis_v1(1), [{"kind": "build", "what": "death-ray"}])
     assert s1["log"][0]["rejected"][0]["reason"] == "unknown order kind"
     # orders change the hash (they are part of the history)
-    assert st.state_hash(s1) != st.state_hash(st.advance(st.genesis(1), []))
+    assert st.state_hash(s1) != st.state_hash(st.advance(st.genesis_v1(1), []))
 
 
 def test_rng_is_derived_and_stable():
