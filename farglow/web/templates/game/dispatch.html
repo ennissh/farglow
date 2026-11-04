@@ -1,0 +1,17 @@
+{% extends "game/_base.html" %}
+{% block title %}Dispatch · Farglow{% endblock %}
+{% block main %}
+<section class="fg-panel" hx-post="{{ url_for('game.walkthrough_seen', step='dispatch') }}" hx-vals='{"newest": "{{ newest }}"}' hx-trigger="load" hx-swap="none">
+  <div class="fg-panel__head"><h1 class="fg-panel__title">The Meridian Dispatch</h1><span class="fg-meta">{{ civ.name }} · tick {{ "{:,}".format(eng.tick) }}</span></div>
+  {% set ns = namespace(t=None) %}
+  {% for it in items %}
+    {% if it.tick != ns.t %}{% set ns.t = it.tick %}<p class="fg-kicker">Tick {{ "{:,}".format(it.tick) }}</p>{% endif %}
+    <article class="fg-news fg-news--{{ it.kind }}">
+      <p class="fg-news__head">{{ it.headline }}</p>
+      {% if it.detail %}<p class="body fg-meta">{{ it.detail }}</p>{% endif %}
+    </article>
+  {% else %}
+    <p class="body">No news yet. The first stories arrive with the next tick.</p>
+  {% endfor %}
+</section>
+{% endblock %}

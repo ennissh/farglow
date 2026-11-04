@@ -14,6 +14,21 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
 ## [Unreleased]
 
 ### Added
+- **First playable demo: PoC 1 "First Light" vertical slice.**
+  - **Accounts.** Sign-up asks the month and year of birth; under-13s are refused, nothing is kept, and the browser is locked out for 24 hours. Email verification uses a signed single-use link (the GET shows a confirm page; only the POST verifies). Then sign-in, sign-out, settings (the Dispatch email on or off) and account deletion: the civilization retires at the next tick. The first account with `FARGLOW_ADMIN_EMAIL` becomes the host admin. Without SMTP, accounts are ready at once.
+  - **Engine schema 2** (`farglow/engine/game.py`, `rules.py`, `galaxy.py`, `store.py`). A seeded galaxy cell of about 100 stars, never stored. Founding a civilization (name, one of 32 civ sets, six attributes summing to 0). The `tools/sim.py` economy in fixed-point integers: population → action credits → allocation; minerals, energy, stability, storage caps and energy shortage. The 32-node tech tree with drawbacks, doctrines, the knowledge tax and the half-done first tech. Survey missions, outposts and colonies that travel at fold speed, buildings with a 12-tick build time, body development, system naming by the discoverer, tutorial Charters, and fog of war.
+  - **Every action is an order**, validated by the API and again by the tick (`engine/store.py`).
+  - **Screens** from the mockups: landing and sign-in, founding, Galaxy (a vanilla-JS SVG star map plus the system panel), Governor, Research (tree, details, queue), the Meridian Dispatch, a First Light walkthrough rail, Charters, pending orders and host admin. Development servers get an "Advance the clock" button.
+  - **The advisor**: rule-based suggestions, each with an order the player confirms in one click. Q&A from the Codex (`config/codex.poc.yaml`) at T0, or through the LLM gateway at T1–T3 with a fog-of-war summary and fallback to T0. Every answer is logged.
+  - **The Dispatch**: each tick's events become news items, and a morning email goes out every `FARGLOW_DISPATCH_EVERY_TICKS` ticks (24, or 12 on development servers).
+  - Migration `0002_accounts_and_game.sql`: users, the order sequence, `dispatch_items` and `advisor_log`.
+  - Tests: 25 new ones, 78 in total. They cover parity with `sim.py` (the first tech lands on the same tick), order validation, missions, buildings, doctrines, fog of war, the advisor (T0, T2 and fallback), the 0.0.x upgrade path on a real database, and a functional run from sign-up through verification, founding, ticks, play, the Dispatch email, admin and deletion.
+
+### Changed
+- **New galaxies start at engine schema 2**, so `tests/determinism/test_golden.py` has new v2 golden values; this change is intentional. Galaxies from 0.0.x keep their schema-1 history (the `GOLDEN_V1` hashes are unchanged) and upgrade through one `engine.upgrade` order. **Upgrade note:** there is nothing to do; the tick service queues it.
+- `config/balance.poc.yaml` gains `expansion.survey_ac`, `survey_minerals`, `max_reach_ly` and `buildings.build_ticks`. `config/objectives.poc.yaml` gains `charters.tutorial.reward_minerals`. All are marked proposed.
+- The api, tick and worker images now carry `config/` and PyYAML 6.0.3.
+- The header can wrap onto two rows on narrow windows instead of overflowing.
 - **Phase 0 platform (`farglow/`).**
   - Settings from the environment, with `<NAME>_FILE` secrets.
   - JSON structured logging.
@@ -59,7 +74,7 @@ Categories: Added, Changed, Deprecated, Removed, Fixed, Security.
 
 ### Fixed
 - `install.sh` no longer dead-ends when the chosen version isn't on GHCR (nothing has been pushed yet, or the packages are private).
-  - A first install defaults to building locally unless the version resolves on GHCR.
+  - The image-source default is "local" unless the version resolves on GHCR. A saved "ghcr" answer is checked again; an explicit `--source ghcr` is not.
   - When a pull fails, the interactive installer offers to build on this machine and records `FARGLOW_IMAGE_SOURCE='local'` in `.env`.
 - The status page listed a service twice after its container was recreated (heartbeats are keyed by hostname); it now shows the latest heartbeat per service.
 

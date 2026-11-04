@@ -1,0 +1,11 @@
+<section class="fg-panel">
+  <div class="fg-panel__head"><h2 class="fg-panel__title">Charters</h2><span class="fg-meta">can't fail · {{ n(rules.tutorial_reward) }} minerals each</span></div>
+  <ul class="fg-list">
+  {% for cid, c in civ.charters.items() %}
+    <li class="fg-charter{% if c.status == 'completed' %} fg-charter--done{% endif %}">
+      <span class="fg-badge {{ 'fg-badge--positive' if c.status == 'completed' else 'fg-badge--accent' }}">{{ 'done' if c.status == 'completed' else 'active' }}</span>
+      {{ {'first_tech': 'Complete your first tech', 'first_survey': 'Survey a new system', 'first_building': 'Finish your first building', 'first_outpost': 'Claim your first new system'}.get(cid, cid) }}
+    </li>
+  {% endfor %}
+  </ul>
+</section>

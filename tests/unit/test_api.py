@@ -35,8 +35,16 @@ def test_404_page(settings):
     assert r.status_code == 404 and b"galactic catalogue" in r.data
 
 
-def test_get_requests_never_write(settings):
-    # Rule: a GET never changes anything. Phase 0 has no write routes at all.
+def test_state_changing_routes_are_post_only(settings):
+    # Rule: a GET never changes anything. Every action route accepts POST only.
     app = create_app(settings)
-    writes = [r for r in app.url_map.iter_rules() if r.methods & {"POST", "PUT", "PATCH", "DELETE"}]
-    assert writes == []
+    actions = ("/act/", "/admin/engine/", "/clock/", "/walkthrough/", "/advisor/", "/account/delete", "/signout",
+               "/verify/resend")
+    for rule in app.url_map.iter_rules():
+        if any(str(rule).startswith(a) for a in actions):
+            assert "GET" not in rule.methods, f"{rule} must be POST-only"
+
+
+def test_post_without_csrf_is_refused(settings):
+    r = client(settings).post("/signin", data={"email": "a@b.c", "password": "x"})
+    assert r.status_code == 400

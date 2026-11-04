@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block title %}Settings · Farglow{% endblock %}
+{% block content %}
+<div class="fg-grid">
+<section class="fg-panel">
+  <div class="fg-panel__head"><h1 class="fg-panel__title">Settings</h1><span class="fg-meta">{{ user.email }}</span></div>
+  <form method="post" action="{{ url_for('auth.account') }}" class="fg-form">{{ csrf() }}
+    <label class="fg-check"><input type="checkbox" name="dispatch_email"{% if user.dispatch_email %} checked{% endif %}> Email me the morning Dispatch</label>
+    {% if minor %}<p class="fg-help">Player messages by email are not available on under-18 accounts.</p>{% endif %}
+    <button class="fg-btn fg-btn--primary fg-btn--sm" type="submit">Save</button>
+  </form>
+  <form method="post" action="{{ url_for('auth.signout') }}">{{ csrf() }}<button class="fg-btn fg-btn--secondary fg-btn--sm" type="submit">Sign out</button></form>
+</section>
+<section class="fg-panel">
+  <div class="fg-panel__head"><h2 class="fg-panel__title">Delete your account</h2><span class="fg-meta">can't be undone</span></div>
+  <p class="body">Your account and Dispatch are deleted at once. Your civilization leaves the galaxy at the next tick and its systems become unclaimed.</p>
+  <form method="post" action="{{ url_for('auth.delete_account') }}" class="fg-form">{{ csrf() }}
+    <div class="fg-field"><label class="fg-label" for="confirm">Type DELETE</label><input class="fg-input" id="confirm" name="confirm" autocomplete="off" required></div>
+    <div class="fg-field"><label class="fg-label" for="password">Password</label><input class="fg-input" id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="fg-btn fg-btn--danger fg-btn--sm" type="submit">Delete my account</button>
+  </form>
+</section>
+</div>
+{% endblock %}

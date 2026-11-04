@@ -1,0 +1,25 @@
+{% macro csrf() %}<input type="hidden" name="csrf" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro bar(pct, tone='') -%}
+<svg class="fg-bar{% if tone %} fg-bar--{{ tone }}{% endif %}" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true">
+  <rect class="fg-bar__track" x="0" y="0" width="100" height="4" rx="2"/>
+  <rect class="fg-bar__fill" x="0" y="0" width="{{ [[pct|int, 0]|max, 100]|min }}" height="4" rx="2"/>
+</svg>
+{%- endmacro %}
+
+{% macro flashes() %}
+{% with msgs = get_flashed_messages(with_categories=true) %}
+{% if msgs %}<div class="fg-flashes">{% for cat, m in msgs %}
+  <p class="fg-flash fg-flash--{{ cat if cat in ('ok', 'error') else 'info' }}" role="status">{{ m }}</p>{% endfor %}</div>{% endif %}
+{% endwith %}
+{% endmacro %}
+
+{% macro act(kind, label, fields={}, cls='fg-btn fg-btn--primary fg-btn--sm', disabled=None, title='') %}
+<form method="post" action="{{ url_for('game.act', kind=kind) }}" class="fg-inline">
+  {% set back = fields.get('back') or ('/play?system=' ~ request.view_args.sid if request.path.startswith('/play/system/') else request.full_path.rstrip('?')) %}
+  {{ csrf() }}<input type="hidden" name="back" value="{{ back }}">
+  {% for k, v in fields.items() if k != 'back' %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+  <button class="{{ cls }}" type="submit"{% if disabled %} disabled title="{{ disabled }}"{% elif title %} title="{{ title }}"{% endif %}>{{ label }}</button>
+  {% if disabled %}<span class="fg-help fg-why">{{ disabled|sentence }}.</span>{% endif %}
+</form>
+{% endmacro %}

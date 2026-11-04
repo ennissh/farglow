@@ -9,7 +9,7 @@ Rules (CLAUDE.md "Containers"):
   5. Python images install with --only-binary=:all: (wheels only, so arm64 builds never
      compile) and remove pip afterwards
   6. the build context is the repo root: COPY sources start with containers/<svc>/,
-     farglow, migrations or VERSION
+     farglow, migrations, config or VERSION
   7. every service directory has a Dockerfile and is wired into compose.yaml
 Exit 0 ok, 1 violations.
 """
@@ -53,8 +53,8 @@ def check(svc_dir: Path, compose: str) -> list[str]:
         if ln.upper().startswith(("COPY ", "ADD ")):
             parts = [p for p in ln.split()[1:] if not p.startswith("--")]
             for src in parts[:-1]:
-                if not (src.startswith(f"containers/{svc}/") or src in ("VERSION", "farglow", "migrations")
-                        or src.startswith(("farglow/", "migrations/"))):
+                if not (src.startswith(f"containers/{svc}/") or src in ("VERSION", "farglow", "migrations", "config")
+                        or src.startswith(("farglow/", "migrations/", "config/"))):
                     errs.append(f"{svc}: COPY source {src} is outside the allowed paths")
     if not re.search(rf"^  {re.escape(svc)}:\s*$", compose, re.M):
         errs.append(f"{svc}: not a service in compose.yaml")

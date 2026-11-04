@@ -1,3 +1,4 @@
 # Exact pins only (scripts/check-pins.py); every pin needs amd64 + arm64 wheels.
 psycopg==3.3.7
 psycopg-binary==3.3.7
+PyYAML==6.0.3

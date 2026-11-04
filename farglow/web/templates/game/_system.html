@@ -1,0 +1,69 @@
+{% from "_macros.html" import act, csrf with context %}
+<section class="fg-panel fg-system">
+  <div class="fg-panel__head">
+    <h2 class="fg-panel__title">{{ system.name }}</h2>
+    {% if system.mine %}<span class="fg-badge fg-badge--accent">{{ 'Home' if system.home else 'Yours' }}</span>
+    {% elif system.owner %}<span class="fg-badge fg-badge--signal">{{ system.owner_name }}</span>
+    {% elif system.surveyed %}<span class="fg-badge fg-badge--neutral">Unclaimed</span>
+    {% else %}<span class="fg-badge fg-badge--neutral">Unsurveyed</span>{% endif %}
+  </div>
+  <dl class="fg-facts">
+    <div><dt class="fg-label">Catalogue</dt><dd class="mono">{{ system.designation }}</dd></div>
+    {% if not system.mine %}<div><dt class="fg-label">Distance</dt><dd class="mono">{{ system.distance_ly }} ly{% if system.ticks %} · {{ system.ticks }} ticks{% endif %}</dd></div>{% endif %}
+    {% if system.surveyed %}
+    <div><dt class="fg-label">Star</dt><dd class="mono">{{ system.cls }} · {{ 'multiple' if system.multiple else 'single' }}</dd></div>
+    <div><dt class="fg-label">Metallicity</dt><dd class="mono">[Fe/H] {{ '%+.2f'|format(system.feh / 100) }}</dd></div>
+    {% endif %}
+  </dl>
+  {% for m in system.missions %}<p class="fg-meta">Your {{ 'survey wing' if m.kind == 'survey' else ('colony ship' if m.body is not none else 'outpost convoy') }} arrives at tick {{ "{:,}".format(m.arrive) }}.</p>{% endfor %}
+
+  {% if not system.surveyed %}
+    <p class="body">An unknown star. Its worlds are a mystery until a survey wing reaches it.</p>
+    {% if not system.missions %}{{ act('survey', 'Send a survey wing · ' ~ system.survey_cost ~ ' AC', {'system': system.id}, disabled=system.can_survey) }}{% endif %}
+  {% else %}
+  <table class="fg-table">
+    <thead><tr><th>Body</th><th class="num">E</th><th class="num">M</th><th class="num">R</th><th class="num">Pop</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>{{ system.name }}<br><span class="fg-meta">{{ system.cls }} star</span></td><td class="num">{{ system.star_energy }}</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td></td></tr>
+      {% for b in system.bodies %}
+      <tr>
+        <td>{{ b.name }}<br><span class="fg-meta">{{ b.label }}{% if b.dev %} · dev {{ b.dev }}{% endif %}</span></td>
+        <td class="num">{{ b.energy or '–' }}</td><td class="num">{{ b.minerals or '–' }}</td><td class="num">{{ b.research or '–' }}</td>
+        <td class="num">{% if b.population %}{{ b.population }}{% if b.cap %}<span class="fg-meta">/{{ b.cap }}</span>{% endif %}{% elif b.habitable %}<span class="fg-meta">0/{{ b.cap }}</span>{% else %}–{% endif %}</td>
+        <td>{% if b.capital %}<span class="fg-badge fg-badge--accent">Capital</span>{% endif %}
+            {% if b.building %}<span class="fg-badge {{ 'fg-badge--positive' if b.ready else 'fg-badge--neutral' }}" title="{{ 'working' if b.ready else 'ready at tick ' ~ b.done_tick }}">{{ b.building.replace('_', ' ') }}{% if not b.ready %} · T{{ b.done_tick }}{% endif %}</span>{% endif %}
+            {% if b.habitable and not b.population and not b.capital %}<span class="fg-badge fg-badge--positive">Habitable</span>{% endif %}</td>
+      </tr>
+      {% if system.mine and (b.build_options or b.develop_cost) %}
+      <tr class="fg-actions-row"><td colspan="6"><details class="fg-details"><summary class="fg-meta">Build or develop {{ b.name }}</summary>
+        {% if b.build_options %}
+        <form method="post" action="{{ url_for('game.act', kind='build') }}" class="fg-inline">{{ csrf() }}
+          <input type="hidden" name="back" value="{{ url_for('game.play', system=system.id) }}">
+          <input type="hidden" name="system" value="{{ system.id }}"><input type="hidden" name="body" value="{{ b.index }}">
+          {% set affordable = b.build_options|rejectattr('error')|list %}
+          <select class="fg-select fg-select--sm" name="building" aria-label="Building for {{ b.name }}">
+            {% for o in b.build_options %}<option value="{{ o.id }}"{% if o.error %} disabled{% endif %}>{{ o.id.replace('_', ' ') }} · {{ o.minerals }} M + {{ o.ac }} AC · {{ o.effect }}{% if o.error %} ({{ o.error }}){% endif %}</option>{% endfor %}
+          </select>
+          <button class="fg-btn fg-btn--secondary fg-btn--sm" type="submit"{% if not affordable %} disabled{% endif %}>Build</button>
+          {% if not affordable %}<span class="fg-help">Nothing affordable yet: {{ b.build_options[0].error }}.</span>{% endif %}
+        </form>{% endif %}
+        {% if b.develop_cost %}{{ act('develop', 'Develop to level ' ~ (b.dev + 1) ~ ' · ' ~ b.develop_cost ~ ' AC', {'system': system.id, 'body': b.index, 'back': url_for('game.play', system=system.id)}, cls='fg-btn fg-btn--ghost fg-btn--sm', disabled=b.develop_error) }}{% endif %}
+      </details></td></tr>{% endif %}
+      {% if b.colony and not system.missions %}
+      <tr class="fg-actions-row"><td colspan="6">{{ act('claim', 'Send a colony ship · ' ~ b.colony.ac ~ ' AC + ' ~ b.colony.minerals ~ ' M', {'system': system.id, 'body': b.index, 'back': url_for('game.play', system=system.id)}, disabled=b.colony.error) }}</td></tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if system.outpost and not system.missions %}
+    {{ act('claim', 'Claim with an outpost · ' ~ system.outpost.ac ~ ' AC + ' ~ system.outpost.minerals ~ ' M', {'system': system.id, 'back': url_for('game.play', system=system.id)}, cls='fg-btn fg-btn--secondary', disabled=system.outpost.error) }}
+    {% if system.outpost.error %}<p class="fg-help">{{ system.outpost.error|sentence }}.</p>{% endif %}
+  {% endif %}
+  {% endif %}
+  {% if system.can_name %}
+  <form method="post" action="{{ url_for('game.act', kind='name') }}" class="fg-form fg-name">{{ csrf() }}
+    <input type="hidden" name="system" value="{{ system.id }}"><input type="hidden" name="back" value="{{ url_for('game.play', system=system.id) }}">
+    <label class="fg-label" for="sysname">You discovered it: name it</label>
+    <div class="fg-row"><input class="fg-input" id="sysname" name="name" maxlength="32" placeholder="e.g. Talmar"><button class="fg-btn fg-btn--secondary fg-btn--sm" type="submit">Name</button></div>
+  </form>{% endif %}
+</section>

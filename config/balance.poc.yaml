@@ -83,6 +83,7 @@ buildings:
   slots: "one per body you own; a system's slots = its owned bodies"
   repeat_cost_growth: 0.15     # each copy of the same building costs 15% more, so players diversify
   reserve_minerals_for_expansion: 400
+  build_ticks: 12              # README: "a 12-tick build time"
   list:
     extraction_complex: { minerals: 500,  ac: 300, upkeep_energy: 0.5, on: [rocky, super_earth, belt, ice], effect: "+2 minerals on its body" }
     fusion_plant:       { minerals: 400,  ac: 200, upkeep_energy: 0,   on: any, effect: "+3 energy" }
@@ -110,6 +111,9 @@ expansion:
   outpost_minerals: 400
   colony_ac: 2000          # settle a habitable world
   colony_minerals: 600
+  survey_ac: 150           # [proposed 4 Nov 2026] send a survey mission to a system beyond survey range
+  survey_minerals: 0
+  max_reach_ly: 12         # [proposed] surveys and claims reach at most this far from a system you own
   admin_base: 4.0          # AC per tick lost to admin = 4 × systems^1.3 (beyond the first)
   admin_exponent: 1.3
 

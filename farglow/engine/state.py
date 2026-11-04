@@ -66,9 +66,10 @@ def rng(seed: int, *keys: Any) -> random.Random:
     return random.Random(int.from_bytes(digest[:16], "big"))
 
 
-def genesis(seed: int) -> dict:
+def genesis_v1(seed: int) -> dict:
+    """Schema 1: the Phase 0 empty galaxy. Kept so galaxies started on 0.0.x still replay."""
     return {
-        "schema": SCHEMA,
+        "schema": 1,
         "galaxy_seed": int(seed),
         "tick": 0,
         "prev_hash": GENESIS_PREV,
@@ -78,15 +79,19 @@ def genesis(seed: int) -> dict:
     }
 
 
-KNOWN_ORDERS: frozenset[str] = frozenset()  # Phase 1 adds order kinds; Phase 0 has none.
+def genesis(seed: int, rules=None, debug_costs: bool = False) -> dict:
+    """A new galaxy at the current schema (2: the First Light game)."""
+    from . import game
+    from . import rules as rules_mod
+    return game.genesis(seed, rules or rules_mod.load(), debug_costs)
 
 
-def advance(state: dict, orders: list[dict]) -> dict:
-    """Return the state one tick later. Never mutates its input."""
-    _check(state)
-    _check(orders)
+KNOWN_ORDERS: frozenset[str] = frozenset()  # schema 1 accepted no orders
+
+
+def _advance_v1(state: dict, orders: list[dict]) -> dict:
     prev = state_hash(state)
-    nxt = json.loads(canonical(state))  # deep copy through the canonical form
+    nxt = json.loads(canonical(state))
     nxt["tick"] = state["tick"] + 1
     nxt["prev_hash"] = prev
     rejected = []
@@ -94,16 +99,43 @@ def advance(state: dict, orders: list[dict]) -> dict:
         kind = order.get("kind") if isinstance(order, dict) else None
         if kind not in KNOWN_ORDERS:
             rejected.append({"index": i, "kind": kind, "reason": "unknown order kind"})
-    # Keep only this tick's engine log: history lives in the ticks table, not in the state.
     nxt["log"] = [{"tick": nxt["tick"], "rejected": rejected}] if rejected else []
     return nxt
 
 
-def replay(seed: int, orders_by_tick: dict[int, list[dict]], ticks: int) -> list[str]:
-    """Hashes of states 1..ticks from genesis. Used by tests and `engine verify`."""
-    state = genesis(seed)
+def advance(state: dict, orders: list[dict], rules=None) -> dict:
+    """Return the state one tick later. Never mutates its input.
+
+    A schema-1 state advances exactly as it always did, unless the tick carries an
+    `engine.upgrade` order: then it is converted to schema 2 first (the tick service queues
+    that order once after an upgrade, so old ticks still replay to their stored hashes).
+    """
+    _check(state)
+    _check(orders)
+    if state.get("schema", 1) == 1:
+        upgrade = next((o for o in orders if isinstance(o, dict) and o.get("kind") == "engine.upgrade"), None)
+        if upgrade is None:
+            return _advance_v1(state, orders)
+    from . import game
+    from . import rules as rules_mod
+    rules = rules or rules_mod.load()
+    prev = state_hash(state)
+    nxt = json.loads(canonical(state))
+    if nxt.get("schema", 1) == 1:
+        nxt = game.upgrade_from_v1(nxt, upgrade, rules)
+    nxt["tick"] = state["tick"] + 1
+    nxt["prev_hash"] = prev
+    nxt["rules_hash"] = rules.hash
+    game.step(nxt, [o for o in orders if not (isinstance(o, dict) and o.get("kind") == "engine.upgrade")], rules)
+    return nxt
+
+
+def replay(seed: int, orders_by_tick: dict[int, list[dict]], ticks: int, start: dict | None = None,
+           rules=None) -> list[str]:
+    """Hashes of states 1..ticks from genesis (or `start`). Used by tests and `engine verify`."""
+    state = start if start is not None else genesis(seed, rules)
     hashes = []
-    for t in range(1, ticks + 1):
-        state = advance(state, orders_by_tick.get(t, []))
+    for t in range(state["tick"] + 1, state["tick"] + ticks + 1):
+        state = advance(state, orders_by_tick.get(t, []), rules)
         hashes.append(state_hash(state))
     return hashes

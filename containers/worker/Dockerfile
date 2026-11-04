@@ -36,6 +36,7 @@ RUN groupadd -g 1000 farglow \
 WORKDIR /app
 COPY VERSION /app/VERSION
 COPY migrations /app/migrations
+COPY config /app/config
 COPY farglow /app/farglow
 COPY containers/worker/healthcheck.py /usr/local/bin/healthcheck.py
 

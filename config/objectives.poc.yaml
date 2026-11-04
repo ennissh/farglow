@@ -71,6 +71,7 @@ charters:
   tutorial:                                 # "First light" walkthrough Charters: cannot fail, no penalty, no cooldown
     can_fail: false
     list: [first_tech, first_survey, first_building, first_outpost, first_dispatch_reply]
+    reward_minerals: 400                    # [proposed 4 Nov 2026] each tutorial Charter pays ≈ one building's minerals
 
 # ---------------------------------------------------------------------------
 # TRIUMPHS — civilization feats. Unlocked by tech or Honors; every civ can attempt them.

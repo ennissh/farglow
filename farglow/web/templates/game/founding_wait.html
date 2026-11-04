@@ -1,0 +1,9 @@
+{% extends "game/_base.html" %}
+{% block main %}
+<section class="fg-panel">
+  <p class="fg-kicker fg-kicker--accent">First light</p>
+  <h1 class="heading-xl">Your people are gathering</h1>
+  <p class="body">Your civilization is founded at the next tick (tick {{ "{:,}".format(eng.tick + 1) }}). This page refreshes by itself when it happens.</p>
+</section>
+{% endblock %}
+{% block right %}{% endblock %}

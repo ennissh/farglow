@@ -1,0 +1,27 @@
+<section class="fg-panel fg-advisor">
+  <div class="fg-panel__head">
+    <h2 class="fg-panel__title">{{ civ.advisor if civ else 'Advisor' }}</h2>
+    <span class="fg-meta">chief of staff · answers cite the Codex</span>
+  </div>
+  {% for t in tips or [] %}
+  <div class="fg-suggest">
+    <p class="fg-kicker fg-kicker--accent">{{ civ.advisor.split(' ')[0] }} suggests</p>
+    <p class="fg-suggest__title">{{ t.title }}</p>
+    <p class="body">{{ t.text }}</p>
+    {% if t.order %}{{ act('advice', t.confirm, {'order': t.order_json}) }}{% endif %}
+  </div>
+  {% else %}
+  <p class="body fg-meta">Nothing urgent. Your governor has the day-to-day in hand.</p>
+  {% endfor %}
+  <p class="fg-help">Nothing happens until you confirm. The game checks every order against the rules first.</p>
+  <div id="advisor-chat" class="fg-chat"></div>
+  <form class="fg-form" hx-post="{{ url_for('game.ask') }}" hx-target="#advisor-chat" hx-swap="beforeend" data-reset-after>
+    <div class="fg-chips">
+      {% for q in ['What should I do first?', 'Explain action credits', "What's a doctrine?", 'How do I get more minerals?'] %}
+      <button class="fg-btn fg-btn--secondary fg-btn--sm" type="submit" name="question" value="{{ q }}">{{ q }}</button>{% endfor %}
+    </div>
+    <textarea class="fg-textarea" name="question" rows="2" maxlength="500" placeholder="Ask {{ civ.advisor.split(' ')[0] if civ else 'your advisor' }} anything about the game"></textarea>
+    <button class="fg-btn fg-btn--primary fg-btn--sm" type="submit">Send</button>
+  </form>
+  <p class="fg-help">Game questions only. Your advisor sees what your civilization knows, nothing more.</p>
+</section>

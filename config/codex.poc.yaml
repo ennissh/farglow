@@ -1,0 +1,135 @@
+# Farglow — the Codex (config/codex.poc.yaml)
+# Status: PROPOSED v1 (4 Nov 2026). The rules handbook the advisor cites. At AI tier T0 the
+# advisor answers by quoting these articles; at T1+ the model is given the matching articles
+# and must stay inside them. Plain English, units always, numbers match balance.poc.yaml.
+
+articles:
+  - id: ticks
+    title: Ticks and the clock
+    keywords: [tick, clock, hour, time, wait, next, advance, when]
+    text: >
+      The galaxy moves one tick at a time: every hour on a normal server, every 5 minutes on a
+      development server. Your orders wait for the next tick, then everything happens at once,
+      for everyone. Nothing you do is lost while you are away.
+
+  - id: action_credits
+    title: Action credits (AC)
+    keywords: [ac, action, credits, credit, income, allocation, split, spend, governor]
+    text: >
+      Your population produces action credits every tick: 8 AC per unit of population, raised
+      or lowered by stability (x0.75 at stability 0, x1.0 at 50, x1.25 at 100). The Governor
+      splits them into five shares: expansion, research, social, economic and military. Research
+      AC become research points at once. Expansion and economic AC bank up (up to 48 ticks of
+      income) until you spend them on surveys, outposts, colonies, buildings and development.
+      Every system beyond your first costs some AC in administration.
+
+  - id: stability
+    title: Stability
+    keywords: [stability, unrest, social, cohesion, forum, happy]
+    text: >
+      Stability runs 0 to 100 and moves at most 1 point per tick toward its target. The target
+      is 50, +4 per cohesion point, plus what your social AC buys (with diminishing returns),
+      +4 for each Civic Forum, minus 3 for every system beyond your first. Higher stability means
+      more action credits.
+
+  - id: minerals
+    title: Minerals and storage
+    keywords: [minerals, mineral, storage, cap, warehouse, extraction, mine, rocky, belt]
+    text: >
+      Rocky worlds and super-Earths give 3 minerals a tick, asteroid belts 4, verdant, ocean and
+      ice worlds 1. Metal-rich stars give more. You can store 2,000 minerals per system you own;
+      anything over the cap is lost, so spend it. A Warehouse adds 2,000 storage; an Extraction
+      Complex adds 2 minerals a tick on its body.
+
+  - id: energy
+    title: Energy
+    keywords: [energy, power, star, fusion, upkeep, shortage]
+    text: >
+      Stars give energy (M 1, K 2, G 3, F 4, A 6 a tick) and gas giants 1 more. Every system costs
+      0.5 energy a tick and most buildings 1. With no energy stored, minerals and research drop 10 %.
+      A Fusion Plant adds 3 energy.
+
+  - id: research
+    title: Research and the knowledge tax
+    keywords: [research, tech, technology, rp, queue, cost, knowledge, tax]
+    text: >
+      Research AC become research points (0.5 RP per AC, more with curiosity), and gas giants and
+      Research Stations add more. Queue techs on the Research screen; when the queue is empty your
+      governor picks one. Every tech costs 4 % more for each tech you already know, so the order
+      matters. Every tech has a drawback as well as a gain: nothing is free. Your very first tech
+      starts half done.
+
+  - id: tiers
+    title: Tiers and doctrines
+    keywords: [tier, lattice, concord, reach, doctrine, choose, lock, exclusive]
+    text: >
+      You start in the Reach tier. Six Reach techs open Lattice; six Lattice techs open Concord.
+      Each of those tiers has one doctrine row: three techs of which you may research only one.
+      Picking one locks the other two for the rest of your civilization's life.
+
+  - id: survey
+    title: Surveying
+    keywords: [survey, explore, reveal, unknown, scan, star, map]
+    text: >
+      Systems within your survey range (6 ly, +0.5 ly per curiosity point, more with Orbital Survey
+      Array) are revealed for free. To see farther, send a survey mission from the system panel:
+      it costs 150 expansion AC and travels at your fold speed (0.5 ly per tick at the start). The
+      first civilization to survey a system may name it within 72 ticks.
+
+  - id: expansion
+    title: Outposts and colonies
+    keywords: [outpost, colony, claim, settle, expand, expansion, colonize, habitable, ship]
+    text: >
+      An outpost claims a surveyed system for 1,200 expansion AC and 400 minerals. A colony settles
+      a habitable world (verdant, ocean after Ocean Colonization, or super-Earth) for 2,000 AC and
+      600 minerals and starts with 1 population. Ships travel at your fold speed and reach 12 ly from
+      your systems. Owning a system gives you all its bodies' yields, but costs stability and
+      administration.
+
+  - id: buildings
+    title: Buildings
+    keywords: [building, build, construct, station, plant, ring, forum, warehouse, shipyard, battery]
+    text: >
+      Each body you own holds one building, finished 12 ticks after you order it. Buildings cost
+      minerals and economic AC, and each copy of the same building costs 15 % more. Extraction
+      Complex +2 minerals, Fusion Plant +3 energy, Research Station +2 research, Habitat Ring +4
+      population room, Civic Forum +4 stability, Warehouse +2,000 storage.
+
+  - id: development
+    title: Developing bodies
+    keywords: [develop, development, level, improve, economic, yield]
+    text: >
+      Economic AC can develop a body that yields minerals: +1 mineral a tick per level, up to level
+      5. Level n costs 700 x n economic AC.
+
+  - id: population
+    title: Population
+    keywords: [population, pop, grow, growth, people, capacity, habitat, capital]
+    text: >
+      Population grows a little every tick toward each world's capacity (verdant 10, ocean 8,
+      super-Earth 2; your capital holds 6 more). Growth slows as a world fills up. A Habitat Ring
+      adds room for 4.
+
+  - id: attributes
+    title: Attributes
+    keywords: [attribute, curiosity, industry, growth, cohesion, martial, openness]
+    text: >
+      Six attributes shape your civilization, each -3 to +3 and summing to 0. Each point is worth
+      5 % on its system: curiosity research and survey range, industry minerals and energy, growth
+      population growth, cohesion stability, martial combat (later), openness trade and reputation
+      (later).
+
+  - id: charters
+    title: Charters
+    keywords: [charter, task, goal, objective, reward, tutorial]
+    text: >
+      Charters are small tasks with small rewards. The First Light Charters (your first tech, first
+      survey, first building and first outpost) can't fail, and each pays 400 minerals.
+
+  - id: dispatch
+    title: The Dispatch
+    keywords: [dispatch, news, email, report, morning, overnight]
+    text: >
+      The Dispatch tells you what happened while you were away: techs finished, surveys back,
+      buildings done, ships arrived. Read it in game, or by email once a day if you leave email on
+      in Settings.

@@ -26,8 +26,9 @@ The fonts are served from the Farglow server itself (no Google Fonts requests), 
 | gunicorn | 26.2.0 | MIT |
 | packaging | 26.3 | Apache-2.0 OR BSD-2-Clause |
 | psycopg, psycopg-binary | 3.3.7 | LGPL-3.0-only (used unmodified, as a dynamically loaded library) |
+| PyYAML | 6.0.3 | MIT |
 
-Test-only (not shipped): pytest 9.2.0 (MIT), pluggy 1.7.0 (MIT), iniconfig 2.3.1 (MIT), Pygments 2.21.0 (BSD-2-Clause), PyYAML 6.0.3 (MIT), shellcheck-py 0.11.0.1 (MIT wrapper; ShellCheck is GPL-3.0, run as a separate tool), gitleaks 8.28.0 (MIT, downloaded at test time).
+Test-only (not shipped): pytest 9.2.0 (MIT), pluggy 1.7.0 (MIT), iniconfig 2.3.1 (MIT), Pygments 2.21.0 (BSD-2-Clause), shellcheck-py 0.11.0.1 (MIT wrapper; ShellCheck is GPL-3.0, run as a separate tool), gitleaks 8.28.0 (MIT, downloaded at test time).
 
 ## Base images
 

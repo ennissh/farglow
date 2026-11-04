@@ -72,6 +72,8 @@ services:
       FARGLOW_ADMIN_EMAIL: ${FARGLOW_ADMIN_EMAIL:-}
       FARGLOW_WEB_WORKERS: ${FARGLOW_WEB_WORKERS:-2}
       FARGLOW_LLM_GATEWAY_URL: http://llm-gateway:8100
+      FARGLOW_AI_TIER: ${FARGLOW_AI_TIER:-T0}
+      SMTP_HOST: ${SMTP_HOST:-}
     depends_on: *after-migrate
     networks: [edge, core]
 
@@ -94,6 +96,7 @@ services:
       <<: [*db-env, *common-env]
       FARGLOW_LINK_SIGNING_KEY: ${FARGLOW_LINK_SIGNING_KEY:?run ./install.sh}
       FARGLOW_LLM_GATEWAY_URL: http://llm-gateway:8100
+      FARGLOW_DISPATCH_EVERY_TICKS: ${FARGLOW_DISPATCH_EVERY_TICKS:-}
     depends_on: *after-migrate
     networks: [core]
 

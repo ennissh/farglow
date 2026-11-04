@@ -1,0 +1,19 @@
+{% extends "game/_base.html" %}
+{% block title %}Galaxy · Farglow{% endblock %}
+{% block main %}
+<section class="fg-panel">
+  <div class="fg-panel__head">
+    <h1 class="fg-panel__title">Sector {{ state.cell }} · Orion Spur</h1>
+    <span class="fg-meta">{{ civ.surveyed|length }} systems surveyed · ships reach {{ n(rules.max_reach) }} ly</span>
+  </div>
+  <div class="fg-panel__plot fg-map" id="star-map" data-src="{{ url_for('game.map_json') }}" data-selected="{{ system.id }}"
+       data-panel="{{ url_for('game.system_panel', sid='SID') }}" role="img" aria-label="Star map of your sector"></div>
+  <p class="fg-meta fg-map__legend"><span class="fg-legend fg-legend--mine"></span> your systems · <span class="fg-legend fg-legend--other"></span> others ·
+    <span class="fg-legend fg-legend--dot"></span> unsurveyed · shaded: survey range · dashed: ships under way · grid 2 ly</p>
+</section>
+{% endblock %}
+{% block right %}
+<div id="system-panel"{% if system.home %} hx-post="{{ url_for('game.walkthrough_seen', step='home') }}" hx-trigger="load" hx-swap="none"{% endif %}>{% include "game/_system.html" %}</div>
+{% include "game/_advisor.html" %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='art/farglow-art.js') }}"></script><script src="{{ url_for('static', filename='js/map.js') }}"></script>{% endblock %}

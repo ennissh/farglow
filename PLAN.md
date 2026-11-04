@@ -36,7 +36,7 @@ This plan takes Farglow from an empty repository to its first public release. Th
 
 ## Phase 0 · Foundations → `v0.0.x` (M)
 
-> **Status (4 Nov 2026):** items 1–4 and 6 are built, as is the outbound part of 7 (SMTP, signed single-use links, the `install.sh` test send). `./test.sh --stack` passes the backup → wipe → restore hash check. Items 5 (accounts) and 7's link pages, plus a clean-VPS install, remain. See `CHANGELOG.md`.
+> **Status (4 Nov 2026):** items 1–7 are built: accounts with stated age, email verification by signed single-use link, sign-in and deletion. `./test.sh --stack` passes the backup → wipe → restore hash check. What remains for the exit: a clean-VPS install from GHCR images, and the dependency/static scans in `test.sh`. A **first playable demo** of Phase 1 is also running (see below).
 
 **Goal:** a working, empty stack. Nothing fun yet, but everything after it builds on solid ground.
 
@@ -85,6 +85,15 @@ This plan takes Farglow from an empty repository to its first public release. Th
 ## Phase 1 · First Light → `v0.1.0` (L)
 
 **Goal:** one player and one civilization, playable from day one to the end of the tech tree, five minutes a day.
+
+> **Status (4 Nov 2026), first playable demo.** Built: a single-cell galaxy with surveying, fog of war, the interactive map and a system panel; founding; the economy; research with drawbacks, doctrines and the knowledge tax; outposts, colonies, buildings and development; the tutorial Charters; the advisor at T0 and T2 (suggestions you confirm, plus Codex Q&A); the in-game Dispatch and morning email; the First Light walkthrough.
+> Not yet built:
+> - the AI-written advisor backstory and setup screen, and the full First Light script;
+> - the Colony screen, the mineral sink after day 50, and the Codex's 20 articles (15 are drafted);
+> - signed action links inside the Dispatch email, and Settings beyond the Dispatch email toggle;
+> - System view art (procedural planets in the panel).
+>
+> Proposed decisions D-0021 to D-0035 are in `docs/specs/decisions-2026-11-04.md`.
 
 **Scope**
 1. **Galaxy (single cell):**
@@ -278,5 +287,7 @@ Each item gets its own design pass first.
 | Dependency and static scans in `test.sh` (pip-audit, Bandit) and Trivy in `build.sh --push` | Phase 0 exit |
 | Verify `install.sh` on a clean Ubuntu 26.04 VPS, with GHCR images (needs a first `build.sh --push`) and with a local build | Phase 0 exit |
 | GHCR package visibility while the repo is private (hosts need `docker login`, or images public) | First push |
+| Sign-in rate limiting and lockout (D-0035) | Phase 4 (before any public server) |
+| Review the demo's proposed rules: survey cost and reach, the tutorial Charter reward, home placement, auto-built hulls, whole-system ownership (D-0024 to D-0029) | Phase 1 |
 | Exotics timing | After 1.0 |
 | Transcendence length and lineage rules | After 1.0 |

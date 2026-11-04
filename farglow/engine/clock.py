@@ -20,6 +20,7 @@ from psycopg.types.json import Jsonb
 
 from .. import __version__, config, db, queue
 from .. import log as flog
+from . import rules as rules_mod
 from . import state as st
 
 ENGINE_LOCK = 0x5449434B  # "TICK"
@@ -45,7 +46,7 @@ def ensure_state(conn, settings: config.Settings) -> dict:
         return row
     if not settings.galaxy_seed:
         raise RuntimeError("FARGLOW_GALAXY_SEED is not set (install.sh generates it)")
-    g = st.genesis(settings.galaxy_seed)
+    g = st.genesis(settings.galaxy_seed, rules_mod.load(), debug_costs=settings.debug)
     h = st.state_hash(g)
     nxt = next_boundary(datetime.now(timezone.utc), settings.tick_seconds)
     with conn.transaction():
@@ -56,7 +57,7 @@ def ensure_state(conn, settings: config.Settings) -> dict:
         )
         conn.execute("INSERT INTO restore_points (tick, state_hash, snapshot) VALUES (0, %s, %s)", (h, Jsonb(g)))
         conn.execute("INSERT INTO engine_events (tick, kind, detail) VALUES (0, 'genesis', %s)",
-                     (Jsonb({"state_hash": h}),))
+                     (Jsonb({"state_hash": h, "state": g}),))
     log.info("genesis", extra={"tick": 0, "state_hash": h})
     return conn.execute("SELECT * FROM engine_state WHERE id = 1").fetchone()
 
@@ -75,7 +76,7 @@ def run_tick(conn, settings: config.Settings, force: bool = False) -> dict | Non
             raise RuntimeError(f"no restore point matching tick {row['tick']}: refusing to tick")
         orders = [r["body"] for r in conn.execute(
             "SELECT body FROM orders WHERE for_tick = %s ORDER BY seq", (row["tick"] + 1,)).fetchall()]
-        new = st.advance(rp["snapshot"], orders)
+        new = st.advance(rp["snapshot"], orders, rules_mod.load())
         h = st.state_hash(new)
         ms = int((time.monotonic() - t0) * 1000)
         conn.execute(
@@ -120,6 +121,34 @@ def set_paused(conn, paused: bool, reason: str | None = None, actor: str = "cli"
                      (row["tick"], "pause" if paused else "resume", Jsonb({"reason": reason, "actor": actor})))
 
 
+def genesis_state(conn, seed: int) -> dict:
+    """The galaxy's tick-0 state: stored with the genesis event (schema 2), or the Phase 0
+    empty galaxy for galaxies created by 0.0.x (whose genesis event stored only the hash)."""
+    row = conn.execute("SELECT detail FROM engine_events WHERE kind = 'genesis' ORDER BY id LIMIT 1").fetchone()
+    if row and row["detail"].get("state"):
+        return row["detail"]["state"]
+    return st.genesis_v1(seed)
+
+
+def queue_upgrade(conn, settings: config.Settings) -> bool:
+    """Galaxies from 0.0.x are schema 1. Queue ONE engine.upgrade order for the next tick, so
+    the conversion is part of the recorded history and every older tick still replays."""
+    eng = conn.execute("SELECT tick, state_hash FROM engine_state WHERE id = 1").fetchone()
+    rp = conn.execute("SELECT snapshot FROM restore_points WHERE tick = %s", (eng["tick"],)).fetchone()
+    if not rp or rp["snapshot"].get("schema", 1) >= 2:
+        return False
+    pending = conn.execute("SELECT 1 FROM orders WHERE for_tick > %s AND body->>'kind' = 'engine.upgrade'",
+                           (eng["tick"],)).fetchone()
+    if pending:
+        return False
+    from .store import queue_order
+    queue_order(conn, {"kind": "engine.upgrade", "to": 2, "debug_costs": bool(settings.debug)})
+    conn.execute("INSERT INTO engine_events (tick, kind, detail) VALUES (%s, 'upgrade_queued', %s)",
+                 (eng["tick"], Jsonb({"to": 2})))
+    log.info("engine upgrade to schema 2 queued for the next tick", extra={"tick": eng["tick"]})
+    return True
+
+
 def verify_chain(conn) -> tuple[bool, str]:
     """Replay from genesis with the stored orders and compare every stored tick hash."""
     eng = conn.execute("SELECT * FROM engine_state WHERE id = 1").fetchone()
@@ -129,9 +158,10 @@ def verify_chain(conn) -> tuple[bool, str]:
     orders: dict[int, list] = {}
     for r in conn.execute("SELECT for_tick, body FROM orders ORDER BY for_tick, seq").fetchall():
         orders.setdefault(r["for_tick"], []).append(r["body"])
-    state = st.genesis(eng["galaxy_seed"])
+    state = genesis_state(conn, eng["galaxy_seed"])
+    rules = rules_mod.load()
     for t in range(1, eng["tick"] + 1):
-        state = st.advance(state, orders.get(t, []))
+        state = st.advance(state, orders.get(t, []), rules)
         h = st.state_hash(state)
         if t in stored and stored[t] != h:
             return False, f"tick {t}: stored {stored[t][:12]} != replayed {h[:12]}"
@@ -162,6 +192,7 @@ class TickService:
                 _touch()
                 time.sleep(10)
             row = ensure_state(conn, self.settings)
+            queue_upgrade(conn, self.settings)
             log.info("tick engine started", extra={"tick": row["tick"], "paused": row["paused"],
                                                    "tick_seconds": row["tick_seconds"],
                                                    "next_tick_at": row["next_tick_at"].isoformat()})
